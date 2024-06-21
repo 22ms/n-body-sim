@@ -1,4 +1,4 @@
-// References: 
+// References:
 // https://iss.oden.utexas.edu/Publications/Papers/burtscher11.pdf
 
 #define GLEW_BUILD
@@ -19,30 +19,31 @@ static void glfw_error_callback(int error, const char* description)
     fprintf(stderr, "GLFW Error %d: %s\n", error, description);
 }
 
-void initialize_opencl() {
+void initialize_opencl()
+{
     Device device(select_device_with_most_flops()); // compile OpenCL C code for the fastest available device
 
-	const uint N = 1024u; // size of vectors
-	Memory<float> A(device, N); // allocate memory on both host and device
-	Memory<float> B(device, N);
-	Memory<float> C(device, N);
+    const uint N = 1024u; // size of vectors
+    Memory<float> A(device, N); // allocate memory on both host and device
+    Memory<float> B(device, N);
+    Memory<float> C(device, N);
 
-	Kernel add_kernel(device, N, "add_kernel", A, B, C); // kernel that runs on the device
+    Kernel add_kernel(device, N, "add_kernel", A, B, C); // kernel that runs on the device
 
-	for(uint n=0u; n<N; n++) {
-		A[n] = 4.0f; // initialize memory
-		B[n] = 2.0f;
-		C[n] = 1.0f;
-	}
+    for (uint n = 0u; n < N; n++) {
+        A[n] = 4.0f; // initialize memory
+        B[n] = 2.0f;
+        C[n] = 1.0f;
+    }
 
-	print_info("Value before kernel execution: C[0] = "+to_string(C[0]));
+    print_info("Value before kernel execution: C[0] = " + to_string(C[0]));
 
-	A.write_to_device(); // copy data from host memory to device memory
-	B.write_to_device();
-	add_kernel.run(); // run add_kernel on the device
-	C.read_from_device(); // copy data from device memory to host memory
+    A.write_to_device(); // copy data from host memory to device memory
+    B.write_to_device();
+    add_kernel.run(); // run add_kernel on the device
+    C.read_from_device(); // copy data from device memory to host memory
 
-	print_info("Value after kernel execution: C[0] = "+to_string(C[0]));
+    print_info("Value after kernel execution: C[0] = " + to_string(C[0]));
 }
 
 // Main code
@@ -145,6 +146,8 @@ int main(int, char**)
     colors[ImGuiCol_NavWindowingDimBg] = ImColor { IM_COL32(0x7c, 0x6f, 0x64, 0x33) };
     colors[ImGuiCol_ModalWindowDimBg] = ImColor { IM_COL32(0x1d, 0x20, 0x21, 0x59) };
 
+    /* #endregion */
+
     // Setup Platform/Renderer backends
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
@@ -154,8 +157,7 @@ int main(int, char**)
     int N = 500;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-    while (!glfwWindowShouldClose(window))
-    {
+    while (!glfwWindowShouldClose(window)) {
         // Poll and handle events (inputs, window resize, etc.)
         glfwPollEvents();
 
@@ -164,8 +166,7 @@ int main(int, char**)
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        if (show_window)
-        {
+        if (show_window) {
             ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
             ImGui::Begin("Controls", &show_window); // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
             ImGui::InputInt("Number of bodies", &N);
