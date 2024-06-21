@@ -1,4 +1,5 @@
-// Reference: https://www.youtube.com/watch?v=tOlKLJ4WmSE
+// References: 
+// https://iss.oden.utexas.edu/Publications/Papers/burtscher11.pdf
 
 #define GLEW_BUILD
 #define GLFW_DLL
