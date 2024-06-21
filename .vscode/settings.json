@@ -4,5 +4,6 @@
         "utility": "cpp",
         "xstring": "cpp",
         "xutility": "cpp"
-    }
+    },
+    "task.autoDetect": "off"
 }

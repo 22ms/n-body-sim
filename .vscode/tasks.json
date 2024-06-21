@@ -14,7 +14,8 @@
                 "${workspaceFolder}/src/main.cpp",
                 "-o",
                 "${workspaceFolder}/build/main.exe"
-            ],
+            ]
+            ,
             "group": "build",
             "problemMatcher": [
                 "$gcc"
