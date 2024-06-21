@@ -1,3 +1,5 @@
+// Reference: https://www.youtube.com/watch?v=tOlKLJ4WmSE
+
 #define GLEW_BUILD
 #define GLFW_DLL
 
