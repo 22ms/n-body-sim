@@ -20,7 +20,8 @@
                 "-lopengl32",
                 "-lglfw3dll",
                 "-lglew32",
-                "-lgdi32"
+                "-lgdi32",
+                "-O1",  // Optimize for compile time
             ],
             "options": {
                 "cwd": "C:/mingw64/bin"

@@ -61,7 +61,9 @@ int main(int, char**)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
     // Create window with graphics context
-    GLFWwindow* window = glfwCreateWindow(1280, 720, "N-body simulation", nullptr, nullptr);
+    int width = 1280;
+    int height = 720;
+    GLFWwindow* window = glfwCreateWindow(width, height, "N-body simulation", nullptr, nullptr);
     if (window == nullptr)
         return 1;
     glfwMakeContextCurrent(window);
@@ -152,12 +154,11 @@ int main(int, char**)
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
 
-    // state
-    bool show_window = true;
     int N = 500;
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    ImVec4 clear_color = ImVec4(0.0f, 0.0f, 0.0f, 1.00f);
 
     while (!glfwWindowShouldClose(window)) {
+        
         // Poll and handle events (inputs, window resize, etc.)
         glfwPollEvents();
 
@@ -166,14 +167,10 @@ int main(int, char**)
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        if (show_window) {
-            ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
-            ImGui::Begin("Controls", &show_window); // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-            ImGui::InputInt("Number of bodies", &N);
-            if (ImGui::Button("Close Me"))
-                show_window = false;
-            ImGui::End();
-        }
+        ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
+        ImGui::Begin("Controls", NULL); // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+        ImGui::InputInt("N of bodies", &N);
+        ImGui::End();
 
         // Rendering
         ImGui::Render();
