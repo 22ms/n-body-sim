@@ -46,6 +46,11 @@ void initialize_opencl()
     print_info("Value after kernel execution: C[0] = " + to_string(C[0]));
 }
 
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+    glViewport(0, 0, width, height);
+}
+
 // Main code
 int main(int, char**)
 {
@@ -58,7 +63,8 @@ int main(int, char**)
     // GL 3.0 + GLSL 130
     const char* glsl_version = "#version 130";
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     // Create window with graphics context
     int width = 1280;
@@ -68,6 +74,8 @@ int main(int, char**)
         return 1;
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1); // Enable vsync
+    glViewport(0, 0, width, height);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
@@ -157,6 +165,7 @@ int main(int, char**)
     int N = 500;
     ImVec4 clear_color = ImVec4(0.0f, 0.0f, 0.0f, 1.00f);
 
+    // Render loop
     while (!glfwWindowShouldClose(window)) {
         
         // Poll and handle events (inputs, window resize, etc.)
@@ -169,14 +178,11 @@ int main(int, char**)
 
         ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
         ImGui::Begin("Controls", NULL); // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-        ImGui::InputInt("N of bodies", &N);
+        ImGui::InputInt("Bodies", &N);
         ImGui::End();
 
         // Rendering
         ImGui::Render();
-        int display_w, display_h;
-        glfwGetFramebufferSize(window, &display_w, &display_h);
-        glViewport(0, 0, display_w, display_h);
         glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
         glClear(GL_COLOR_BUFFER_BIT);
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
