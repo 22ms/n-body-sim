@@ -76,6 +76,7 @@ int main(int, char**)
     glfwSwapInterval(1); // Enable vsync
     glViewport(0, 0, width, height);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    GLenum err = glewInit();
 
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
@@ -164,12 +165,15 @@ int main(int, char**)
 
     int N = 500;
     ImVec4 clear_color = ImVec4(0.0f, 0.0f, 0.0f, 1.00f);
+    glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
 
     // Render loop
     while (!glfwWindowShouldClose(window)) {
         
         // Poll and handle events (inputs, window resize, etc.)
         glfwPollEvents();
+
+        glClear(GL_COLOR_BUFFER_BIT);
 
         // Start the Dear ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
@@ -183,10 +187,7 @@ int main(int, char**)
 
         // Rendering
         ImGui::Render();
-        glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
-        glClear(GL_COLOR_BUFFER_BIT);
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
         glfwSwapBuffers(window);
     }
 
