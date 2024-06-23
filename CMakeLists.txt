@@ -15,3 +15,5 @@ target_link_libraries(n-body glfw)
 target_link_libraries(n-body GLEW::GLEW)
 target_link_libraries(n-body OpenGL::GL)
 target_link_libraries(n-body OpenCL::OpenCL)
+
+file(COPY shaders DESTINATION ${CMAKE_BINARY_DIR})
