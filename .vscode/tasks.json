@@ -2,7 +2,7 @@
     "tasks": [
         {
             "type": "cppbuild",
-            "label": "C/C++: g++.exe build active file",
+            "label": "build",
             "command": "C:/mingw64/bin/g++.exe",
             "args": [
                 "-fdiagnostics-color=always",
@@ -16,7 +16,7 @@
                 "${workspaceFolder}/lib",
                 "-lOpenCL",
                 "-o",
-                "${workspaceFolder}/${fileBasenameNoExtension}.exe",
+                "${workspaceFolder}/n-body.exe",
                 "-lopengl32",
                 "-lglfw3dll",
                 "-lglew32",
