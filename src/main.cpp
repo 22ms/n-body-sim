@@ -90,6 +90,7 @@ int main(int, char**)
     glViewport(0, 0, width, height);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     GLenum err = glewInit();
+    glEnable(GL_PROGRAM_POINT_SIZE);
 
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();

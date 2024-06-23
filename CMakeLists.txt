@@ -16,4 +16,10 @@ target_link_libraries(n-body GLEW::GLEW)
 target_link_libraries(n-body OpenGL::GL)
 target_link_libraries(n-body OpenCL::OpenCL)
 
-file(COPY shaders DESTINATION ${CMAKE_BINARY_DIR})
+add_custom_target(copy_shaders ALL
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/shaders ${CMAKE_BINARY_DIR}/shaders
+    DEPENDS ${SOURCES}
+)
+
+add_dependencies(n-body copy_shaders)
