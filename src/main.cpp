@@ -64,11 +64,6 @@ int main(int, char**)
 {
     initialize_opencl();
 
-    std::filesystem::path cwd = std::filesystem::current_path() / "filename.txt";
-    std::ofstream file(cwd.string());
-    file.close();
-    print(cwd.string());
-
     glfwSetErrorCallback(glfw_error_callback);
     if (!glfwInit())
         return 1;
@@ -90,7 +85,10 @@ int main(int, char**)
     glViewport(0, 0, width, height);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     GLenum err = glewInit();
+    
     glEnable(GL_PROGRAM_POINT_SIZE);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
@@ -198,7 +196,7 @@ int main(int, char**)
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
 
     // position attribute
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
@@ -216,6 +214,10 @@ int main(int, char**)
 
         glClear(GL_COLOR_BUFFER_BIT);
         glBindVertexArray(VAO);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        vertices[0] -= 0.001f;
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
         glDrawArrays(GL_POINTS, 0, 3);
 
         // Start the Dear ImGui frame
