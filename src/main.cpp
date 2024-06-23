@@ -53,6 +53,12 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
 }
 
+void processInput(GLFWwindow *window)
+{
+    if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
+}
+
 // Main code
 int main(int, char**)
 {
@@ -205,6 +211,7 @@ int main(int, char**)
         
         // Poll and handle events (inputs, window resize, etc.)
         glfwPollEvents();
+        processInput(window);
 
         glClear(GL_COLOR_BUFFER_BIT);
         glBindVertexArray(VAO);
