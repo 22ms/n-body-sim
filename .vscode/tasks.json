@@ -7,9 +7,9 @@
             "args": [
                 "-fdiagnostics-color=always",
                 "-g",
-                "${file}",
-                "${fileDirname}/imgui/*.cpp",
-                "${workspaceFolder}/src/opencl_wrapper/kernel.cpp",
+                "${workspaceFolder}/src/*.cpp",
+                "${workspaceFolder}/src/imgui/*.cpp",
+                "${workspaceFolder}/src/opencl_wrapper/*.cpp",
                 "-I",
                 "${workspaceFolder}/include",
                 "-L",
@@ -21,7 +21,7 @@
                 "-lglfw3dll",
                 "-lglew32",
                 "-lgdi32",
-                "-O1",  // Optimize for compile time
+                "-O1"
             ],
             "options": {
                 "cwd": "C:/mingw64/bin"

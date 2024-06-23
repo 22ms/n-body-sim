@@ -8,6 +8,7 @@
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 #include <stdio.h>
+#include <filesystem>
 #define GL_SILENCE_DEPRECATION
 #include <GLEW/glew.h>
 #include <GLFW/glfw3.h> // Will drag system OpenGL headers
@@ -56,6 +57,11 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 int main(int, char**)
 {
     initialize_opencl();
+
+    std::filesystem::path cwd = std::filesystem::current_path() / "filename.txt";
+    std::ofstream file(cwd.string());
+    file.close();
+    print(cwd.string());
 
     glfwSetErrorCallback(glfw_error_callback);
     if (!glfwInit())
