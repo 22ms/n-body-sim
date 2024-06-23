@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 project(n-body-sim VERSION 0.1.0 LANGUAGES C CXX)
+set(CMAKE_BUILD_TYPE Debug)
 
 find_package(glfw3 REQUIRED)
 find_package(GLEW REQUIRED)
