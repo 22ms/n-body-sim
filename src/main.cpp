@@ -11,6 +11,7 @@
 #define GL_SILENCE_DEPRECATION
 #include <GLEW/glew.h>
 #include <GLFW/glfw3.h> // Will drag system OpenGL headers
+#include "shader.h"
 
 #include "opencl_wrapper/opencl.hpp"
 
@@ -167,6 +168,32 @@ int main(int, char**)
     ImVec4 clear_color = ImVec4(0.0f, 0.0f, 0.0f, 1.00f);
     glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
 
+    // set up vertex data (and buffer(s)) and configure vertex attributes
+    // ------------------------------------------------------------------
+    float vertices[] = {
+        // positions
+         0.5f, -0.5f, 0.0f,  // bottom right
+        -0.5f, -0.5f, 0.0f,  // bottom left
+         0.0f,  0.5f, 0.0f,  // top 
+
+    };
+
+    unsigned int VBO, VAO;
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
+    glBindVertexArray(VAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    // position attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    Shader ourShader("shaders/basic.vert", "shaders/basic.frag");
+    ourShader.use();
+
     // Render loop
     while (!glfwWindowShouldClose(window)) {
         
@@ -174,6 +201,8 @@ int main(int, char**)
         glfwPollEvents();
 
         glClear(GL_COLOR_BUFFER_BIT);
+        glBindVertexArray(VAO);
+        glDrawArrays(GL_POINTS, 0, 3);
 
         // Start the Dear ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
@@ -197,6 +226,8 @@ int main(int, char**)
     ImGui::DestroyContext();
 
     glfwDestroyWindow(window);
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
     glfwTerminate();
 
     return 0;
