@@ -10,7 +10,7 @@
 #include <stdio.h>
 #include <filesystem>
 #define GL_SILENCE_DEPRECATION
-#include <GLEW/glew.h>
+#include <GL/glew.h>
 #include <GLFW/glfw3.h> // Will drag system OpenGL headers
 #include "shader.h"
 
