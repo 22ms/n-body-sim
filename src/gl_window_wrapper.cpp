@@ -20,7 +20,6 @@ GLWindowWrapper::GLWindowWrapper(int width, int height, char* title, const char*
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     GLWindowWrapper::window = glfwCreateWindow(width, height, title, nullptr, nullptr);
-    GLenum err = glewInit();
 
     glfwMakeContextCurrent(GLWindowWrapper::window);
     glfwSwapInterval(1); // Enable vsync
@@ -33,6 +32,7 @@ GLWindowWrapper::GLWindowWrapper(int width, int height, char* title, const char*
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
+    GLenum err = glewInit();
     glGenVertexArrays(1, &_VAO);
     glGenBuffers(1, &_VBO);
     glBindVertexArray(_VAO);
