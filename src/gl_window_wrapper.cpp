@@ -82,7 +82,7 @@ void GLWindowWrapper::updateBodiesVertices() {
         delete[] _vertices;
     }
     _vertices = new float[len];
-    for (int i = 0; i < len-3; i+=3) {
+    for (int i = 0; i < len-2; i+=3) {
         _vertices[i] = i * 0.01;    // x
         _vertices[i+1] = i * 0.01;  // y
         _vertices[i+2] = 0;         // z
