@@ -56,7 +56,6 @@ GLWindowWrapper::~GLWindowWrapper() {
     delete window;
     delete _N;
     delete[] _vertices;
-    delete window;
     delete _shader;
 }
 
