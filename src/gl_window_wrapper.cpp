@@ -38,7 +38,7 @@ GLWindowWrapper::GLWindowWrapper(int width, int height, char* title, const char*
     glBindVertexArray(_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, _VBO);
 
-    updateBodiesVertices();
+    expandVertexBuffer();
     glBufferData(GL_ARRAY_BUFFER, sizeof(float) * (*_N) * 3, _vertices, GL_DYNAMIC_DRAW);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
@@ -65,7 +65,7 @@ void GLWindowWrapper::render () {
     processInput(window);
 
     if (*_N != _previousN) {
-        updateBodiesVertices();
+        expandVertexBuffer();
         glBufferData(GL_ARRAY_BUFFER, sizeof(float) * (*_N) * 3, _vertices, GL_DYNAMIC_DRAW);
     }
 
@@ -76,7 +76,7 @@ void GLWindowWrapper::render () {
     _previousN = *_N;
 }
 
-void GLWindowWrapper::updateBodiesVertices() {
+void GLWindowWrapper::expandVertexBuffer() {
     int len = (*_N)*3;
     if (_vertices != nullptr) {
         delete[] _vertices;

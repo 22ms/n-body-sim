@@ -15,8 +15,9 @@ public:
 
     GLFWwindow* window = nullptr;
     void render();
+    void modifyVertexBuffer(float* vertices);
 private:
-    void updateBodiesVertices();
+    void expandVertexBuffer();
     void processInput(GLFWwindow *window);
 
     int _previousN;
