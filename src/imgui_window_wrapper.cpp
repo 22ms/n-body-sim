@@ -1,11 +1,11 @@
-#include <GLFW/glfw3.h>
-
+#include "imgui_window_wrapper.h"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
-#include "imgui_window_wrapper.h"
 
-ImGuiWindowWrapper::ImGuiWindowWrapper (GLFWwindow* window, const char* glsl_version, int* N) {
+#include <GLFW/glfw3.h>
+
+ImGuiWindowWrapper::ImGuiWindowWrapper (GLFWwindow* window, int* N) {
     _N = N;
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -16,7 +16,7 @@ ImGuiWindowWrapper::ImGuiWindowWrapper (GLFWwindow* window, const char* glsl_ver
 
     setStyleGruvbox();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init(glsl_version);
+    ImGui_ImplOpenGL3_Init("#version 130");
 }
 
 ImGuiWindowWrapper::~ImGuiWindowWrapper () {

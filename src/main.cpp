@@ -10,15 +10,14 @@
 #include "cl_wrapper.h"
 #include "imgui_window_wrapper.h"
 
-const char* GLSL_VERSION = "#version 130";
 int N = 500;
 
 int main(int, char**)
 {
     // Initialization
-    GLWindowWrapper glWindowWrapper(1280, 720, "N-body simulation", GLSL_VERSION, &N);
-    CLWrapper clWrapper{};
-    ImGuiWindowWrapper imGuiWindowWrapper(glWindowWrapper.window, GLSL_VERSION, &N);
+    GLWindowWrapper glWindowWrapper(1280, 720, "N-body simulation", &N);
+    CLWrapper clWrapper(glWindowWrapper.window, &N);
+    ImGuiWindowWrapper imGuiWindowWrapper(glWindowWrapper.window, &N);
 
     // Render loop
     while (!glWindowWrapper.shouldClose()) {

@@ -2,7 +2,7 @@ class GLFWwindow;
 
 class ImGuiWindowWrapper {
 public:
-    ImGuiWindowWrapper(GLFWwindow* window, const char* glsl_version, int* N);
+    ImGuiWindowWrapper(GLFWwindow* window, int* N); // Pointer to GLFWwindow not necessarily needed, but makes the dependency on an initialized OpenGL context obvious.
     ~ImGuiWindowWrapper();
 
     void render();

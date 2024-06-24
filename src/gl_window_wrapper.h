@@ -7,7 +7,7 @@ class GLFWwindow;
 
 class GLWindowWrapper {
 public:
-    GLWindowWrapper(int width, int height, const char* title, const char* glsl_version, int* N);
+    GLWindowWrapper(int width, int height, const char* title, int* N);
     ~GLWindowWrapper();
 
     GLFWwindow* window = nullptr;

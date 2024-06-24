@@ -1,9 +1,9 @@
+#include "gl_window_wrapper.h"
+#include "shader.h"
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <stdio.h>
-
-#include "shader.h"
-#include "gl_window_wrapper.h"
 
 static void glfwErrorCallback (int error, const char* description) {
     fprintf(stderr, "GLFW Error %d: %s\n", error, description);
@@ -13,7 +13,7 @@ static void framebufferSizeCallback (GLFWwindow* window, int width, int height) 
     glViewport(0, 0, width, height);
 }
 
-GLWindowWrapper::GLWindowWrapper(int width, int height, const char* title, const char* glsl_version, int* N) {
+GLWindowWrapper::GLWindowWrapper(int width, int height, const char* title, int* N) {
     _N = N;
     _previousN = *_N;
     

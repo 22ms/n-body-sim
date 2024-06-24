@@ -1,13 +1,15 @@
+#include "cl_wrapper.h"
+#include "utilities.h"
+
 #include <CL/cl.h>
 #include <CL/cl_gl.h>
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 #include <stdio.h>
 #include <string.h>
 #include <windows.h>
 
-#include "cl_wrapper.h"
-#include "utilities.h"
-
-CLWrapper::CLWrapper()
+CLWrapper::CLWrapper(GLFWwindow* window, int* N)
 {
     cl_int status = clGetPlatformIDs(1, &_platform, NULL);
     printf("clGetPlatformIDs: %d\n", status);
