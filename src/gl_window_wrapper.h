@@ -8,10 +8,10 @@
 
 #include "shader.h"
 
-class GLWindow {
+class GLWindowWrapper {
 public:
-    GLWindow(int width, int height, char* title, const char* glsl_version, int* N);
-    ~GLWindow();
+    GLWindowWrapper(int width, int height, char* title, const char* glsl_version, int* N);
+    ~GLWindowWrapper();
 
     GLFWwindow* window = nullptr;
     void render();
@@ -23,5 +23,5 @@ private:
     int _previousN;
     float* _vertices;
     unsigned int _VBO, _VAO;
-    Shader _shader;
+    Shader* _shader;
 };

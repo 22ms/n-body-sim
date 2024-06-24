@@ -1,7 +1,7 @@
-#include "imgui_window.h"
+#include "imgui_window_wrapper.h"
 
-ImGuiWindow::ImGuiWindow (GLFWwindow* window, const char* glsl_version, int* N) {
-    ImGuiWindow::N = N;
+ImGuiWindowWrapper::ImGuiWindowWrapper (GLFWwindow* window, const char* glsl_version, int* N) {
+    ImGuiWindowWrapper::N = N;
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
@@ -9,18 +9,18 @@ ImGuiWindow::ImGuiWindow (GLFWwindow* window, const char* glsl_version, int* N) 
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 
-    ImGuiWindow::setStyleGruvbox();
+    ImGuiWindowWrapper::setStyleGruvbox();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
 }
 
-ImGuiWindow::~ImGuiWindow () {
+ImGuiWindowWrapper::~ImGuiWindowWrapper () {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 }
 
-void ImGuiWindow::render () {
+void ImGuiWindowWrapper::render () {
     // Start the Dear ImGui frame
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -36,7 +36,7 @@ void ImGuiWindow::render () {
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void ImGuiWindow::setStyleGruvbox () {
+void ImGuiWindowWrapper::setStyleGruvbox () {
     auto& style = ImGui::GetStyle();
     style.ChildRounding = 0;
     style.GrabRounding = 0;

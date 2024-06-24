@@ -1,8 +1,16 @@
-#include "gl_window.h"
+#include "gl_window_wrapper.h"
 
-GLWindow::GLWindow(int width, int height, char* title, const char* glsl_version, int* N) {
-    GLWindow::_N = N;
-    GLWindow::_previousN = *_N;
+static void glfwErrorCallback (int error, const char* description) {
+    fprintf(stderr, "GLFW Error %d: %s\n", error, description);
+}
+
+static void framebufferSizeCallback (GLFWwindow* window, int width, int height) {
+    glViewport(0, 0, width, height);
+}
+
+GLWindowWrapper::GLWindowWrapper(int width, int height, char* title, const char* glsl_version, int* N) {
+    GLWindowWrapper::_N = N;
+    GLWindowWrapper::_previousN = *_N;
     
     glfwSetErrorCallback(glfwErrorCallback);
     glfwInit();
@@ -11,10 +19,10 @@ GLWindow::GLWindow(int width, int height, char* title, const char* glsl_version,
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLWindow::window = glfwCreateWindow(width, height, title, nullptr, nullptr);
+    GLWindowWrapper::window = glfwCreateWindow(width, height, title, nullptr, nullptr);
     GLenum err = glewInit();
 
-    glfwMakeContextCurrent(GLWindow::window);
+    glfwMakeContextCurrent(GLWindowWrapper::window);
     glfwSwapInterval(1); // Enable vsync
     glViewport(0, 0, width, height);
     glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
@@ -30,40 +38,40 @@ GLWindow::GLWindow(int width, int height, char* title, const char* glsl_version,
     glBindVertexArray(_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, _VBO);
 
-    GLWindow::updateBodiesVertices();
+    GLWindowWrapper::updateBodiesVertices();
     glBufferData(GL_ARRAY_BUFFER, sizeof(float) * (*_N) * 3, _vertices, GL_DYNAMIC_DRAW);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    _shader = Shader("shaders/basic.vert", "shaders/basic.frag");
+    _shader = new Shader("shaders/basic.vert", "shaders/basic.frag");
 }
 
-GLWindow::~GLWindow() {
-    glfwDestroyWindow(GLWindow::window);
+GLWindowWrapper::~GLWindowWrapper() {
+    glfwDestroyWindow(GLWindowWrapper::window);
     glDeleteVertexArrays(1, &_VAO);
     glDeleteBuffers(1, &_VBO);
     glfwTerminate();
 }
 
-void GLWindow::render () {
+void GLWindowWrapper::render () {
     glClear(GL_COLOR_BUFFER_BIT);
     glfwPollEvents();
-    processInput(GLWindow::window);
+    processInput(GLWindowWrapper::window);
 
     if (*_N != _previousN) {
-        GLWindow::updateBodiesVertices();
+        GLWindowWrapper::updateBodiesVertices();
         glBufferData(GL_ARRAY_BUFFER, sizeof(float) * (*_N) * 3, _vertices, GL_DYNAMIC_DRAW);
     }
 
-    _shader.use();
+    _shader->use();
     glBindVertexArray(_VAO);
     glDrawArrays(GL_POINTS, 0, 3);
 
     _previousN = *_N;
 }
 
-void GLWindow::updateBodiesVertices() {
+void GLWindowWrapper::updateBodiesVertices() {
     int len = (*_N)*3;
     _vertices = new float[len];
     for (int i = 0; i < len; i++) {
@@ -71,15 +79,7 @@ void GLWindow::updateBodiesVertices() {
     }
 }
 
-void GLWindow::processInput(GLFWwindow *window) {
+void GLWindowWrapper::processInput(GLFWwindow *window) {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
-}
-
-static void glfwErrorCallback (int error, const char* description) {
-    fprintf(stderr, "GLFW Error %d: %s\n", error, description);
-}
-
-static void framebufferSizeCallback (GLFWwindow* window, int width, int height) {
-    glViewport(0, 0, width, height);
 }

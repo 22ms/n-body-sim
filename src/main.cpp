@@ -5,8 +5,8 @@
 // https://learnopengl.com/
 // https://bashbaug.github.io/OpenCL-Docs/pdf/OpenCL_API.pdf
 
-#include "gl_window.h"
-#include "imgui_window.h"
+#include "gl_window_wrapper.h"
+#include "imgui_window_wrapper.h"
 
 const char* GLSL_VERSION = "#version 130";
 int N = 500;
@@ -14,15 +14,15 @@ int N = 500;
 int main(int, char**)
 {
     // Initialization
-    GLWindow glWindow(1280, 720, "N-body simulation", GLSL_VERSION, &N);
-    ImGuiWindow imGuiWindow(glWindow.window, GLSL_VERSION, &N);
+    GLWindowWrapper glWindowWrapper(1280, 720, "N-body simulation", GLSL_VERSION, &N);
+    ImGuiWindowWrapper imGuiWindowWrapper(glWindowWrapper.window, GLSL_VERSION, &N);
 
     // Render loop
-    while (!glfwWindowShouldClose(glWindow.window)) {
-        glWindow.render();
-        imGuiWindow.render();
+    while (!glfwWindowShouldClose(glWindowWrapper.window)) {
+        glWindowWrapper.render();
+        imGuiWindowWrapper.render();
 
-        glfwSwapBuffers(glWindow.window);
+        glfwSwapBuffers(glWindowWrapper.window);
     }
 
     return 0;
