@@ -1,3 +1,8 @@
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+#include <stdio.h>
+
+#include "shader.h"
 #include "gl_window_wrapper.h"
 
 static void glfwErrorCallback (int error, const char* description) {
@@ -8,7 +13,7 @@ static void framebufferSizeCallback (GLFWwindow* window, int width, int height) 
     glViewport(0, 0, width, height);
 }
 
-GLWindowWrapper::GLWindowWrapper(int width, int height, char* title, const char* glsl_version, int* N) {
+GLWindowWrapper::GLWindowWrapper(int width, int height, const char* title, const char* glsl_version, int* N) {
     _N = N;
     _previousN = *_N;
     
@@ -59,6 +64,10 @@ GLWindowWrapper::~GLWindowWrapper() {
     delete _shader;
 }
 
+bool GLWindowWrapper::shouldClose() {
+    return glfwWindowShouldClose(window);
+}
+
 void GLWindowWrapper::render () {
     glClear(GL_COLOR_BUFFER_BIT);
     glfwPollEvents();
@@ -74,6 +83,10 @@ void GLWindowWrapper::render () {
     glDrawArrays(GL_POINTS, 0, *_N);
 
     _previousN = *_N;
+}
+
+void GLWindowWrapper::swapBuffers() {
+    glfwSwapBuffers(window);
 }
 
 void GLWindowWrapper::expandVertexBuffer() {
