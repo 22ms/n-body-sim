@@ -4,6 +4,7 @@
 // https://iss.oden.utexas.edu/Publications/Papers/burtscher11.pdf
 // https://learnopengl.com/
 // https://bashbaug.github.io/OpenCL-Docs/pdf/OpenCL_API.pdf
+// https://web.engr.oregonstate.edu/~mjb/cs575/Handouts/opencl.opengl.vbo.1pp.pdf
 
 #include "gl_window_wrapper.h"
 #include "imgui_window_wrapper.h"
