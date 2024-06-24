@@ -2,28 +2,36 @@
 #include <CL/cl_gl.h>
 #include <stdio.h>
 #include <string.h>
+#include <windows.h>
 
 #include "cl_wrapper.h"
 #include "utilities.h"
 
 CLWrapper::CLWrapper()
 {
-    // get the platform id:
     cl_int status = clGetPlatformIDs(1, &_platform, NULL);
-    printf("clGetPlatformIDs: %d", status);
+    printf("clGetPlatformIDs: %d\n", status);
 
-    // get the device id:
     status = clGetDeviceIDs(_platform, CL_DEVICE_TYPE_GPU, 1, &_device, NULL);
-    printf("clGetDeviceIDs: %d", status);
-    // check if the opengl sharing extension is supported
-    // (no point going on if it isn’t):
-    // (we need the Device in order to ask, so we can't do it any sooner than right here)if( IsCLExtensionSupported( "cl_khr_gl_sharing" ) )
+    printf("clGetDeviceIDs: %d\n", status);
+
     if (isCLExtensionSupported("cl_khr_gl_sharing")) {
         fprintf(stderr, "cl_khr_gl_sharing is supported.\n");
     } else {
         fprintf(stderr, "cl_khr_gl_sharing is not supported -- sorry.\n");
         return;
     }
+
+    cl_context_properties props[] = {
+        CL_GL_CONTEXT_KHR, (cl_context_properties) wglGetCurrentContext(),
+        CL_WGL_HDC_KHR, (cl_context_properties) wglGetCurrentDC(),
+        CL_CONTEXT_PLATFORM, (cl_context_properties)_platform,
+        0
+    };
+
+    cl_context context = clCreateContext(props, 1, &_device, NULL, NULL, &status);
+    printf("context status: %d\n", status);
+
 }
 
 bool CLWrapper::isCLExtensionSupported(const char* extension)
