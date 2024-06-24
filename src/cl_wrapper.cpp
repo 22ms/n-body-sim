@@ -34,6 +34,14 @@ CLWrapper::CLWrapper(GLFWwindow* window, int* N)
     cl_context context = clCreateContext(props, 1, &_device, NULL, NULL, &status);
     printf("context status: %d\n", status);
 
+    _hVel = new struct xyzw [*N];
+    _dVel = clCreateBuffer(context, CL_MEM_READ_WRITE, 4*sizeof(float)*(*N), NULL, &status);
+    printf("_dVel status: %d\n", status);
+
+}
+
+void CLWrapper::simulateTimestep() {
+    
 }
 
 bool CLWrapper::isCLExtensionSupported(const char* extension)
