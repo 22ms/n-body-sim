@@ -1,7 +1,7 @@
 #include "imgui_window_wrapper.h"
 
 ImGuiWindowWrapper::ImGuiWindowWrapper (GLFWwindow* window, const char* glsl_version, int* N) {
-    ImGuiWindowWrapper::N = N;
+    _N = N;
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
@@ -9,7 +9,7 @@ ImGuiWindowWrapper::ImGuiWindowWrapper (GLFWwindow* window, const char* glsl_ver
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 
-    ImGuiWindowWrapper::setStyleGruvbox();
+    setStyleGruvbox();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
 }
@@ -28,7 +28,7 @@ void ImGuiWindowWrapper::render () {
 
     ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
     ImGui::Begin("Controls", NULL); // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-    ImGui::InputInt("Bodies", N);
+    ImGui::InputInt("Bodies", _N);
     ImGui::End();
 
     // Rendering

@@ -11,5 +11,5 @@ public:
     void render();
 private:
     void setStyleGruvbox();
-    int* N;
+    int* _N;
 };

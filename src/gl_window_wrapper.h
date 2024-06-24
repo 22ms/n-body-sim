@@ -19,9 +19,10 @@ private:
     void updateBodiesVertices();
     void processInput(GLFWwindow *window);
 
-    int* _N;
     int _previousN;
-    float* _vertices;
     unsigned int _VBO, _VAO;
-    Shader* _shader;
+
+    int* _N = nullptr;
+    float* _vertices = nullptr;
+    Shader* _shader = nullptr;
 };
