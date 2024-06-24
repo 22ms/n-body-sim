@@ -3,6 +3,7 @@
     "files.associations": {
         "filesystem": "cpp",
         "iostream": "cpp",
-        "sstream": "cpp"
+        "sstream": "cpp",
+        "new": "cpp"
     }
 }

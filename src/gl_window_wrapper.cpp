@@ -66,7 +66,7 @@ void GLWindowWrapper::render () {
 
     _shader->use();
     glBindVertexArray(_VAO);
-    glDrawArrays(GL_POINTS, 0, 3);
+    glDrawArrays(GL_POINTS, 0, *_N);
 
     _previousN = *_N;
 }
@@ -74,8 +74,10 @@ void GLWindowWrapper::render () {
 void GLWindowWrapper::updateBodiesVertices() {
     int len = (*_N)*3;
     _vertices = new float[len];
-    for (int i = 0; i < len; i++) {
-        _vertices[i] = i * 0.01; // for testing
+    for (int i = 0; i < len-3; i+=3) {
+        _vertices[i] = i * 0.01;    // x
+        _vertices[i+1] = 0;         // y
+        _vertices[i+2] = 0;         // z
     }
 }
 
