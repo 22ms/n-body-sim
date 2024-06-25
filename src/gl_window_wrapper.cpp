@@ -1,5 +1,6 @@
 #include "gl_window_wrapper.h"
 #include "shader.h"
+#include "utilities.h"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -34,33 +35,38 @@ GLWindowWrapper::GLWindowWrapper(int width, int height, const char* title, int* 
     glEnable(GL_PROGRAM_POINT_SIZE);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
     GLenum err = glewInit();
-    glGenVertexArrays(1, &_VAO);
-    glGenBuffers(1, &_VBO);
-    glBindVertexArray(_VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, _VBO);
-
     expandVertexBuffer();
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * (*_N) * 3, _vertices, GL_DYNAMIC_DRAW);
+
+    glGenBuffers(1, &_posGLBO);
+    glGenVertexArrays(1, &_posGLAO);
+
+    glBindVertexArray(_posGLAO);
+    glBindBuffer(GL_ARRAY_BUFFER, _posGLBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * (*_N) * 3, _positions, GL_DYNAMIC_DRAW);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
     _shader = new Shader("shaders/basic.vert", "shaders/basic.frag");
+    _shader->use();
+}
+
+unsigned int* GLWindowWrapper::getPosGLBO() {
+    return &_posGLBO;
 }
 
 GLWindowWrapper::~GLWindowWrapper() {
     glfwDestroyWindow(window);
-    glDeleteVertexArrays(1, &_VAO);
-    glDeleteBuffers(1, &_VBO);
+    glDeleteBuffers(1, &_posGLBO);
+    glDeleteVertexArrays(1, &_posGLAO);
     glfwTerminate();
 
     delete window;
     delete _N;
-    delete[] _vertices;
+    delete[] _positions;
     delete _shader;
 }
 
@@ -75,14 +81,16 @@ void GLWindowWrapper::render () {
 
     if (*_N != _previousN) {
         expandVertexBuffer();
-        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * (*_N) * 3, _vertices, GL_DYNAMIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * (*_N) * 3, _positions, GL_DYNAMIC_DRAW);
     }
-
-    _shader->use();
-    glBindVertexArray(_VAO);
     glDrawArrays(GL_POINTS, 0, *_N);
 
     _previousN = *_N;
+
+    GLenum err = glGetError();
+    if(err != 0) {
+        printf("OpenGL error: 0x%x\n", err);
+    }
 }
 
 void GLWindowWrapper::swapBuffers() {
@@ -90,15 +98,14 @@ void GLWindowWrapper::swapBuffers() {
 }
 
 void GLWindowWrapper::expandVertexBuffer() {
-    int len = (*_N)*3;
-    if (_vertices != nullptr) {
-        delete[] _vertices;
+    if (_positions != nullptr) {
+        delete[] _positions;
     }
-    _vertices = new float[len];
-    for (int i = 0; i < len-2; i+=3) {
-        _vertices[i] = i * 0.01;    // x
-        _vertices[i+1] = i * 0.01;  // y
-        _vertices[i+2] = 0;         // z
+    _positions = new xyz[*_N];
+    for (int i = 0; i < *_N; i++) {
+        _positions[i].x = i * 0.01;
+        _positions[i].y = i * 0.01;
+        _positions[i].z = 0;
     }
 }
 

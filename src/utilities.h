@@ -1,4 +1,4 @@
-struct xyzw
+struct xyz
 {
-    float x, y, z, w;
+    float x, y, z;
 };

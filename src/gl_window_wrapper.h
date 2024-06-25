@@ -4,6 +4,7 @@
 
 class Shader;
 class GLFWwindow;
+struct xyz;
 
 class GLWindowWrapper {
 public:
@@ -11,6 +12,7 @@ public:
     ~GLWindowWrapper();
 
     GLFWwindow* window = nullptr;
+    unsigned int* getPosGLBO();
     bool shouldClose();
     void swapBuffers();
     void render();
@@ -20,9 +22,9 @@ private:
     void processInput(GLFWwindow *window);
 
     int _previousN;
-    unsigned int _VBO, _VAO;
+    unsigned int _posGLBO, _posGLAO;
 
     int* _N = nullptr;
-    float* _vertices = nullptr;
+    xyz* _positions = nullptr;
     Shader* _shader = nullptr;
 };

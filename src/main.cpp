@@ -16,7 +16,7 @@ int main(int, char**)
 {
     // Initialization
     GLWindowWrapper glWindowWrapper(1280, 720, "N-body simulation", &N);
-    CLWrapper clWrapper(glWindowWrapper.window, &N);
+    CLWrapper clWrapper(glWindowWrapper.window, &N, glWindowWrapper.getPosGLBO());
     ImGuiWindowWrapper imGuiWindowWrapper(glWindowWrapper.window, &N);
 
     // Render loop

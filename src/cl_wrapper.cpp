@@ -9,8 +9,10 @@
 #include <string.h>
 #include <windows.h>
 
-CLWrapper::CLWrapper(GLFWwindow* window, int* N)
+CLWrapper::CLWrapper(GLFWwindow* window, int* N, unsigned int* posBO)
 {
+    _posGLBO = posBO;
+
     cl_int status = clGetPlatformIDs(1, &_platform, NULL);
     printf("clGetPlatformIDs: %d\n", status);
 
@@ -24,6 +26,7 @@ CLWrapper::CLWrapper(GLFWwindow* window, int* N)
         return;
     }
 
+    // TODO: I do not know if these properties need to be set, will test when code runs
     cl_context_properties props[] = {
         CL_GL_CONTEXT_KHR, (cl_context_properties) wglGetCurrentContext(),
         CL_WGL_HDC_KHR, (cl_context_properties) wglGetCurrentDC(),
@@ -31,13 +34,21 @@ CLWrapper::CLWrapper(GLFWwindow* window, int* N)
         0
     };
 
-    cl_context context = clCreateContext(props, 1, &_device, NULL, NULL, &status);
+    _context = clCreateContext(props, 1, &_device, NULL, NULL, &status);
     printf("context status: %d\n", status);
 
-    _hVel = new struct xyzw [*N];
-    _dVel = clCreateBuffer(context, CL_MEM_READ_WRITE, 4*sizeof(float)*(*N), NULL, &status);
-    printf("_dVel status: %d\n", status);
+    _cmdQueue = clCreateCommandQueue(_context, _device, 0, &status);
+    printf("cmd queue status: %d\n", status);
 
+    _velocities = new xyz [*N];
+    _velCLBO = clCreateBuffer(_context, CL_MEM_READ_WRITE, 3*sizeof(float)*(*N), NULL, &status);
+    printf("_velCLBO status: %d\n", status);
+
+    status = clEnqueueWriteBuffer(_cmdQueue, _velCLBO, CL_FALSE, 0, 3*sizeof(float)*(*N), _velocities, 0, NULL, NULL);
+    printf("_velCLBO buffer status: %d\n", status);
+
+    _posCLBO = clCreateFromGLBuffer(_context, CL_MEM_READ_WRITE, *_posGLBO, &status );
+    printf("_posCLBO buffer status: %d\n", status);
 }
 
 void CLWrapper::simulateTimestep() {
