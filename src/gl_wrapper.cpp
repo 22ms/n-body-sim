@@ -1,4 +1,4 @@
-#include "gl_window_wrapper.h"
+#include "gl_wrapper.h"
 #include "shader.h"
 #include "utilities.h"
 
@@ -14,7 +14,7 @@ static void framebufferSizeCallback (GLFWwindow* window, int width, int height) 
     glViewport(0, 0, width, height);
 }
 
-GLWindowWrapper::GLWindowWrapper(int width, int height, const char* title, int* N) {
+GLWrapper::GLWrapper(int width, int height, const char* title, int* N) {
     _N = N;
     _previousN = *_N;
     
@@ -54,11 +54,11 @@ GLWindowWrapper::GLWindowWrapper(int width, int height, const char* title, int* 
     _shader->use();
 }
 
-unsigned int* GLWindowWrapper::getPosGLBO() {
+unsigned int* GLWrapper::getPosGLBO() {
     return &_posGLBO;
 }
 
-GLWindowWrapper::~GLWindowWrapper() {
+GLWrapper::~GLWrapper() {
     glfwDestroyWindow(window);
     glDeleteBuffers(1, &_posGLBO);
     glDeleteVertexArrays(1, &_posGLAO);
@@ -70,11 +70,11 @@ GLWindowWrapper::~GLWindowWrapper() {
     delete _shader;
 }
 
-bool GLWindowWrapper::shouldClose() {
+bool GLWrapper::shouldClose() {
     return glfwWindowShouldClose(window);
 }
 
-void GLWindowWrapper::render () {
+void GLWrapper::render () {
     glClear(GL_COLOR_BUFFER_BIT);
     glfwPollEvents();
     processInput(window);
@@ -93,11 +93,11 @@ void GLWindowWrapper::render () {
     }
 }
 
-void GLWindowWrapper::swapBuffers() {
+void GLWrapper::swapBuffers() {
     glfwSwapBuffers(window);
 }
 
-void GLWindowWrapper::expandVertexBuffer() {
+void GLWrapper::expandVertexBuffer() {
     if (_positions != nullptr) {
         delete[] _positions;
     }
@@ -109,7 +109,7 @@ void GLWindowWrapper::expandVertexBuffer() {
     }
 }
 
-void GLWindowWrapper::processInput(GLFWwindow *window) {
+void GLWrapper::processInput(GLFWwindow *window) {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 }

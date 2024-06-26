@@ -1,11 +1,11 @@
-#include "imgui_window_wrapper.h"
+#include "imgui_wrapper.h"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 
 #include <GLFW/glfw3.h>
 
-ImGuiWindowWrapper::ImGuiWindowWrapper (GLFWwindow* window, int* N) {
+ImGuiWrapper::ImGuiWrapper (GLFWwindow* window, int* N) {
     _N = N;
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -19,13 +19,13 @@ ImGuiWindowWrapper::ImGuiWindowWrapper (GLFWwindow* window, int* N) {
     ImGui_ImplOpenGL3_Init("#version 130");
 }
 
-ImGuiWindowWrapper::~ImGuiWindowWrapper () {
+ImGuiWrapper::~ImGuiWrapper () {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 }
 
-void ImGuiWindowWrapper::render () {
+void ImGuiWrapper::render () {
     // Start the Dear ImGui frame
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -41,7 +41,7 @@ void ImGuiWindowWrapper::render () {
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void ImGuiWindowWrapper::setStyleGruvbox () {
+void ImGuiWrapper::setStyleGruvbox () {
     auto& style = ImGui::GetStyle();
     style.ChildRounding = 0;
     style.GrabRounding = 0;

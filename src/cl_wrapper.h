@@ -1,3 +1,6 @@
+#ifndef CL_WRAPPER_H
+#define CL_WRAPPER_H
+
 #define CL_TARGET_OPENCL_VERSION 120
 
 typedef struct _cl_mem* cl_mem;
@@ -27,3 +30,5 @@ private:
     cl_device_id _device;
     cl_platform_id _platform;
 };
+
+#endif

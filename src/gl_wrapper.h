@@ -1,3 +1,6 @@
+#ifndef GL_WRAPPER_H
+#define GL_WRAPPER_H
+
 #define GLEW_BUILD
 #define GLFW_DLL
 #define GL_SILENCE_DEPRECATION
@@ -6,10 +9,10 @@ class Shader;
 class GLFWwindow;
 struct xyz;
 
-class GLWindowWrapper {
+class GLWrapper {
 public:
-    GLWindowWrapper(int width, int height, const char* title, int* N);
-    ~GLWindowWrapper();
+    GLWrapper(int width, int height, const char* title, int* N);
+    ~GLWrapper();
 
     GLFWwindow* window = nullptr;
     unsigned int* getPosGLBO();
@@ -28,3 +31,5 @@ private:
     xyz* _positions = nullptr;
     Shader* _shader = nullptr;
 };
+
+#endif
