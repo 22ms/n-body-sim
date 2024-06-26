@@ -6,9 +6,9 @@
 // https://bashbaug.github.io/OpenCL-Docs/pdf/OpenCL_API.pdf
 // https://web.engr.oregonstate.edu/~mjb/cs575/Handouts/opencl.opengl.vbo.1pp.pdf
 
-#include "gl_wrapper.h"
-#include "cl_wrapper.h"
-#include "imgui_wrapper.h"
+#include "gl_wrapper.hpp"
+#include "cl_wrapper.hpp"
+#include "imgui_wrapper.hpp"
 
 int N = 500;
 

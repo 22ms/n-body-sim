@@ -1,4 +1,4 @@
-#include "imgui_wrapper.h"
+#include "imgui_wrapper.hpp"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"

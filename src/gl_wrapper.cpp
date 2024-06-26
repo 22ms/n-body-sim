@@ -1,6 +1,6 @@
-#include "gl_wrapper.h"
-#include "shader.h"
-#include "utilities.h"
+#include "gl_wrapper.hpp"
+#include "shader.hpp"
+#include "utilities.hpp"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>

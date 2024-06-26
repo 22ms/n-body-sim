@@ -1,6 +1,6 @@
-#include "cl_wrapper.h"
-#include "utilities.h"
-#include "kernel.h"
+#include "cl_wrapper.hpp"
+#include "utilities.hpp"
+#include "kernel.hpp"
 
 #include <CL/cl.h>
 #include <CL/cl_gl.h>
