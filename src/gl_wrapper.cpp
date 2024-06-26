@@ -60,11 +60,12 @@ unsigned int* GLWrapper::getPosGLBO() {
 
 GLWrapper::~GLWrapper() {
     glfwDestroyWindow(window);
+    window = nullptr;
+    
     glDeleteBuffers(1, &_posGLBO);
     glDeleteVertexArrays(1, &_posGLAO);
     glfwTerminate();
 
-    delete window;
     delete _N;
     delete[] _positions;
     delete _shader;

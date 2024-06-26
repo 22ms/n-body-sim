@@ -5,7 +5,8 @@
 #define GL_SILENCE_DEPRECATION
 
 class Shader;
-class GLFWwindow;
+
+struct GLFWwindow;
 struct xyz;
 
 class GLWrapper {
