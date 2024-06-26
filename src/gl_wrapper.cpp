@@ -90,6 +90,7 @@ void GLWrapper::render () {
     GLenum err = glGetError();
     if(err != 0) {
         printf("OpenGL error: 0x%x\n", err);
+        std::terminate();
     }
 }
 

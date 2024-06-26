@@ -22,4 +22,10 @@ add_custom_target(copy_shaders ALL
     DEPENDS ${SOURCES}
 )
 
+add_custom_target(copy_kernels ALL
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/kernels ${CMAKE_BINARY_DIR}/kernels
+    DEPENDS ${SOURCES}
+)
+
 add_dependencies(n-body copy_shaders)

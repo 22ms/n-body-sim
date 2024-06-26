@@ -19,6 +19,7 @@ Kernel::Kernel(cl_context context, cl_device_id device, const char* kernelPath){
     catch (std::ifstream::failure& e)
     {
         std::cout << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ: " << e.what() << std::endl;
+        std::terminate();
     }
 
     program = clCreateProgramWithSource(context, 1,
@@ -28,7 +29,7 @@ Kernel::Kernel(cl_context context, cl_device_id device, const char* kernelPath){
     if (program == NULL)
     {
         std::cerr << "Failed to create CL program from source." << std::endl;
-        return;
+        std::terminate();
     }
 
     cl_int errNum = clBuildProgram(program, 0, NULL, NULL, NULL, NULL);
@@ -41,8 +42,7 @@ Kernel::Kernel(cl_context context, cl_device_id device, const char* kernelPath){
 
         std::cerr << "Error in kernel: " << std::endl;
         std::cerr << buildLog;
-        clReleaseProgram(program);
-        return;
+        std::terminate();
     }
 }
 

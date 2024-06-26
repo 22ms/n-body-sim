@@ -1,5 +1,6 @@
 #include "cl_wrapper.h"
 #include "utilities.h"
+#include "kernel.h"
 
 #include <CL/cl.h>
 #include <CL/cl_gl.h>
@@ -49,6 +50,9 @@ CLWrapper::CLWrapper(GLFWwindow* window, int* N, unsigned int* posBO)
 
     _posCLBO = clCreateFromGLBuffer(_context, CL_MEM_READ_WRITE, *_posGLBO, &status );
     printf("_posCLBO buffer status: %d\n", status);
+
+    _kernel_1 = Kernel(_context, _device, "kernels/test.cl");
+    
 }
 
 void CLWrapper::simulateTimestep() {

@@ -10,6 +10,7 @@ typedef struct _cl_device_id* cl_device_id;
 typedef struct _cl_platform_id* cl_platform_id;
 
 class GLFWwindow;
+class Kernel;
 struct xyz;
 
 class CLWrapper {
@@ -29,6 +30,8 @@ private:
     cl_command_queue _cmdQueue;
     cl_device_id _device;
     cl_platform_id _platform;
+
+    Kernel _kernel_1;
 };
 
 #endif
