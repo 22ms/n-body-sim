@@ -21,6 +21,7 @@ private:
     bool isCLExtensionSupported(const char* extension);
 
     unsigned int* _posGLBO = nullptr;
+    int* _N = nullptr;
 
     xyz* _velocities = nullptr;
     cl_mem _velCLBO;

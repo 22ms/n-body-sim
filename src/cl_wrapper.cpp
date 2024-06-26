@@ -12,6 +12,7 @@
 
 CLWrapper::CLWrapper(GLFWwindow* window, int* N, unsigned int* posBO)
 {
+    _N = N;
     _posGLBO = posBO;
 
     cl_int status = clGetPlatformIDs(1, &_platform, NULL);
@@ -41,18 +42,29 @@ CLWrapper::CLWrapper(GLFWwindow* window, int* N, unsigned int* posBO)
     _cmdQueue = clCreateCommandQueue(_context, _device, 0, &status);
     printf("cmd queue status: %d\n", status);
 
-    _velocities = new xyz [*N];
-    _velCLBO = clCreateBuffer(_context, CL_MEM_READ_WRITE, 3*sizeof(float)*(*N), NULL, &status);
+    _velocities = new xyz [*_N];
+    for (int i = 0; i < *_N; i++) {
+        _velocities[i].x = 0.0f;
+        _velocities[i].y = 0.001f;
+        _velocities[i].z = 0.0f;
+    }
+
+    _velCLBO = clCreateBuffer(_context, CL_MEM_READ_WRITE, 3*sizeof(float)*(*_N), NULL, &status);
     printf("_velCLBO status: %d\n", status);
 
-    status = clEnqueueWriteBuffer(_cmdQueue, _velCLBO, CL_FALSE, 0, 3*sizeof(float)*(*N), _velocities, 0, NULL, NULL);
+    status = clEnqueueWriteBuffer(_cmdQueue, _velCLBO, CL_FALSE, 0, 3*sizeof(float)*(*_N), _velocities, 0, NULL, NULL);
     printf("_velCLBO buffer status: %d\n", status);
 
     _posCLBO = clCreateFromGLBuffer(_context, CL_MEM_READ_WRITE, *_posGLBO, &status );
     printf("_posCLBO buffer status: %d\n", status);
 
-    _kernel_1 = new Kernel(_context, _device, "kernels/kernel_1.cl");
+    _kernel_1 = new Kernel(_context, _device, "kernels/kernel_1.cl", "kernel_1");
 
+    status = clSetKernelArg(_kernel_1->getKernel(), 0, sizeof(cl_mem), &_posCLBO);
+    printf("kernel 1 args 1 status: %d\n", status);
+
+    status = clSetKernelArg(_kernel_1->getKernel(), 1, sizeof(cl_mem), &_velCLBO);
+    printf("kernel 1 args 2 status: %d\n", status);
     // TODO: 
     // 1. Edit "kernel_1.cl" to simply add onto every vertex for testing purposes.
     // 2. Execute the kernel, offsetting the position buffer by the velocity buffer. Make sure the buffer can be read from/written to without conflicting with OpenGL
@@ -62,7 +74,31 @@ CLWrapper::CLWrapper(GLFWwindow* window, int* N, unsigned int* posBO)
 }
 
 void CLWrapper::simulateTimestep() {
-    
+    cl_int status;
+    size_t globalWorkSize[3] = { *_N, 1, 1 };
+    size_t localWorkSize[3] = { 1, 1, 1 };
+
+    glFinish();
+    status = clEnqueueAcquireGLObjects(_cmdQueue, 1, &_posCLBO, 0, NULL, NULL );
+    if (status != 0) {
+        printf("clEnqueueAcquireGLObjects status: %d\n", status);
+    }
+
+    clFinish(_cmdQueue);
+
+    status = clEnqueueNDRangeKernel(_cmdQueue, _kernel_1->getKernel(), 1, NULL, globalWorkSize, localWorkSize, 0, NULL, NULL);
+    if (status != 0) {
+        printf("clEnqueueAcquireGLObjects status: %d\n", status);
+    }
+
+    clFinish(_cmdQueue);
+
+    clEnqueueReleaseGLObjects(_cmdQueue, 1, &_posCLBO, 0, NULL, NULL);
+    if (status != 0) {
+        printf("clEnqueueAcquireGLObjects status: %d\n", status);
+    }
+
+    clFinish(_cmdQueue);
 }
 
 bool CLWrapper::isCLExtensionSupported(const char* extension)

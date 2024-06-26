@@ -10,7 +10,7 @@
 #include "cl_wrapper.hpp"
 #include "imgui_wrapper.hpp"
 
-int N = 500;
+int N = 625;
 
 int main(int, char**)
 {
@@ -23,6 +23,7 @@ int main(int, char**)
     while (!glWrapper.shouldClose()) {
         glWrapper.render();
         imGuiWrapper.render();
+        clWrapper.simulateTimestep();
 
         glWrapper.swapBuffers();
     }

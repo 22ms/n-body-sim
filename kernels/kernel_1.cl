@@ -1,8 +1,9 @@
-__kernel void hello_kernel(__global const float *a,
-						__global const float *b,
-						__global float *result)
+typedef float4 xzy;
+
+__kernel void kernel_1(__global xzy* _posBO,
+                       __global xzy* _velBO)
 {
     int gid = get_global_id(0);
 
-    result[gid] = a[gid] + b[gid];
+    _posBO[gid] += _velBO[gid];
 }
