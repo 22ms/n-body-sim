@@ -2,7 +2,6 @@
 #define GL_WRAPPER_H
 
 #define GLEW_BUILD
-#define GLFW_DLL
 #define GL_SILENCE_DEPRECATION
 
 class Shader;
