@@ -29,3 +29,4 @@ add_custom_target(copy_kernels ALL
 )
 
 add_dependencies(n-body copy_shaders)
+add_dependencies(n-body copy_kernels)

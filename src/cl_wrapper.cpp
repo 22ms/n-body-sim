@@ -51,7 +51,13 @@ CLWrapper::CLWrapper(GLFWwindow* window, int* N, unsigned int* posBO)
     _posCLBO = clCreateFromGLBuffer(_context, CL_MEM_READ_WRITE, *_posGLBO, &status );
     printf("_posCLBO buffer status: %d\n", status);
 
-    _kernel_1 = Kernel(_context, _device, "kernels/test.cl");
+    _kernel_1 = new Kernel(_context, _device, "kernels/kernel_1.cl");
+
+    // TODO: 
+    // 1. Edit "kernel_1.cl" to simply add onto every vertex for testing purposes.
+    // 2. Execute the kernel, offsetting the position buffer by the velocity buffer. Make sure the buffer can be read from/written to without conflicting with OpenGL
+    // 3. Make sure OpenGL uses that modified buffer.
+    // 4. Try it every render call. Particles should move now with constant velocity.
     
 }
 
