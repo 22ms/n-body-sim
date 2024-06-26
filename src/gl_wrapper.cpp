@@ -5,6 +5,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <stdio.h>
+#include <exception>
 
 static void glfwErrorCallback (int error, const char* description) {
     fprintf(stderr, "GLFW Error %d: %s\n", error, description);
@@ -61,7 +62,7 @@ unsigned int* GLWrapper::getPosGLBO() {
 GLWrapper::~GLWrapper() {
     glfwDestroyWindow(window);
     window = nullptr;
-    
+
     glDeleteBuffers(1, &_posGLBO);
     glDeleteVertexArrays(1, &_posGLAO);
     glfwTerminate();

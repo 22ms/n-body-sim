@@ -1,5 +1,9 @@
 #include "kernel.h"
 
+#include <string>
+#include <fstream>
+#include <sstream>
+#include <iostream>
 #include <CL/cl.h>
 
 Kernel::Kernel(cl_context context, cl_device_id device, const char* kernelPath){

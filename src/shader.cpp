@@ -1,5 +1,11 @@
 #include "shader.h"
 
+#include <GL/glew.h>
+#include <string>
+#include <fstream>
+#include <sstream>
+#include <iostream>
+
 Shader::Shader(const char* vertexPath, const char* fragmentPath){
     // 1. retrieve the vertex/fragment source code from filePath
     std::string vertexCode;
@@ -63,22 +69,22 @@ void Shader::use()
 }
 // utility uniform functions
 // ------------------------------------------------------------------------
-void Shader::setBool(const std::string &name, bool value) const
+void Shader::setBool(const char* name, bool value) const
 {         
-    glUniform1i(glGetUniformLocation(ID, name.c_str()), (int)value); 
+    glUniform1i(glGetUniformLocation(ID, name), (int)value); 
 }
 // ------------------------------------------------------------------------
-void Shader::setInt(const std::string &name, int value) const
+void Shader::setInt(const char* name, int value) const
 { 
-    glUniform1i(glGetUniformLocation(ID, name.c_str()), value); 
+    glUniform1i(glGetUniformLocation(ID, name), value); 
 }
 // ------------------------------------------------------------------------
-void Shader::setFloat(const std::string &name, float value) const
+void Shader::setFloat(const char* name, float value) const
 { 
-    glUniform1f(glGetUniformLocation(ID, name.c_str()), value); 
+    glUniform1f(glGetUniformLocation(ID, name), value); 
 }
 
-void Shader::checkCompileErrors(unsigned int shader, std::string type)
+void Shader::checkCompileErrors(unsigned int shader, const char* type)
 {
     int success;
     char infoLog[1024];

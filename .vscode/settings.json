@@ -81,6 +81,10 @@
         "xmemory": "cpp",
         "xstring": "cpp",
         "xtr1common": "cpp",
-        "xutility": "cpp"
+        "xutility": "cpp",
+        "xstddef": "cpp",
+        "mutex": "cpp",
+        "semaphore": "cpp",
+        "text_encoding": "cpp"
     }
 }
