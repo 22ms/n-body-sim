@@ -42,8 +42,8 @@ CLWrapper::CLWrapper(GLFWwindow* window, int* N, unsigned int* posBO)
     _cmdQueue = clCreateCommandQueue(_context, _device, 0, &status);
     printf("cmd queue status: %d\n", status);
 
-    float timestep = 0.0001;
-    float minimum_sq_distance = 0.0001;
+    float timestep = 0.00001;
+    float minimum_sq_distance = 0.001;
     int n_thread = 64;
 
     _velocities = new vxvyvz [*_N];
@@ -84,7 +84,7 @@ CLWrapper::CLWrapper(GLFWwindow* window, int* N, unsigned int* posBO)
 void CLWrapper::simulateTimestep() {
     cl_int status;
     size_t globalWorkSize[3] = { *_N, 1, 1 };
-    size_t localWorkSize[3] = { 1, 1, 1 };
+    size_t localWorkSize[3] = { 32, 1, 1 };
 
     glFinish();
     status = clEnqueueAcquireGLObjects(_cmdQueue, 1, &_posCLBO, 0, NULL, NULL );

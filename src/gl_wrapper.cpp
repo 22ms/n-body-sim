@@ -105,15 +105,22 @@ void GLWrapper::expandVertexBuffer() {
         delete[] _positions;
     }
     _positions = new xyzm[*_N];
-    float spacing = 2;
-    int numRows = *_N / 25;
-    float centerX = 0.5 * 25 * spacing * 0.01;
+    float spacing = 1;
+    int numRows = *_N / 180;
+    float centerX = 0.5 * 180 * spacing * 0.01;
     float centerY = 0.5 * numRows * spacing * 0.01;
     for (int i = 0; i < *_N; i++) {
-        _positions[i].x =  spacing * 0.01 * (i % 25) - centerX;
-        _positions[i].y =  spacing * 0.01 * (i / 25)- centerY;
+        if(i == 0) {
+            _positions[i].x =  spacing * 0.01 * (i % 180) - centerX;
+            _positions[i].y =  spacing * 0.01 * (i / 180)- centerY;
+            _positions[i].z =  0;
+            _positions[i].m =  0.02;
+            continue;
+        }
+        _positions[i].x =  spacing * 0.01 * (i % 180) - centerX;
+        _positions[i].y =  spacing * 0.01 * (i / 180)- centerY;
         _positions[i].z =  0;
-        _positions[i].m =  1;
+        _positions[i].m =  0.01;
     }
 }
 

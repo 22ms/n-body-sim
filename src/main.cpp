@@ -11,7 +11,7 @@
 #include "cl_wrapper.hpp"
 #include "imgui_wrapper.hpp"
 
-int N = 512;
+int N = 32768;
 
 int main(int, char**)
 {
