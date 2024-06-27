@@ -64,15 +64,15 @@ CLWrapper::CLWrapper(GLFWwindow* window, unsigned int* posBO, int* N, float* tim
 
 void CLWrapper::simulateTimestep() {
     float timestep = 0.0001 * (*_timeScale);
-    float minimum_sq_distance = 0.001;
-    int n_thread = 64;
+    float minimumSqDistance = 0.001;
+    int nThread = 64;
 
     cl_int status = clSetKernelArg(_nSquared->getKernel(), 0, sizeof(float), &timestep);
     if (status != 0) {
         printf("kernel 1 args 0 status: %d\n", status);
     }
 
-    status = clSetKernelArg(_nSquared->getKernel(), 1, sizeof(float), &minimum_sq_distance);
+    status = clSetKernelArg(_nSquared->getKernel(), 1, sizeof(float), &minimumSqDistance);
     if (status != 0) {
         printf("kernel 1 args 1 status: %d\n", status);
     }
@@ -87,7 +87,7 @@ void CLWrapper::simulateTimestep() {
         printf("kernel 1 args 3 status: %d\n", status);
     }
 
-    status = clSetKernelArg(_nSquared->getKernel(), 4, n_thread * sizeof(cl_float4), NULL);
+    status = clSetKernelArg(_nSquared->getKernel(), 4, nThread * sizeof(cl_float4), NULL);
     if (status != 0) {
         printf("kernel args 5 status: %d\n", status);
     }
