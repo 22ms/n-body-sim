@@ -59,7 +59,7 @@ CLWrapper::CLWrapper(GLFWwindow* window, unsigned int* posBO, int* N, float* tim
     _posCLBO = clCreateFromGLBuffer(_context, CL_MEM_READ_WRITE, *_posGLBO, &status );
     printf("_posCLBO buffer status: %d\n", status);
 
-    _kernel_1 = new Kernel(_context, _device, "kernels/n_squared.cl", "n_squared");  
+    _nSquared = new Kernel(_context, _device, "kernels/n_squared.cl", "n_squared");  
 }
 
 void CLWrapper::simulateTimestep() {
@@ -67,22 +67,32 @@ void CLWrapper::simulateTimestep() {
     float minimum_sq_distance = 0.001;
     int n_thread = 64;
 
-    cl_int status = clSetKernelArg(_kernel_1->getKernel(), 0, sizeof(float), &timestep);
-    printf("kernel 1 args 0 status: %d\n", status);
+    cl_int status = clSetKernelArg(_nSquared->getKernel(), 0, sizeof(float), &timestep);
+    if (status != 0) {
+        printf("kernel 1 args 0 status: %d\n", status);
+    }
 
-    status = clSetKernelArg(_kernel_1->getKernel(), 1, sizeof(float), &minimum_sq_distance);
-    printf("kernel 1 args 1 status: %d\n", status);
+    status = clSetKernelArg(_nSquared->getKernel(), 1, sizeof(float), &minimum_sq_distance);
+    if (status != 0) {
+        printf("kernel 1 args 1 status: %d\n", status);
+    }
     
-    status = clSetKernelArg(_kernel_1->getKernel(), 2, sizeof(cl_mem), &_posCLBO);
-    printf("kernel 1 args 2 status: %d\n", status);
+    status = clSetKernelArg(_nSquared->getKernel(), 2, sizeof(cl_mem), &_posCLBO);
+    if (status != 0) {
+        printf("kernel 1 args 2 status: %d\n", status);
+    }
 
-    status = clSetKernelArg(_kernel_1->getKernel(), 3, sizeof(cl_mem), &_velCLBO);
-    printf("kernel 1 args 3 status: %d\n", status);
+    status = clSetKernelArg(_nSquared->getKernel(), 3, sizeof(cl_mem), &_velCLBO);
+    if (status != 0) {
+        printf("kernel 1 args 3 status: %d\n", status);
+    }
 
-    status = clSetKernelArg(_kernel_1->getKernel(), 4, n_thread * sizeof(cl_float4), NULL);
-    printf("kernel args 5 status: %d\n", status);
+    status = clSetKernelArg(_nSquared->getKernel(), 4, n_thread * sizeof(cl_float4), NULL);
+    if (status != 0) {
+        printf("kernel args 5 status: %d\n", status);
+    }
 
-    size_t globalWorkSize[3] = { *_N, 1, 1 };
+    size_t globalWorkSize[3] = { (size_t)(*_N), 1, 1 };
     size_t localWorkSize[3] = { 32, 1, 1 };
 
     glFinish();
@@ -93,7 +103,7 @@ void CLWrapper::simulateTimestep() {
 
     clFinish(_cmdQueue);
 
-    status = clEnqueueNDRangeKernel(_cmdQueue, _kernel_1->getKernel(), 1, NULL, globalWorkSize, localWorkSize, 0, NULL, NULL);
+    status = clEnqueueNDRangeKernel(_cmdQueue, _nSquared->getKernel(), 1, NULL, globalWorkSize, localWorkSize, 0, NULL, NULL);
     if (status != 0) {
         printf("clEnqueueAcquireGLObjects status: %d\n", status);
     }

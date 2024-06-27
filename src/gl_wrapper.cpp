@@ -115,7 +115,7 @@ void GLWrapper::expandVertexBuffer() {
             _positions[i].x =  spacing * 0.01 * (i % length) - centerX;
             _positions[i].y =  spacing * 0.01 * (i / length)- centerY;
             _positions[i].z =  0;
-            _positions[i].m =  0.02;
+            _positions[i].m =  0.05;
             continue;
         }
         _positions[i].x =  spacing * 0.01 * (i % length) - centerX;

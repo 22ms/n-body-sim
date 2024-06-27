@@ -33,7 +33,7 @@ private:
     cl_device_id _device;
     cl_platform_id _platform;
 
-    Kernel* _kernel_1;
+    Kernel* _nSquared;
 };
 
 #endif
