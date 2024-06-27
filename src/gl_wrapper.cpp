@@ -6,6 +6,7 @@
 #include <GLFW/glfw3.h>
 #include <stdio.h>
 #include <exception>
+#include <cmath>
 
 static void glfwErrorCallback (int error, const char* description) {
     fprintf(stderr, "GLFW Error %d: %s\n", error, description);
@@ -106,12 +107,19 @@ void GLWrapper::expandVertexBuffer() {
     }
     _positions = new xyzm[*_N];
     float spacing = 1;
-    int numRows = *_N / 180;
-    float centerX = 0.5 * 180 * spacing * 0.01;
-    float centerY = 0.5 * numRows * spacing * 0.01;
+    int length = (int) sqrt(*_N);
+    float centerX = 0.5 * length * spacing * 0.01;
+    float centerY = 0.5 * length * spacing * 0.01;
     for (int i = 0; i < *_N; i++) {
-        _positions[i].x =  spacing * 0.01 * (i % 180) - centerX;
-        _positions[i].y =  spacing * 0.01 * (i / 180)- centerY;
+        if(i == 0) {
+            _positions[i].x =  spacing * 0.01 * (i % length) - centerX;
+            _positions[i].y =  spacing * 0.01 * (i / length)- centerY;
+            _positions[i].z =  0;
+            _positions[i].m =  0.02;
+            continue;
+        }
+        _positions[i].x =  spacing * 0.01 * (i % length) - centerX;
+        _positions[i].y =  spacing * 0.01 * (i / length)- centerY;
         _positions[i].z =  0;
         _positions[i].m =  0.01;
     }
