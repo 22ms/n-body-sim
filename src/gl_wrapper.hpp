@@ -7,7 +7,7 @@
 class Shader;
 
 struct GLFWwindow;
-struct xyz;
+struct xyzm;
 
 class GLWrapper {
 public:
@@ -28,7 +28,7 @@ private:
     unsigned int _posGLBO, _posGLAO;
 
     int* _N = nullptr;
-    xyz* _positions = nullptr;
+    xyzm* _positions = nullptr;
     Shader* _shader = nullptr;
 };
 

@@ -46,9 +46,9 @@ GLWrapper::GLWrapper(int width, int height, const char* title, int* N) {
 
     glBindVertexArray(_posGLAO);
     glBindBuffer(GL_ARRAY_BUFFER, _posGLBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * (*_N) * 3, _positions, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * (*_N) * 4, _positions, GL_DYNAMIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
     _shader = new Shader("shaders/basic.vert", "shaders/basic.frag");
@@ -83,7 +83,7 @@ void GLWrapper::render () {
 
     if (*_N != _previousN) {
         expandVertexBuffer();
-        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * (*_N) * 3, _positions, GL_DYNAMIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * (*_N) * 4, _positions, GL_DYNAMIC_DRAW);
     }
     glDrawArrays(GL_POINTS, 0, *_N);
 
@@ -104,7 +104,7 @@ void GLWrapper::expandVertexBuffer() {
     if (_positions != nullptr) {
         delete[] _positions;
     }
-    _positions = new xyz[*_N];
+    _positions = new xyzm[*_N];
     float spacing = 2;
     int numRows = *_N / 25;
     float centerX = 0.5 * 25 * spacing * 0.01;
@@ -113,6 +113,7 @@ void GLWrapper::expandVertexBuffer() {
         _positions[i].x =  spacing * 0.01 * (i % 25) - centerX;
         _positions[i].y =  spacing * 0.01 * (i / 25)- centerY;
         _positions[i].z =  0;
+        _positions[i].m =  1;
     }
 }
 

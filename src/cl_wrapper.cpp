@@ -42,34 +42,42 @@ CLWrapper::CLWrapper(GLFWwindow* window, int* N, unsigned int* posBO)
     _cmdQueue = clCreateCommandQueue(_context, _device, 0, &status);
     printf("cmd queue status: %d\n", status);
 
-    _velocities = new xyz [*_N];
+    float timestep = 0.0001;
+    float minimum_sq_distance = 0.0001;
+    int n_thread = 64;
+
+    _velocities = new vxvyvz [*_N];
     for (int i = 0; i < *_N; i++) {
-        _velocities[i].x = 0.0f;
-        _velocities[i].y = 0.001f;
-        _velocities[i].z = 0.0f;
+        _velocities[i].vx = 0.0f;
+        _velocities[i].vy = 0.0f;
+        _velocities[i].vz = 0.0f;
     }
 
-    _velCLBO = clCreateBuffer(_context, CL_MEM_READ_WRITE, 3*sizeof(float)*(*_N), NULL, &status);
+    _velCLBO = clCreateBuffer(_context, CL_MEM_READ_WRITE, 4*sizeof(float)*(*_N), NULL, &status);
     printf("_velCLBO status: %d\n", status);
 
-    status = clEnqueueWriteBuffer(_cmdQueue, _velCLBO, CL_FALSE, 0, 3*sizeof(float)*(*_N), _velocities, 0, NULL, NULL);
+    status = clEnqueueWriteBuffer(_cmdQueue, _velCLBO, CL_FALSE, 0, 4*sizeof(float)*(*_N), _velocities, 0, NULL, NULL);
     printf("_velCLBO buffer status: %d\n", status);
 
     _posCLBO = clCreateFromGLBuffer(_context, CL_MEM_READ_WRITE, *_posGLBO, &status );
     printf("_posCLBO buffer status: %d\n", status);
 
-    _kernel_1 = new Kernel(_context, _device, "kernels/kernel_1.cl", "kernel_1");
+    _kernel_1 = new Kernel(_context, _device, "kernels/n_squared.cl", "n_squared");
 
-    status = clSetKernelArg(_kernel_1->getKernel(), 0, sizeof(cl_mem), &_posCLBO);
+    status = clSetKernelArg(_kernel_1->getKernel(), 0, sizeof(float), &timestep);
+    printf("kernel 1 args 0 status: %d\n", status);
+
+    status = clSetKernelArg(_kernel_1->getKernel(), 1, sizeof(float), &minimum_sq_distance);
     printf("kernel 1 args 1 status: %d\n", status);
-
-    status = clSetKernelArg(_kernel_1->getKernel(), 1, sizeof(cl_mem), &_velCLBO);
+    
+    status = clSetKernelArg(_kernel_1->getKernel(), 2, sizeof(cl_mem), &_posCLBO);
     printf("kernel 1 args 2 status: %d\n", status);
-    // TODO: 
-    // 1. Edit "kernel_1.cl" to simply add onto every vertex for testing purposes.
-    // 2. Execute the kernel, offsetting the position buffer by the velocity buffer. Make sure the buffer can be read from/written to without conflicting with OpenGL
-    // 3. Make sure OpenGL uses that modified buffer.
-    // 4. Try it every render call. Particles should move now with constant velocity.
+
+    status = clSetKernelArg(_kernel_1->getKernel(), 3, sizeof(cl_mem), &_velCLBO);
+    printf("kernel 1 args 3 status: %d\n", status);
+
+    status = clSetKernelArg(_kernel_1->getKernel(), 4, n_thread * sizeof(cl_float4), NULL);
+    printf("kernel args 5 status: %d\n", status);
     
 }
 

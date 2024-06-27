@@ -11,7 +11,7 @@ typedef struct _cl_platform_id* cl_platform_id;
 
 class GLFWwindow;
 class Kernel;
-struct xyz;
+struct vxvyvz;
 
 class CLWrapper {
 public:
@@ -23,7 +23,7 @@ private:
     unsigned int* _posGLBO = nullptr;
     int* _N = nullptr;
 
-    xyz* _velocities = nullptr;
+    vxvyvz* _velocities = nullptr;
     cl_mem _velCLBO;
     cl_mem _posCLBO;
 
