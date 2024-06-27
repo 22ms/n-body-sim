@@ -15,13 +15,14 @@ struct vxvyvz;
 
 class CLWrapper {
 public:
-    CLWrapper(GLFWwindow* window, int* N, unsigned int* posGLBO); // Pointer to GLFWwindow not necessarily needed, but makes the dependency on an initialized OpenGL context obvious.
+    CLWrapper(GLFWwindow* window, unsigned int* posGLBO, int* N, float* timeScale); // Pointer to GLFWwindow not necessarily needed, but makes the dependency on an initialized OpenGL context obvious.
     void simulateTimestep();
 private:
     bool isCLExtensionSupported(const char* extension);
 
     unsigned int* _posGLBO = nullptr;
     int* _N = nullptr;
+    float* _timeScale = nullptr;
 
     vxvyvz* _velocities = nullptr;
     cl_mem _velCLBO;

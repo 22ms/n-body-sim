@@ -10,10 +10,11 @@
 #include <string.h>
 #include <windows.h>
 
-CLWrapper::CLWrapper(GLFWwindow* window, int* N, unsigned int* posBO)
+CLWrapper::CLWrapper(GLFWwindow* window, unsigned int* posBO, int* N, float* timeScale)
 {
-    _N = N;
     _posGLBO = posBO;
+    _N = N;
+    _timeScale = timeScale;
 
     cl_int status = clGetPlatformIDs(1, &_platform, NULL);
     printf("clGetPlatformIDs: %d\n", status);
@@ -42,10 +43,6 @@ CLWrapper::CLWrapper(GLFWwindow* window, int* N, unsigned int* posBO)
     _cmdQueue = clCreateCommandQueue(_context, _device, 0, &status);
     printf("cmd queue status: %d\n", status);
 
-    float timestep = 0.00001;
-    float minimum_sq_distance = 0.001;
-    int n_thread = 64;
-
     _velocities = new vxvyvz [*_N];
     for (int i = 0; i < *_N; i++) {
         _velocities[i].vx = 0.0f;
@@ -62,9 +59,15 @@ CLWrapper::CLWrapper(GLFWwindow* window, int* N, unsigned int* posBO)
     _posCLBO = clCreateFromGLBuffer(_context, CL_MEM_READ_WRITE, *_posGLBO, &status );
     printf("_posCLBO buffer status: %d\n", status);
 
-    _kernel_1 = new Kernel(_context, _device, "kernels/n_squared.cl", "n_squared");
+    _kernel_1 = new Kernel(_context, _device, "kernels/n_squared.cl", "n_squared");  
+}
 
-    status = clSetKernelArg(_kernel_1->getKernel(), 0, sizeof(float), &timestep);
+void CLWrapper::simulateTimestep() {
+    float timestep = 0.0001 * (*_timeScale);
+    float minimum_sq_distance = 0.001;
+    int n_thread = 64;
+
+    cl_int status = clSetKernelArg(_kernel_1->getKernel(), 0, sizeof(float), &timestep);
     printf("kernel 1 args 0 status: %d\n", status);
 
     status = clSetKernelArg(_kernel_1->getKernel(), 1, sizeof(float), &minimum_sq_distance);
@@ -78,11 +81,7 @@ CLWrapper::CLWrapper(GLFWwindow* window, int* N, unsigned int* posBO)
 
     status = clSetKernelArg(_kernel_1->getKernel(), 4, n_thread * sizeof(cl_float4), NULL);
     printf("kernel args 5 status: %d\n", status);
-    
-}
 
-void CLWrapper::simulateTimestep() {
-    cl_int status;
     size_t globalWorkSize[3] = { *_N, 1, 1 };
     size_t localWorkSize[3] = { 32, 1, 1 };
 

@@ -12,13 +12,14 @@
 #include "imgui_wrapper.hpp"
 
 int N = 32768;
+float timeScale = 1.0f;
 
 int main(int, char**)
 {
     // Initialization
     GLWrapper glWrapper(1280, 720, "N-body simulation", &N);
-    CLWrapper clWrapper(glWrapper.window, &N, glWrapper.getPosGLBO());
-    ImGuiWrapper imGuiWrapper(glWrapper.window, &N);
+    CLWrapper clWrapper(glWrapper.window, glWrapper.getPosGLBO(), &N, &timeScale);
+    ImGuiWrapper imGuiWrapper(glWrapper.window, &N, &timeScale);
 
     // Render loop
     while (!glWrapper.shouldClose()) {

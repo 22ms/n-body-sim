@@ -5,8 +5,9 @@
 
 #include <GLFW/glfw3.h>
 
-ImGuiWrapper::ImGuiWrapper (GLFWwindow* window, int* N) {
+ImGuiWrapper::ImGuiWrapper (GLFWwindow* window, int* N, float* timeScale) {
     _N = N;
+    _timeScale = timeScale;
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
@@ -34,6 +35,7 @@ void ImGuiWrapper::render () {
     ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
     ImGui::Begin("Controls", NULL); // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
     ImGui::InputInt("Bodies", _N);
+    ImGui::SliderFloat("Time scale", _timeScale, 0.0f, 1.0f);
     ImGui::End();
 
     // Rendering

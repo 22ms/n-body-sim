@@ -110,13 +110,6 @@ void GLWrapper::expandVertexBuffer() {
     float centerX = 0.5 * 180 * spacing * 0.01;
     float centerY = 0.5 * numRows * spacing * 0.01;
     for (int i = 0; i < *_N; i++) {
-        if(i == 0) {
-            _positions[i].x =  spacing * 0.01 * (i % 180) - centerX;
-            _positions[i].y =  spacing * 0.01 * (i / 180)- centerY;
-            _positions[i].z =  0;
-            _positions[i].m =  0.02;
-            continue;
-        }
         _positions[i].x =  spacing * 0.01 * (i % 180) - centerX;
         _positions[i].y =  spacing * 0.01 * (i / 180)- centerY;
         _positions[i].z =  0;
