@@ -5,25 +5,29 @@
 // https://learnopengl.com/
 // https://bashbaug.github.io/OpenCL-Docs/pdf/OpenCL_API.pdf
 // https://web.engr.oregonstate.edu/~mjb/cs575/Handouts/opencl.opengl.vbo.1pp.pdf
+// https://dournac.org/info/nbody_tutorial
 
-#include "gl_window_wrapper.h"
-#include "imgui_window_wrapper.h"
+#include "gl_wrapper.hpp"
+#include "cl_wrapper.hpp"
+#include "imgui_wrapper.hpp"
 
-const char* GLSL_VERSION = "#version 130";
-int N = 500;
+int N = 524'288;
+float timeScale = 1.0f;
 
 int main(int, char**)
 {
     // Initialization
-    GLWindowWrapper glWindowWrapper(1280, 720, "N-body simulation", GLSL_VERSION, &N);
-    ImGuiWindowWrapper imGuiWindowWrapper(glWindowWrapper.window, GLSL_VERSION, &N);
+    GLWrapper glWrapper(1280, 720, "N-body simulation", &N);
+    CLWrapper clWrapper(glWrapper.window, glWrapper.getPosGLBO(), glWrapper.getVelocities(), &N, &timeScale);
+    ImGuiWrapper imGuiWrapper(glWrapper.window, &N, &timeScale);
 
     // Render loop
-    while (!glfwWindowShouldClose(glWindowWrapper.window)) {
-        glWindowWrapper.render();
-        imGuiWindowWrapper.render();
+    while (!glWrapper.shouldClose()) {
+        glWrapper.render();
+        imGuiWrapper.render();
+        clWrapper.simulateTimestep();
 
-        glfwSwapBuffers(glWindowWrapper.window);
+        glWrapper.swapBuffers();
     }
 
     return 0;

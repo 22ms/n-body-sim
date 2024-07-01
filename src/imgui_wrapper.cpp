@@ -1,7 +1,13 @@
-#include "imgui_window_wrapper.h"
+#include "imgui_wrapper.hpp"
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
 
-ImGuiWindowWrapper::ImGuiWindowWrapper (GLFWwindow* window, const char* glsl_version, int* N) {
+#include <GLFW/glfw3.h>
+
+ImGuiWrapper::ImGuiWrapper (GLFWwindow* window, int* N, float* timeScale) {
     _N = N;
+    _timeScale = timeScale;
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
@@ -11,16 +17,16 @@ ImGuiWindowWrapper::ImGuiWindowWrapper (GLFWwindow* window, const char* glsl_ver
 
     setStyleGruvbox();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init(glsl_version);
+    ImGui_ImplOpenGL3_Init("#version 130");
 }
 
-ImGuiWindowWrapper::~ImGuiWindowWrapper () {
+ImGuiWrapper::~ImGuiWrapper () {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 }
 
-void ImGuiWindowWrapper::render () {
+void ImGuiWrapper::render () {
     // Start the Dear ImGui frame
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -29,6 +35,7 @@ void ImGuiWindowWrapper::render () {
     ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
     ImGui::Begin("Controls", NULL); // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
     ImGui::InputInt("Bodies", _N);
+    ImGui::SliderFloat("Time scale", _timeScale, 0.0f, 1.0f);
     ImGui::End();
 
     // Rendering
@@ -36,7 +43,7 @@ void ImGuiWindowWrapper::render () {
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void ImGuiWindowWrapper::setStyleGruvbox () {
+void ImGuiWrapper::setStyleGruvbox () {
     auto& style = ImGui::GetStyle();
     style.ChildRounding = 0;
     style.GrabRounding = 0;
