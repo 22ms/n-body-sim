@@ -8,6 +8,7 @@ class Shader;
 
 struct GLFWwindow;
 struct xyzm;
+struct vxvyvz;
 
 class GLWrapper {
 public:
@@ -16,12 +17,12 @@ public:
 
     GLFWwindow* window = nullptr;
     unsigned int* getPosGLBO();
+    vxvyvz* getVelocities();
     bool shouldClose();
     void swapBuffers();
     void render();
-    void modifyVertexBuffer(float* vertices);
 private:
-    void expandVertexBuffer();
+    void fillVertexBuffers();
     void processInput(GLFWwindow *window);
 
     int _previousN;
@@ -29,6 +30,7 @@ private:
 
     int* _N = nullptr;
     xyzm* _positions = nullptr;
+    vxvyvz* _velocities = nullptr;
     Shader* _shader = nullptr;
 };
 

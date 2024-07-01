@@ -10,9 +10,10 @@
 #include <string.h>
 #include <windows.h>
 
-CLWrapper::CLWrapper(GLFWwindow* window, unsigned int* posBO, int* N, float* timeScale)
+CLWrapper::CLWrapper(GLFWwindow* window, unsigned int* posBO, vxvyvz* velocities, int* N, float* timeScale)
 {
     _posGLBO = posBO;
+    _velocities = velocities;
     _N = N;
     _timeScale = timeScale;
 
@@ -43,13 +44,6 @@ CLWrapper::CLWrapper(GLFWwindow* window, unsigned int* posBO, int* N, float* tim
     _cmdQueue = clCreateCommandQueue(_context, _device, 0, &status);
     printf("cmd queue status: %d\n", status);
 
-    _velocities = new vxvyvz [*_N];
-    for (int i = 0; i < *_N; i++) {
-        _velocities[i].vx = 0.0f;
-        _velocities[i].vy = 0.0f;
-        _velocities[i].vz = 0.0f;
-    }
-
     _velCLBO = clCreateBuffer(_context, CL_MEM_READ_WRITE, 4*sizeof(float)*(*_N), NULL, &status);
     printf("_velCLBO status: %d\n", status);
 
@@ -65,7 +59,9 @@ CLWrapper::CLWrapper(GLFWwindow* window, unsigned int* posBO, int* N, float* tim
 void CLWrapper::simulateTimestep() {
     float timestep = 0.0001 * (*_timeScale);
     float minimumSqDistance = 0.001;
-    int nThread = 64;
+
+    size_t globalWorkSize[3] = { (size_t)(*_N), 1, 1 };
+    size_t localWorkSize[3] = { 1024, 1, 1 };
 
     cl_int status = clSetKernelArg(_nSquared->getKernel(), 0, sizeof(float), &timestep);
     if (status != 0) {
@@ -87,13 +83,10 @@ void CLWrapper::simulateTimestep() {
         printf("kernel 1 args 3 status: %d\n", status);
     }
 
-    status = clSetKernelArg(_nSquared->getKernel(), 4, nThread * sizeof(cl_float4), NULL);
+    status = clSetKernelArg(_nSquared->getKernel(), 4, localWorkSize[0] * sizeof(cl_float4), NULL);
     if (status != 0) {
         printf("kernel args 5 status: %d\n", status);
     }
-
-    size_t globalWorkSize[3] = { (size_t)(*_N), 1, 1 };
-    size_t localWorkSize[3] = { 32, 1, 1 };
 
     glFinish();
     status = clEnqueueAcquireGLObjects(_cmdQueue, 1, &_posCLBO, 0, NULL, NULL );

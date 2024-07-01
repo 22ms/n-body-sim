@@ -4,22 +4,25 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include <stdio.h>
-#include <exception>
 #include <cmath>
+#include <exception>
+#include <stdio.h>
 
-static void glfwErrorCallback (int error, const char* description) {
+static void glfwErrorCallback(int error, const char* description)
+{
     fprintf(stderr, "GLFW Error %d: %s\n", error, description);
 }
 
-static void framebufferSizeCallback (GLFWwindow* window, int width, int height) {
+static void framebufferSizeCallback(GLFWwindow* window, int width, int height)
+{
     glViewport(0, 0, width, height);
 }
 
-GLWrapper::GLWrapper(int width, int height, const char* title, int* N) {
+GLWrapper::GLWrapper(int width, int height, const char* title, int* N)
+{
     _N = N;
     _previousN = *_N;
-    
+
     glfwSetErrorCallback(glfwErrorCallback);
     glfwInit();
 
@@ -40,7 +43,7 @@ GLWrapper::GLWrapper(int width, int height, const char* title, int* N) {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
     GLenum err = glewInit();
-    expandVertexBuffer();
+    fillVertexBuffers();
 
     glGenBuffers(1, &_posGLBO);
     glGenVertexArrays(1, &_posGLAO);
@@ -56,11 +59,18 @@ GLWrapper::GLWrapper(int width, int height, const char* title, int* N) {
     _shader->use();
 }
 
-unsigned int* GLWrapper::getPosGLBO() {
+unsigned int* GLWrapper::getPosGLBO()
+{
     return &_posGLBO;
 }
 
-GLWrapper::~GLWrapper() {
+vxvyvz* GLWrapper::getVelocities()
+{
+    return _velocities;
+}
+
+GLWrapper::~GLWrapper()
+{
     glfwDestroyWindow(window);
     window = nullptr;
 
@@ -73,17 +83,19 @@ GLWrapper::~GLWrapper() {
     delete _shader;
 }
 
-bool GLWrapper::shouldClose() {
+bool GLWrapper::shouldClose()
+{
     return glfwWindowShouldClose(window);
 }
 
-void GLWrapper::render () {
+void GLWrapper::render()
+{
     glClear(GL_COLOR_BUFFER_BIT);
     glfwPollEvents();
     processInput(window);
 
     if (*_N != _previousN) {
-        expandVertexBuffer();
+        fillVertexBuffers();
         glBufferData(GL_ARRAY_BUFFER, sizeof(float) * (*_N) * 4, _positions, GL_DYNAMIC_DRAW);
     }
     glDrawArrays(GL_POINTS, 0, *_N);
@@ -91,41 +103,55 @@ void GLWrapper::render () {
     _previousN = *_N;
 
     GLenum err = glGetError();
-    if(err != 0) {
+    if (err != 0) {
         printf("OpenGL error: 0x%x\n", err);
         std::terminate();
     }
 }
 
-void GLWrapper::swapBuffers() {
+void GLWrapper::swapBuffers()
+{
     glfwSwapBuffers(window);
 }
 
-void GLWrapper::expandVertexBuffer() {
+void GLWrapper::fillVertexBuffers()
+{
+
     if (_positions != nullptr) {
         delete[] _positions;
     }
+
+    if (_velocities != nullptr) {
+        delete[] _velocities;
+    }
+
     _positions = new xyzm[*_N];
-    float spacing = 1;
-    int length = (int) sqrt(*_N);
-    float centerX = 0.5 * length * spacing * 0.01;
-    float centerY = 0.5 * length * spacing * 0.01;
+    _velocities = new vxvyvz[*_N];
+
+    float endRadius = 1.0f;
+    float spacing = endRadius / *_N;
+
+    // set positions
     for (int i = 0; i < *_N; i++) {
-        if(i == 0) {
-            _positions[i].x =  spacing * 0.01 * (i % length) - centerX;
-            _positions[i].y =  spacing * 0.01 * (i / length)- centerY;
-            _positions[i].z =  0;
-            _positions[i].m =  0.05;
-            continue;
-        }
-        _positions[i].x =  spacing * 0.01 * (i % length) - centerX;
-        _positions[i].y =  spacing * 0.01 * (i / length)- centerY;
-        _positions[i].z =  0;
-        _positions[i].m =  0.01;
+        double omega = rand() / double(RAND_MAX) * 2 * M_PI;
+        double r = rand() / double(RAND_MAX) * endRadius;
+
+        _positions[i].x = r * cos(omega);
+        _positions[i].y = r * sin(omega);
+        _positions[i].z = 0;
+        _positions[i].m = 0.01;
+    }
+
+    // set velocities
+    for (int i = 0; i < *_N; i++) {
+        _velocities[i].vx = 0;
+        _velocities[i].vy = 0;
+        _velocities[i].vz = 0;
     }
 }
 
-void GLWrapper::processInput(GLFWwindow *window) {
-    if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+void GLWrapper::processInput(GLFWwindow* window)
+{
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 }

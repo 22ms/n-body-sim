@@ -15,5 +15,5 @@ void main()
     
     float smoothed = smoothstep(edgeThreshold, edgeThreshold-0.5, dist);
     
-    FragColor = vec4(1.0, 1.0, 1.0, smoothed);
+    FragColor = vec4(130.0/255.0, 165.0/255.0, 152.0/255.0, smoothed);
 }
