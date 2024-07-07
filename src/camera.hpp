@@ -1,7 +1,7 @@
 // Source: https://learnopengl.com/code_viewer_gh.php?code=includes/learnopengl/camera.h
 
-#ifndef CAMERA_H
-#define CAMERA_H
+#ifndef CAMERA_HPP
+#define CAMERA_HPP
 
 #include <glm/glm.hpp>
 

@@ -1,5 +1,5 @@
-#ifndef KERNEL_H
-#define KERNEL_H
+#ifndef KERNEL_HPP
+#define KERNEL_HPP
 
 #define CL_TARGET_OPENCL_VERSION 120
 

@@ -1,5 +1,5 @@
-#ifndef IMGUI_WRAPPER_H
-#define IMGUI_WRAPPER_H
+#ifndef IMGUI_WRAPPER_HPP
+#define IMGUI_WRAPPER_HPP
 
 class GLFWwindow;
 

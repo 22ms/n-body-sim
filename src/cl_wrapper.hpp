@@ -1,5 +1,5 @@
-#ifndef CL_WRAPPER_H
-#define CL_WRAPPER_H
+#ifndef CL_WRAPPER_HPP
+#define CL_WRAPPER_HPP
 
 #define CL_TARGET_OPENCL_VERSION 120
 

@@ -1,8 +1,7 @@
-#ifndef GL_WRAPPER_H
-#define GL_WRAPPER_H
+#ifndef GL_WRAPPER_HPP
+#define GL_WRAPPER_HPP
 
 #define GLEW_BUILD
-#define GL_SILENCE_DEPRECATION
 
 class Shader;
 class Camera;
