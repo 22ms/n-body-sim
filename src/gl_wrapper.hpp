@@ -40,6 +40,9 @@ private:
     void fillVertexBuffers();
     void processInput(GLFWwindow* window);
 
+    static void framebufferSizeCallback(GLFWwindow* window, int width, int height);
+    static void glfwErrorCallback(int error, const char* description);
+
     int _previousN;
     unsigned int _posGLBO, _posGLAO;
 

@@ -84,6 +84,11 @@ void Shader::setFloat(const char* name, float value) const
     glUniform1f(glGetUniformLocation(ID, name), value); 
 }
 
+void Shader::setMat4(const char* name, const glm::mat4 &mat) const
+{
+    glUniformMatrix4fv(glGetUniformLocation(ID, name), 1, GL_FALSE, &mat[0][0]);
+}
+
 void Shader::checkCompileErrors(unsigned int shader, const char* type)
 {
     int success;

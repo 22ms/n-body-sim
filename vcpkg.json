@@ -2,6 +2,7 @@
   "dependencies": [
     "glfw3",
     "glew",
-    "opencl"
+    "opencl",
+    "glm"
   ]
 }

@@ -8,16 +8,6 @@
 #include <exception>
 #include <stdio.h>
 
-static void glfwErrorCallback(int error, const char* description)
-{
-    fprintf(stderr, "GLFW Error %d: %s\n", error, description);
-}
-
-static void framebufferSizeCallback(GLFWwindow* window, int width, int height)
-{
-    glViewport(0, 0, width, height);
-}
-
 void GLWrapper::initialize(int width, int height, const char* title, int* N)
 {
     _N = N;
@@ -140,4 +130,14 @@ void GLWrapper::processInput(GLFWwindow* window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+}
+
+void GLWrapper::glfwErrorCallback(int error, const char* description)
+{
+    fprintf(stderr, "GLFW Error %d: %s\n", error, description);
+}
+
+void GLWrapper::framebufferSizeCallback(GLFWwindow* window, int width, int height)
+{
+    glViewport(0, 0, width, height);
 }

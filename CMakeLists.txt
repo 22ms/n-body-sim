@@ -6,6 +6,7 @@ find_package(glfw3 REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(OpenCL 1.2 REQUIRED)
+find_package(glm REQUIRED)
 
 file(GLOB_RECURSE SOURCES "src/*.cpp")
 
@@ -15,6 +16,7 @@ target_link_libraries(n-body glfw)
 target_link_libraries(n-body GLEW::GLEW)
 target_link_libraries(n-body OpenGL::GL)
 target_link_libraries(n-body OpenCL::OpenCL)
+target_link_libraries(n-body glm::glm)
 
 add_custom_target(copy_shaders ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory
