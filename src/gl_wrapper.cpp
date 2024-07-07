@@ -1,6 +1,7 @@
 #include "gl_wrapper.hpp"
 #include "shader.hpp"
 #include "utilities.hpp"
+#include "camera.hpp"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -8,8 +9,14 @@
 #include <exception>
 #include <stdio.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 void GLWrapper::initialize(int width, int height, const char* title, int* N)
 {
+    _width = width;
+    _height = height;
     _N = N;
     _previousN = *_N;
 
@@ -26,6 +33,10 @@ void GLWrapper::initialize(int width, int height, const char* title, int* N)
     glfwSwapInterval(1); // Enable vsync
     glViewport(0, 0, width, height);
     glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
+    glfwSetCursorPosCallback(window, mouseCallback);
+    // glfwSetScrollCallback(window, scrollCallback);
+
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     glEnable(GL_PROGRAM_POINT_SIZE);
     glEnable(GL_BLEND);
@@ -47,6 +58,14 @@ void GLWrapper::initialize(int width, int height, const char* title, int* N)
 
     _shader = new Shader("shaders/basic.vert", "shaders/basic.frag");
     _shader->use();
+
+    camera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f));
+    lastX = _width/2.0f;
+    lastY = _height/2.0f;
+    firstMouse = true;
+    captureMouse = false;
+    _deltaTime = 0.0f;
+    _lastFrameTime = 0.0f;
 }
 
 unsigned int* GLWrapper::getPosGLBO()
@@ -66,9 +85,19 @@ bool GLWrapper::shouldClose()
 
 void GLWrapper::render()
 {
+    float currentFrameTime = static_cast<float>(glfwGetTime());
+    _deltaTime = currentFrameTime - _lastFrameTime;
+    _lastFrameTime = currentFrameTime;
+
     glClear(GL_COLOR_BUFFER_BIT);
     glfwPollEvents();
     processInput(window);
+
+    glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), (float)_width / (float)_height, 0.1f, 100.0f);
+    _shader->setMat4("projection", projection);
+
+    glm::mat4 view = camera->GetViewMatrix();
+    _shader->setMat4("view", view);
 
     if (*_N != _previousN) {
         fillVertexBuffers();
@@ -114,7 +143,7 @@ void GLWrapper::fillVertexBuffers()
 
         _positions[i].x = r * cos(omega);
         _positions[i].y = r * sin(omega);
-        _positions[i].z = 0;
+        _positions[i].z = rand()/100000.0f;
         _positions[i].m = 0.01;
     }
 
@@ -126,12 +155,6 @@ void GLWrapper::fillVertexBuffers()
     }
 }
 
-void GLWrapper::processInput(GLFWwindow* window)
-{
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-}
-
 void GLWrapper::glfwErrorCallback(int error, const char* description)
 {
     fprintf(stderr, "GLFW Error %d: %s\n", error, description);
@@ -140,4 +163,44 @@ void GLWrapper::glfwErrorCallback(int error, const char* description)
 void GLWrapper::framebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
+}
+
+void GLWrapper::mouseCallback(GLFWwindow* window, double xposIn, double yposIn) {
+    
+    float xpos = static_cast<float>(xposIn);
+    float ypos = static_cast<float>(yposIn);
+
+    GLWrapper& instance = GLWrapper::getInstance();
+
+    if (instance.firstMouse)
+    {
+        instance.lastX = xpos;
+        instance.lastY = ypos;
+        instance.firstMouse = false;
+    }
+
+    float xoffset = xpos - instance.lastX;
+    float yoffset = instance.lastY - ypos; // reversed since y-coordinates go from bottom to top
+
+    instance.lastX = xpos;
+    instance.lastY = ypos;
+
+    if (instance.captureMouse) {
+        instance.camera->ProcessMouseMovement(xoffset, yoffset);
+    }
+}
+
+void GLWrapper::processInput(GLFWwindow* window)
+{
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
+
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        camera->ProcessKeyboard(FORWARD, _deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        camera->ProcessKeyboard(BACKWARD, _deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        camera->ProcessKeyboard(LEFT, _deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        camera->ProcessKeyboard(RIGHT, _deltaTime);
 }

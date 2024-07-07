@@ -5,6 +5,7 @@
 #define GL_SILENCE_DEPRECATION
 
 class Shader;
+class Camera;
 
 struct GLFWwindow;
 struct xyzm;
@@ -36,12 +37,26 @@ public:
     void swapBuffers();
     void render();
 
+    // Camera specific
+    Camera* camera = nullptr;
+    float lastX;
+    float lastY;
+    bool firstMouse;
+    bool captureMouse;
+
 private:
     void fillVertexBuffers();
     void processInput(GLFWwindow* window);
 
+    // Callbacks
     static void framebufferSizeCallback(GLFWwindow* window, int width, int height);
     static void glfwErrorCallback(int error, const char* description);
+    static void mouseCallback(GLFWwindow* window, double xposIn, double yposIn);
+    static void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
+
+    int _width, _height;
+    float _deltaTime; // could be public, not needed yet
+    float _lastFrameTime;
 
     int _previousN;
     unsigned int _posGLBO, _posGLAO;
