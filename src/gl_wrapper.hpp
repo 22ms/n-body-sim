@@ -46,12 +46,13 @@ public:
 
 private:
     void fillVertexBuffers();
-    void processInput(GLFWwindow* window);
+    void processKeyInput(GLFWwindow* window);
 
     // Callbacks
     static void framebufferSizeCallback(GLFWwindow* window, int width, int height);
-    static void glfwErrorCallback(int error, const char* description);
+    static void errorCallback(int error, const char* description);
     static void mouseCallback(GLFWwindow* window, double xposIn, double yposIn);
+    static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
     static void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 
     int _width, _height;

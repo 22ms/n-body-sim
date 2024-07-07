@@ -1,7 +1,7 @@
 #include "gl_wrapper.hpp"
+#include "camera.hpp"
 #include "shader.hpp"
 #include "utilities.hpp"
-#include "camera.hpp"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -20,7 +20,7 @@ void GLWrapper::initialize(int width, int height, const char* title, int* N)
     _N = N;
     _previousN = *_N;
 
-    glfwSetErrorCallback(glfwErrorCallback);
+    glfwSetErrorCallback(errorCallback);
     glfwInit();
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -34,9 +34,10 @@ void GLWrapper::initialize(int width, int height, const char* title, int* N)
     glViewport(0, 0, width, height);
     glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
     glfwSetCursorPosCallback(window, mouseCallback);
+    glfwSetMouseButtonCallback(window, mouseButtonCallback);
     // glfwSetScrollCallback(window, scrollCallback);
 
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
     glEnable(GL_PROGRAM_POINT_SIZE);
     glEnable(GL_BLEND);
@@ -60,8 +61,8 @@ void GLWrapper::initialize(int width, int height, const char* title, int* N)
     _shader->use();
 
     camera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f));
-    lastX = _width/2.0f;
-    lastY = _height/2.0f;
+    lastX = _width / 2.0f;
+    lastY = _height / 2.0f;
     firstMouse = true;
     captureMouse = false;
     _deltaTime = 0.0f;
@@ -91,7 +92,7 @@ void GLWrapper::render()
 
     glClear(GL_COLOR_BUFFER_BIT);
     glfwPollEvents();
-    processInput(window);
+    processKeyInput(window);
 
     glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), (float)_width / (float)_height, 0.1f, 100.0f);
     _shader->setMat4("projection", projection);
@@ -143,7 +144,7 @@ void GLWrapper::fillVertexBuffers()
 
         _positions[i].x = r * cos(omega);
         _positions[i].y = r * sin(omega);
-        _positions[i].z = rand()/100000.0f;
+        _positions[i].z = rand() / 100000.0f;
         _positions[i].m = 0.01;
     }
 
@@ -155,7 +156,7 @@ void GLWrapper::fillVertexBuffers()
     }
 }
 
-void GLWrapper::glfwErrorCallback(int error, const char* description)
+void GLWrapper::errorCallback(int error, const char* description)
 {
     fprintf(stderr, "GLFW Error %d: %s\n", error, description);
 }
@@ -165,15 +166,15 @@ void GLWrapper::framebufferSizeCallback(GLFWwindow* window, int width, int heigh
     glViewport(0, 0, width, height);
 }
 
-void GLWrapper::mouseCallback(GLFWwindow* window, double xposIn, double yposIn) {
-    
+void GLWrapper::mouseCallback(GLFWwindow* window, double xposIn, double yposIn)
+{
+
     float xpos = static_cast<float>(xposIn);
     float ypos = static_cast<float>(yposIn);
 
     GLWrapper& instance = GLWrapper::getInstance();
 
-    if (instance.firstMouse)
-    {
+    if (instance.firstMouse) {
         instance.lastX = xpos;
         instance.lastY = ypos;
         instance.firstMouse = false;
@@ -190,7 +191,20 @@ void GLWrapper::mouseCallback(GLFWwindow* window, double xposIn, double yposIn) 
     }
 }
 
-void GLWrapper::processInput(GLFWwindow* window)
+void GLWrapper::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+{
+    GLWrapper& instance = GLWrapper::getInstance();
+    if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
+        instance.captureMouse = true;
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    }
+    if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE) {
+        instance.captureMouse = false;
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    }
+}
+
+void GLWrapper::processKeyInput(GLFWwindow* window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
