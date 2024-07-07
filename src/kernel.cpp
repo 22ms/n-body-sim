@@ -26,7 +26,7 @@ Kernel::Kernel(cl_context context, cl_device_id device, const char* path, const 
         std::terminate();
     }
 
-    _program = clCreateProgramWithSource(context, 1,
+    m_Program = clCreateProgramWithSource(context, 1,
                                         (const char**)&code,
                                         NULL, &status);
 
@@ -36,12 +36,12 @@ Kernel::Kernel(cl_context context, cl_device_id device, const char* path, const 
         std::terminate();
     }
 
-    status = clBuildProgram(_program, 1, &device, NULL, NULL, NULL);
+    status = clBuildProgram(m_Program, 1, &device, NULL, NULL, NULL);
     if (status != CL_SUCCESS)
     {
         // Determine the reason for the error
         char buildLog[16384];
-        clGetProgramBuildInfo(_program, device, CL_PROGRAM_BUILD_LOG,
+        clGetProgramBuildInfo(m_Program, device, CL_PROGRAM_BUILD_LOG,
                               sizeof(buildLog), buildLog, NULL);
 
         std::cerr << "Error in kernel: " << std::endl;
@@ -49,7 +49,7 @@ Kernel::Kernel(cl_context context, cl_device_id device, const char* path, const 
         std::terminate();
     }
 
-    _kernel = clCreateKernel(_program, name, &status);
+    m_Kernel = clCreateKernel(m_Program, name, &status);
     if (status != 0)
     {
         std::printf("Failed to create CL kernel. Error code: %d\n", status);
@@ -57,6 +57,6 @@ Kernel::Kernel(cl_context context, cl_device_id device, const char* path, const 
     }
 }
 
-cl_kernel Kernel::getKernel() {
-    return _kernel;
+cl_kernel Kernel::GetKernel() {
+    return m_Kernel;
 }

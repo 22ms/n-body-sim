@@ -5,9 +5,9 @@
 
 #include <GLFW/glfw3.h>
 
-void ImGuiWrapper::initialize (GLFWwindow* window, int* N, float* timeScale) {
-    _N = N;
-    _timeScale = timeScale;
+void ImGuiWrapper::Initialize (GLFWwindow* window, int* N, float* timeScale) {
+    m_N = N;
+    m_TimeScale = timeScale;
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
@@ -20,7 +20,7 @@ void ImGuiWrapper::initialize (GLFWwindow* window, int* N, float* timeScale) {
     ImGui_ImplOpenGL3_Init("#version 130");
 }
 
-void ImGuiWrapper::render () {
+void ImGuiWrapper::Render () {
     // Start the Dear ImGui frame
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -28,8 +28,8 @@ void ImGuiWrapper::render () {
 
     ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
     ImGui::Begin("Controls", NULL); // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-    ImGui::InputInt("Bodies", _N);
-    ImGui::SliderFloat("Time scale", _timeScale, 0.0f, 1.0f);
+    ImGui::InputInt("Bodies", m_N);
+    ImGui::SliderFloat("Time scale", m_TimeScale, 0.0f, 1.0f);
     ImGui::End();
 
     // Rendering

@@ -15,7 +15,7 @@ class GLWrapper {
 
     // Singleton pattern: https://stackoverflow.com/a/1008289/16951338
 public:
-    static GLWrapper& getInstance()
+    static GLWrapper& GetInstance()
     {
         static GLWrapper instance;
         return instance;
@@ -28,21 +28,21 @@ private:
 
     // Member variables
 public:
-    void initialize(int width, int height, const char* title, int* N);
+    void Initialize(int width, int height, const char* title, int* N);
 
-    GLFWwindow* window = nullptr;
-    unsigned int* getPosGLBO();
-    vxvyvz* getVelocities();
-    bool shouldClose();
-    void swapBuffers();
-    void render();
+    GLFWwindow* Window = nullptr;
+    unsigned int* GetPosGLBO();
+    vxvyvz* GetVelocities();
+    bool ShouldClose();
+    void SwapBuffers();
+    void Render();
 
     // Camera specific
-    Camera* camera = nullptr;
-    float lastX;
-    float lastY;
-    bool firstMouse;
-    bool captureMouse;
+    Camera* MainCamera = nullptr;
+    float LastX;
+    float LastY;
+    bool FirstMouse;
+    bool CaptureMouse;
 
 private:
     void fillVertexBuffers();
@@ -55,17 +55,17 @@ private:
     static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
     static void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 
-    int _width, _height;
-    float _deltaTime; // could be public, not needed yet
-    float _lastFrameTime;
+    int m_Width, m_Height;
+    float m_DeltaTime; // could be public, not needed yet
+    float m_LastFrameTime;
 
-    int _previousN;
-    unsigned int _posGLBO, _posGLAO;
+    int m_PreviousN;
+    unsigned int m_PosGLBO, m_PosGLAO;
 
-    int* _N = nullptr;
-    xyzm* _positions = nullptr;
-    vxvyvz* _velocities = nullptr;
-    Shader* _shader = nullptr;
+    int* m_N = nullptr;
+    xyzm* m_Positions = nullptr;
+    vxvyvz* m_Velocities = nullptr;
+    Shader* m_Shader = nullptr;
 };
 
 #endif

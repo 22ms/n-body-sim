@@ -12,10 +12,10 @@ class Kernel // NOTE: as of right now, this encapsulation is a bit over engineer
 {
 public:
     Kernel(cl_context context, cl_device_id device, const char* path, const char* name);
-    cl_kernel getKernel();
+    cl_kernel GetKernel();
 private:
-    cl_program _program;
-    cl_kernel _kernel;
+    cl_program m_Program;
+    cl_kernel m_Kernel;
 };
 
 #endif

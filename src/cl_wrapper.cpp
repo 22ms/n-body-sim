@@ -10,17 +10,17 @@
 #include <string.h>
 #include <windows.h>
 
-void CLWrapper::initialize(GLFWwindow* window, unsigned int* posBO, vxvyvz* velocities, int* N, float* timeScale)
+void CLWrapper::Initialize(GLFWwindow* window, unsigned int* posBO, vxvyvz* velocities, int* N, float* timeScale)
 {
-    _posGLBO = posBO;
-    _velocities = velocities;
-    _N = N;
-    _timeScale = timeScale;
+    m_PosGLBO = posBO;
+    m_Velocities = velocities;
+    m_N = N;
+    m_TimeScale = timeScale;
 
-    cl_int status = clGetPlatformIDs(1, &_platform, NULL);
+    cl_int status = clGetPlatformIDs(1, &m_Platform, NULL);
     printf("clGetPlatformIDs: %d\n", status);
 
-    status = clGetDeviceIDs(_platform, CL_DEVICE_TYPE_GPU, 1, &_device, NULL);
+    status = clGetDeviceIDs(m_Platform, CL_DEVICE_TYPE_GPU, 1, &m_Device, NULL);
     printf("clGetDeviceIDs: %d\n", status);
 
     if (isCLExtensionSupported("cl_khr_gl_sharing")) {
@@ -34,81 +34,81 @@ void CLWrapper::initialize(GLFWwindow* window, unsigned int* posBO, vxvyvz* velo
     cl_context_properties props[] = {
         CL_GL_CONTEXT_KHR, (cl_context_properties) wglGetCurrentContext(),
         CL_WGL_HDC_KHR, (cl_context_properties) wglGetCurrentDC(),
-        CL_CONTEXT_PLATFORM, (cl_context_properties)_platform,
+        CL_CONTEXT_PLATFORM, (cl_context_properties)m_Platform,
         0
     };
 
-    _context = clCreateContext(props, 1, &_device, NULL, NULL, &status);
+    m_Context = clCreateContext(props, 1, &m_Device, NULL, NULL, &status);
     printf("context status: %d\n", status);
 
-    _cmdQueue = clCreateCommandQueue(_context, _device, 0, &status);
+    m_CmdQueue = clCreateCommandQueue(m_Context, m_Device, 0, &status);
     printf("cmd queue status: %d\n", status);
 
-    _velCLBO = clCreateBuffer(_context, CL_MEM_READ_WRITE, 4*sizeof(float)*(*_N), NULL, &status);
+    m_VelCLBO = clCreateBuffer(m_Context, CL_MEM_READ_WRITE, 4*sizeof(float)*(*m_N), NULL, &status);
     printf("_velCLBO status: %d\n", status);
 
-    status = clEnqueueWriteBuffer(_cmdQueue, _velCLBO, CL_FALSE, 0, 4*sizeof(float)*(*_N), _velocities, 0, NULL, NULL);
+    status = clEnqueueWriteBuffer(m_CmdQueue, m_VelCLBO, CL_FALSE, 0, 4*sizeof(float)*(*m_N), m_Velocities, 0, NULL, NULL);
     printf("_velCLBO buffer status: %d\n", status);
 
-    _posCLBO = clCreateFromGLBuffer(_context, CL_MEM_READ_WRITE, *_posGLBO, &status );
+    m_PosCLBO = clCreateFromGLBuffer(m_Context, CL_MEM_READ_WRITE, *m_PosGLBO, &status );
     printf("_posCLBO buffer status: %d\n", status);
 
-    _nSquared = new Kernel(_context, _device, "kernels/n_squared.cl", "n_squared");  
+    m_NSquared = new Kernel(m_Context, m_Device, "kernels/n_squared.cl", "n_squared");  
 }
 
-void CLWrapper::simulateTimestep() {
-    float timestep = 0.0001 * (*_timeScale);
+void CLWrapper::SimulateTimestep() {
+    float timestep = 0.0001 * (*m_TimeScale);
     float minimumSqDistance = 0.001;
 
-    size_t globalWorkSize[3] = { (size_t)(*_N), 1, 1 };
+    size_t globalWorkSize[3] = { (size_t)(*m_N), 1, 1 };
     size_t localWorkSize[3] = { 1024, 1, 1 };
 
-    cl_int status = clSetKernelArg(_nSquared->getKernel(), 0, sizeof(float), &timestep);
+    cl_int status = clSetKernelArg(m_NSquared->GetKernel(), 0, sizeof(float), &timestep);
     if (status != 0) {
         printf("kernel 1 args 0 status: %d\n", status);
     }
 
-    status = clSetKernelArg(_nSquared->getKernel(), 1, sizeof(float), &minimumSqDistance);
+    status = clSetKernelArg(m_NSquared->GetKernel(), 1, sizeof(float), &minimumSqDistance);
     if (status != 0) {
         printf("kernel 1 args 1 status: %d\n", status);
     }
     
-    status = clSetKernelArg(_nSquared->getKernel(), 2, sizeof(cl_mem), &_posCLBO);
+    status = clSetKernelArg(m_NSquared->GetKernel(), 2, sizeof(cl_mem), &m_PosCLBO);
     if (status != 0) {
         printf("kernel 1 args 2 status: %d\n", status);
     }
 
-    status = clSetKernelArg(_nSquared->getKernel(), 3, sizeof(cl_mem), &_velCLBO);
+    status = clSetKernelArg(m_NSquared->GetKernel(), 3, sizeof(cl_mem), &m_VelCLBO);
     if (status != 0) {
         printf("kernel 1 args 3 status: %d\n", status);
     }
 
-    status = clSetKernelArg(_nSquared->getKernel(), 4, localWorkSize[0] * sizeof(cl_float4), NULL);
+    status = clSetKernelArg(m_NSquared->GetKernel(), 4, localWorkSize[0] * sizeof(cl_float4), NULL);
     if (status != 0) {
         printf("kernel args 5 status: %d\n", status);
     }
 
     glFinish();
-    status = clEnqueueAcquireGLObjects(_cmdQueue, 1, &_posCLBO, 0, NULL, NULL );
+    status = clEnqueueAcquireGLObjects(m_CmdQueue, 1, &m_PosCLBO, 0, NULL, NULL );
     if (status != 0) {
         printf("clEnqueueAcquireGLObjects status: %d\n", status);
     }
 
-    clFinish(_cmdQueue);
+    clFinish(m_CmdQueue);
 
-    status = clEnqueueNDRangeKernel(_cmdQueue, _nSquared->getKernel(), 1, NULL, globalWorkSize, localWorkSize, 0, NULL, NULL);
+    status = clEnqueueNDRangeKernel(m_CmdQueue, m_NSquared->GetKernel(), 1, NULL, globalWorkSize, localWorkSize, 0, NULL, NULL);
     if (status != 0) {
         printf("clEnqueueAcquireGLObjects status: %d\n", status);
     }
 
-    clFinish(_cmdQueue);
+    clFinish(m_CmdQueue);
 
-    clEnqueueReleaseGLObjects(_cmdQueue, 1, &_posCLBO, 0, NULL, NULL);
+    clEnqueueReleaseGLObjects(m_CmdQueue, 1, &m_PosCLBO, 0, NULL, NULL);
     if (status != 0) {
         printf("clEnqueueAcquireGLObjects status: %d\n", status);
     }
 
-    clFinish(_cmdQueue);
+    clFinish(m_CmdQueue);
 }
 
 bool CLWrapper::isCLExtensionSupported(const char* extension)
@@ -123,9 +123,9 @@ bool CLWrapper::isCLExtensionSupported(const char* extension)
 
     // get the full list of extensions:
     size_t extensionSize;
-    clGetDeviceInfo(_device, CL_DEVICE_EXTENSIONS, 0, NULL, &extensionSize);
+    clGetDeviceInfo(m_Device, CL_DEVICE_EXTENSIONS, 0, NULL, &extensionSize);
     char* extensions = new char[extensionSize];
-    clGetDeviceInfo(_device, CL_DEVICE_EXTENSIONS, extensionSize, extensions, NULL);
+    clGetDeviceInfo(m_Device, CL_DEVICE_EXTENSIONS, extensionSize, extensions, NULL);
 
     for (char* start = extensions;;) {
         where = (char*)strstr((const char*)start, extension);

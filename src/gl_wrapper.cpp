@@ -13,12 +13,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-void GLWrapper::initialize(int width, int height, const char* title, int* N)
+void GLWrapper::Initialize(int width, int height, const char* title, int* N)
 {
-    _width = width;
-    _height = height;
-    _N = N;
-    _previousN = *_N;
+    m_Width = width;
+    m_Height = height;
+    m_N = N;
+    m_PreviousN = *m_N;
 
     glfwSetErrorCallback(errorCallback);
     glfwInit();
@@ -27,17 +27,17 @@ void GLWrapper::initialize(int width, int height, const char* title, int* N)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    window = glfwCreateWindow(width, height, title, nullptr, nullptr);
+    Window = glfwCreateWindow(width, height, title, nullptr, nullptr);
 
-    glfwMakeContextCurrent(window);
+    glfwMakeContextCurrent(Window);
     glfwSwapInterval(1); // Enable vsync
     glViewport(0, 0, width, height);
-    glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
-    glfwSetCursorPosCallback(window, mouseCallback);
-    glfwSetMouseButtonCallback(window, mouseButtonCallback);
-    glfwSetScrollCallback(window, scrollCallback);
+    glfwSetFramebufferSizeCallback(Window, framebufferSizeCallback);
+    glfwSetCursorPosCallback(Window, mouseCallback);
+    glfwSetMouseButtonCallback(Window, mouseButtonCallback);
+    glfwSetScrollCallback(Window, scrollCallback);
 
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    glfwSetInputMode(Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
     glEnable(GL_PROGRAM_POINT_SIZE);
     glEnable(GL_BLEND);
@@ -47,66 +47,66 @@ void GLWrapper::initialize(int width, int height, const char* title, int* N)
     GLenum err = glewInit();
     fillVertexBuffers();
 
-    glGenBuffers(1, &_posGLBO);
-    glGenVertexArrays(1, &_posGLAO);
+    glGenBuffers(1, &m_PosGLBO);
+    glGenVertexArrays(1, &m_PosGLAO);
 
-    glBindVertexArray(_posGLAO);
-    glBindBuffer(GL_ARRAY_BUFFER, _posGLBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * (*_N) * 4, _positions, GL_DYNAMIC_DRAW);
+    glBindVertexArray(m_PosGLAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_PosGLBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * (*m_N) * 4, m_Positions, GL_DYNAMIC_DRAW);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    _shader = new Shader("shaders/basic.vert", "shaders/basic.frag");
-    _shader->use();
+    m_Shader = new Shader("shaders/basic.vert", "shaders/basic.frag");
+    m_Shader->Use();
 
-    camera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f));
-    lastX = _width / 2.0f;
-    lastY = _height / 2.0f;
-    firstMouse = true;
-    captureMouse = false;
-    _deltaTime = 0.0f;
-    _lastFrameTime = 0.0f;
+    MainCamera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f));
+    LastX = m_Width / 2.0f;
+    LastY = m_Height / 2.0f;
+    FirstMouse = true;
+    CaptureMouse = false;
+    m_DeltaTime = 0.0f;
+    m_LastFrameTime = 0.0f;
 }
 
-unsigned int* GLWrapper::getPosGLBO()
+unsigned int* GLWrapper::GetPosGLBO()
 {
-    return &_posGLBO;
+    return &m_PosGLBO;
 }
 
-vxvyvz* GLWrapper::getVelocities()
+vxvyvz* GLWrapper::GetVelocities()
 {
-    return _velocities;
+    return m_Velocities;
 }
 
-bool GLWrapper::shouldClose()
+bool GLWrapper::ShouldClose()
 {
-    return glfwWindowShouldClose(window);
+    return glfwWindowShouldClose(Window);
 }
 
-void GLWrapper::render()
+void GLWrapper::Render()
 {
     float currentFrameTime = static_cast<float>(glfwGetTime());
-    _deltaTime = currentFrameTime - _lastFrameTime;
-    _lastFrameTime = currentFrameTime;
+    m_DeltaTime = currentFrameTime - m_LastFrameTime;
+    m_LastFrameTime = currentFrameTime;
 
     glClear(GL_COLOR_BUFFER_BIT);
     glfwPollEvents();
-    processKeyInput(window);
+    processKeyInput(Window);
 
-    glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom), (float)_width / (float)_height, 0.1f, 100.0f);
-    _shader->setMat4("projection", projection);
+    glm::mat4 projection = glm::perspective(glm::radians(MainCamera->Zoom), (float)m_Width / (float)m_Height, 0.1f, 100.0f);
+    m_Shader->SetMat4("projection", projection);
 
-    glm::mat4 view = camera->GetViewMatrix();
-    _shader->setMat4("view", view);
+    glm::mat4 view = MainCamera->GetViewMatrix();
+    m_Shader->SetMat4("view", view);
 
-    if (*_N != _previousN) {
+    if (*m_N != m_PreviousN) {
         fillVertexBuffers();
-        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * (*_N) * 4, _positions, GL_DYNAMIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * (*m_N) * 4, m_Positions, GL_DYNAMIC_DRAW);
     }
-    glDrawArrays(GL_POINTS, 0, *_N);
+    glDrawArrays(GL_POINTS, 0, *m_N);
 
-    _previousN = *_N;
+    m_PreviousN = *m_N;
 
     GLenum err = glGetError();
     if (err != 0) {
@@ -115,44 +115,44 @@ void GLWrapper::render()
     }
 }
 
-void GLWrapper::swapBuffers()
+void GLWrapper::SwapBuffers()
 {
-    glfwSwapBuffers(window);
+    glfwSwapBuffers(Window);
 }
 
 void GLWrapper::fillVertexBuffers()
 {
 
-    if (_positions != nullptr) {
-        delete[] _positions;
+    if (m_Positions != nullptr) {
+        delete[] m_Positions;
     }
 
-    if (_velocities != nullptr) {
-        delete[] _velocities;
+    if (m_Velocities != nullptr) {
+        delete[] m_Velocities;
     }
 
-    _positions = new xyzm[*_N];
-    _velocities = new vxvyvz[*_N];
+    m_Positions = new xyzm[*m_N];
+    m_Velocities = new vxvyvz[*m_N];
 
     float endRadius = 1.0f;
-    float spacing = endRadius / *_N;
+    float spacing = endRadius / *m_N;
 
     // set positions
-    for (int i = 0; i < *_N; i++) {
+    for (int i = 0; i < *m_N; i++) {
         double omega = rand() / double(RAND_MAX) * 2 * M_PI;
         double r = rand() / double(RAND_MAX) * endRadius;
 
-        _positions[i].x = r * cos(omega);
-        _positions[i].y = r * sin(omega);
-        _positions[i].z = rand() / 100000.0f;
-        _positions[i].m = 0.01;
+        m_Positions[i].x = r * cos(omega);
+        m_Positions[i].y = r * sin(omega);
+        m_Positions[i].z = rand() / 100000.0f;
+        m_Positions[i].m = 0.01;
     }
 
     // set velocities
-    for (int i = 0; i < *_N; i++) {
-        _velocities[i].vx = 0;
-        _velocities[i].vy = 0;
-        _velocities[i].vz = 0;
+    for (int i = 0; i < *m_N; i++) {
+        m_Velocities[i].vx = 0;
+        m_Velocities[i].vy = 0;
+        m_Velocities[i].vz = 0;
     }
 }
 
@@ -172,41 +172,41 @@ void GLWrapper::mouseCallback(GLFWwindow* window, double xposIn, double yposIn)
     float xpos = static_cast<float>(xposIn);
     float ypos = static_cast<float>(yposIn);
 
-    GLWrapper& instance = GLWrapper::getInstance();
+    GLWrapper& instance = GLWrapper::GetInstance();
 
-    if (instance.firstMouse) {
-        instance.lastX = xpos;
-        instance.lastY = ypos;
-        instance.firstMouse = false;
+    if (instance.FirstMouse) {
+        instance.LastX = xpos;
+        instance.LastY = ypos;
+        instance.FirstMouse = false;
     }
 
-    float xoffset = xpos - instance.lastX;
-    float yoffset = instance.lastY - ypos; // reversed since y-coordinates go from bottom to top
+    float xoffset = xpos - instance.LastX;
+    float yoffset = instance.LastY - ypos; // reversed since y-coordinates go from bottom to top
 
-    instance.lastX = xpos;
-    instance.lastY = ypos;
+    instance.LastX = xpos;
+    instance.LastY = ypos;
 
-    if (instance.captureMouse) {
-        instance.camera->ProcessMouseMovement(xoffset, yoffset);
+    if (instance.CaptureMouse) {
+        instance.MainCamera->ProcessMouseMovement(xoffset, yoffset);
     }
 }
 
 void GLWrapper::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 {
-    GLWrapper& instance = GLWrapper::getInstance();
+    GLWrapper& instance = GLWrapper::GetInstance();
     if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
-        instance.captureMouse = true;
+        instance.CaptureMouse = true;
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     }
     if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE) {
-        instance.captureMouse = false;
+        instance.CaptureMouse = false;
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     }
 }
 
 void GLWrapper::scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    GLWrapper::getInstance().camera->ProcessMouseScroll(yoffset);
+    GLWrapper::GetInstance().MainCamera->ProcessMouseScroll(yoffset);
 }
 
 void GLWrapper::processKeyInput(GLFWwindow* window)
@@ -215,11 +215,11 @@ void GLWrapper::processKeyInput(GLFWwindow* window)
         glfwSetWindowShouldClose(window, true);
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera->ProcessKeyboard(FORWARD, _deltaTime);
+        MainCamera->ProcessKeyboard(FORWARD, m_DeltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera->ProcessKeyboard(BACKWARD, _deltaTime);
+        MainCamera->ProcessKeyboard(BACKWARD, m_DeltaTime);
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera->ProcessKeyboard(LEFT, _deltaTime);
+        MainCamera->ProcessKeyboard(LEFT, m_DeltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera->ProcessKeyboard(RIGHT, _deltaTime);
+        MainCamera->ProcessKeyboard(RIGHT, m_DeltaTime);
 }

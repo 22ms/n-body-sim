@@ -16,7 +16,7 @@ struct vxvyvz;
 class CLWrapper {
     // Singleton pattern: https://stackoverflow.com/a/1008289/16951338
 public:
-    static CLWrapper& getInstance()
+    static CLWrapper& GetInstance()
     {
         static CLWrapper instance;
         return instance;
@@ -28,25 +28,25 @@ private:
 
     // Member variables
 public:
-    void initialize(GLFWwindow* window, unsigned int* posGLBO, vxvyvz* velocities, int* N, float* timeScale); // Pointer to GLFWwindow not necessarily needed, but makes the dependency on an initialized OpenGL context obvious.
-    void simulateTimestep();
+    void Initialize(GLFWwindow* window, unsigned int* posGLBO, vxvyvz* velocities, int* N, float* timeScale); // Pointer to GLFWwindow not necessarily needed, but makes the dependency on an initialized OpenGL context obvious.
+    void SimulateTimestep();
 private:
     bool isCLExtensionSupported(const char* extension);
 
-    unsigned int* _posGLBO = nullptr;
-    int* _N = nullptr;
-    float* _timeScale = nullptr;
+    unsigned int* m_PosGLBO = nullptr;
+    int* m_N = nullptr;
+    float* m_TimeScale = nullptr;
 
-    vxvyvz* _velocities = nullptr;
-    cl_mem _velCLBO;
-    cl_mem _posCLBO;
+    vxvyvz* m_Velocities = nullptr;
+    cl_mem m_VelCLBO;
+    cl_mem m_PosCLBO;
 
-    cl_context _context;
-    cl_command_queue _cmdQueue;
-    cl_device_id _device;
-    cl_platform_id _platform;
+    cl_context m_Context;
+    cl_command_queue m_CmdQueue;
+    cl_device_id m_Device;
+    cl_platform_id m_Platform;
 
-    Kernel* _nSquared;
+    Kernel* m_NSquared;
 };
 
 #endif

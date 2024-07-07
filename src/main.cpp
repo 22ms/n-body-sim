@@ -17,22 +17,22 @@ float timeScale = 1.0f;
 int main(int, char**)
 {
     // Initialization, use of Singleton pattern to encapsulate global states
-    GLWrapper& glWrapper = GLWrapper::getInstance();
-    glWrapper.initialize(1280, 720, "N-body simulation", &N);
+    GLWrapper& glWrapper = GLWrapper::GetInstance();
+    glWrapper.Initialize(1280, 720, "N-body simulation", &N);
 
-    CLWrapper& clWrapper = CLWrapper::getInstance();
-    clWrapper.initialize(glWrapper.window, glWrapper.getPosGLBO(), glWrapper.getVelocities(), &N, &timeScale);
+    CLWrapper& clWrapper = CLWrapper::GetInstance();
+    clWrapper.Initialize(glWrapper.Window, glWrapper.GetPosGLBO(), glWrapper.GetVelocities(), &N, &timeScale);
 
-    ImGuiWrapper& imGuiWrapper = ImGuiWrapper::getInstance();
-    imGuiWrapper.initialize(glWrapper.window, &N, &timeScale);
+    ImGuiWrapper& imGuiWrapper = ImGuiWrapper::GetInstance();
+    imGuiWrapper.Initialize(glWrapper.Window, &N, &timeScale);
 
     // Render loop
-    while (!glWrapper.shouldClose()) {
-        glWrapper.render();
-        imGuiWrapper.render();
-        clWrapper.simulateTimestep();
+    while (!glWrapper.ShouldClose()) {
+        glWrapper.Render();
+        imGuiWrapper.Render();
+        clWrapper.SimulateTimestep();
 
-        glWrapper.swapBuffers();
+        glWrapper.SwapBuffers();
     }
 
     return 0;
