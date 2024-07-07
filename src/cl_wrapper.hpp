@@ -1,8 +1,6 @@
 #ifndef CL_WRAPPER_HPP
 #define CL_WRAPPER_HPP
 
-#define CL_TARGET_OPENCL_VERSION 120
-
 typedef struct _cl_mem* cl_mem;
 typedef struct _cl_context* cl_context;
 typedef struct _cl_command_queue* cl_command_queue;
@@ -31,10 +29,13 @@ public:
     void Initialize(GLFWwindow* window, unsigned int* posGLBO, vxvyvz* velocities, int* N, float* timeScale); // Pointer to GLFWwindow not necessarily needed, but makes the dependency on an initialized OpenGL context obvious.
     void SimulateTimestep();
 private:
+    void updateBuffers();
+    int calculateWorkGroupSize();
     bool isCLExtensionSupported(const char* extension);
 
     unsigned int* m_PosGLBO = nullptr;
     int* m_N = nullptr;
+    int m_PreviousN;
     float* m_TimeScale = nullptr;
 
     vxvyvz* m_Velocities = nullptr;

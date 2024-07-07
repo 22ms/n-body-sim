@@ -1,8 +1,8 @@
-#include "camera.hpp"
-
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/constants.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+#include "camera.hpp"
 
 Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch)
     : Front(glm::vec3(0.0f, 0.0f, -1.0f))
@@ -68,11 +68,11 @@ void Camera::ProcessMouseMovement(float xoffset, float yoffset, bool constrainPi
 
 void Camera::ProcessMouseScroll(float yoffset)
 {
-    MovementSpeed += yoffset;
+    MovementSpeed += yoffset/10;
     if (MovementSpeed < 1.0f)
         MovementSpeed = 1.0f;
-    if (MovementSpeed > 50.0f)
-        MovementSpeed = 50.0f;
+    if (MovementSpeed > 5.0f)
+        MovementSpeed = 5.0f;
 }
 
 void Camera::updateCameraVectors()

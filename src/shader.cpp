@@ -1,10 +1,10 @@
-#include "shader.hpp"
-
 #include <GL/glew.h>
 #include <string>
 #include <fstream>
 #include <sstream>
 #include <iostream>
+
+#include "shader.hpp"
 
 Shader::Shader(const char* vertexPath, const char* fragmentPath){
     // 1. retrieve the vertex/fragment source code from filePath

@@ -11,7 +11,7 @@
 #include "cl_wrapper.hpp"
 #include "imgui_wrapper.hpp"
 
-int N = 65'536;
+int N = 128;
 float timeScale = 1.0f;
 
 int main(int, char**)
@@ -26,11 +26,11 @@ int main(int, char**)
     ImGuiWrapper& imGuiWrapper = ImGuiWrapper::GetInstance();
     imGuiWrapper.Initialize(glWrapper.Window, &N, glWrapper.MainCameraSpeed, &timeScale);
 
-    // Render loop
+    // Render loop, order is important!
     while (!glWrapper.ShouldClose()) {
         glWrapper.Render();
-        imGuiWrapper.Render();
         clWrapper.SimulateTimestep();
+        imGuiWrapper.Display();
 
         glWrapper.SwapBuffers();
     }

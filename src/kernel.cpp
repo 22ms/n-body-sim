@@ -1,10 +1,10 @@
-#include "kernel.hpp"
-
 #include <string>
 #include <fstream>
 #include <sstream>
 #include <iostream>
 #include <CL/cl.h>
+
+#include "kernel.hpp"
 
 Kernel::Kernel(cl_context context, cl_device_id device, const char* path, const char* name){
     cl_int status;

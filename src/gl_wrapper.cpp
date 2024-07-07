@@ -1,8 +1,3 @@
-#include "gl_wrapper.hpp"
-#include "camera.hpp"
-#include "shader.hpp"
-#include "utilities.hpp"
-
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <cmath>
@@ -12,6 +7,11 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+#include "gl_wrapper.hpp"
+#include "camera.hpp"
+#include "shader.hpp"
+#include "utilities.hpp"
 
 void GLWrapper::Initialize(int width, int height, const char* title, int* N)
 {
@@ -123,7 +123,6 @@ void GLWrapper::SwapBuffers()
 
 void GLWrapper::fillVertexBuffers()
 {
-
     if (m_Positions != nullptr) {
         delete[] m_Positions;
     }
@@ -140,13 +139,14 @@ void GLWrapper::fillVertexBuffers()
 
     // set positions
     for (int i = 0; i < *m_N; i++) {
-        double omega = rand() / double(RAND_MAX) * 2 * M_PI;
-        double r = rand() / double(RAND_MAX) * endRadius;
+        double theta = acos(2 * rand() / double(RAND_MAX) - 1); // Polar angle
+        double phi = rand() / double(RAND_MAX) * 2 * M_PI;      // Azimuthal angle
+        double radius = endRadius;                              // Radius of the sphere
 
-        m_Positions[i].x = r * cos(omega);
-        m_Positions[i].y = r * sin(omega);
-        m_Positions[i].z = rand() / 100000.0f;
-        m_Positions[i].m = 0.01;
+        m_Positions[i].x = radius * sin(theta) * cos(phi);
+        m_Positions[i].y = radius * sin(theta) * sin(phi);
+        m_Positions[i].z = radius * cos(theta);
+        m_Positions[i].m = 1;
     }
 
     // set velocities

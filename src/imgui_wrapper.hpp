@@ -20,7 +20,7 @@ private:
     // Member variables
 public:
     void Initialize(GLFWwindow* window, int* N, float* cameraSpeed, float* timeScale); // Pointer to GLFWwindow not necessarily needed, but makes the dependency on an initialized OpenGL context obvious.
-    void Render();
+    void Display();
 
 private:
     void setStyleGruvbox();

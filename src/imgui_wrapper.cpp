@@ -1,9 +1,9 @@
+#include <GLFW/glfw3.h>
+
 #include "imgui_wrapper.hpp"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
-
-#include <GLFW/glfw3.h>
 
 void ImGuiWrapper::Initialize (GLFWwindow* window, int* N, float* cameraSpeed, float* timeScale) {
     m_N = N;
@@ -22,7 +22,7 @@ void ImGuiWrapper::Initialize (GLFWwindow* window, int* N, float* cameraSpeed, f
     ImGui_ImplOpenGL3_Init("#version 130");
 }
 
-void ImGuiWrapper::Render () {
+void ImGuiWrapper::Display () {
     // Start the Dear ImGui frame
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -32,7 +32,7 @@ void ImGuiWrapper::Render () {
     ImGui::Begin("Controls", NULL); // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
     ImGui::InputInt("Bodies", m_N);
     ImGui::SliderFloat("Time scale", m_TimeScale, 0.0f, 1.0f);
-    ImGui::SliderFloat("Camera speed", m_CameraSpeed, 1.0f, 50.0f);
+    ImGui::SliderFloat("Camera speed", m_CameraSpeed, 1.0f, 5.0f);
     ImGui::End();
 
     // Rendering
