@@ -18,7 +18,7 @@ static void framebufferSizeCallback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
 }
 
-GLWrapper::GLWrapper(int width, int height, const char* title, int* N)
+void GLWrapper::initialize(int width, int height, const char* title, int* N)
 {
     _N = N;
     _previousN = *_N;
@@ -67,20 +67,6 @@ unsigned int* GLWrapper::getPosGLBO()
 vxvyvz* GLWrapper::getVelocities()
 {
     return _velocities;
-}
-
-GLWrapper::~GLWrapper()
-{
-    glfwDestroyWindow(window);
-    window = nullptr;
-
-    glDeleteBuffers(1, &_posGLBO);
-    glDeleteVertexArrays(1, &_posGLAO);
-    glfwTerminate();
-
-    delete _N;
-    delete[] _positions;
-    delete _shader;
 }
 
 bool GLWrapper::shouldClose()

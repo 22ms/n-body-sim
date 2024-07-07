@@ -14,8 +14,21 @@ class Kernel;
 struct vxvyvz;
 
 class CLWrapper {
+    // Singleton pattern: https://stackoverflow.com/a/1008289/16951338
 public:
-    CLWrapper(GLFWwindow* window, unsigned int* posGLBO, vxvyvz* velocities, int* N, float* timeScale); // Pointer to GLFWwindow not necessarily needed, but makes the dependency on an initialized OpenGL context obvious.
+    static CLWrapper& getInstance()
+    {
+        static CLWrapper instance;
+        return instance;
+    }
+private:
+    CLWrapper() {};
+    CLWrapper(CLWrapper const&);
+    void operator=(CLWrapper const&);
+
+    // Member variables
+public:
+    void initialize(GLFWwindow* window, unsigned int* posGLBO, vxvyvz* velocities, int* N, float* timeScale); // Pointer to GLFWwindow not necessarily needed, but makes the dependency on an initialized OpenGL context obvious.
     void simulateTimestep();
 private:
     bool isCLExtensionSupported(const char* extension);

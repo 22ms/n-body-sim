@@ -11,15 +11,20 @@
 #include "cl_wrapper.hpp"
 #include "imgui_wrapper.hpp"
 
-int N = 524'288;
+int N = 65'536;
 float timeScale = 1.0f;
 
 int main(int, char**)
 {
-    // Initialization
-    GLWrapper glWrapper(1280, 720, "N-body simulation", &N);
-    CLWrapper clWrapper(glWrapper.window, glWrapper.getPosGLBO(), glWrapper.getVelocities(), &N, &timeScale);
-    ImGuiWrapper imGuiWrapper(glWrapper.window, &N, &timeScale);
+    // Initialization, use of Singleton pattern to encapsulate global states
+    GLWrapper& glWrapper = GLWrapper::getInstance();
+    glWrapper.initialize(1280, 720, "N-body simulation", &N);
+
+    CLWrapper& clWrapper = CLWrapper::getInstance();
+    clWrapper.initialize(glWrapper.window, glWrapper.getPosGLBO(), glWrapper.getVelocities(), &N, &timeScale);
+
+    ImGuiWrapper& imGuiWrapper = ImGuiWrapper::getInstance();
+    imGuiWrapper.initialize(glWrapper.window, &N, &timeScale);
 
     // Render loop
     while (!glWrapper.shouldClose()) {

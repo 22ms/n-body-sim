@@ -11,9 +11,23 @@ struct xyzm;
 struct vxvyvz;
 
 class GLWrapper {
+
+    // Singleton pattern: https://stackoverflow.com/a/1008289/16951338
 public:
-    GLWrapper(int width, int height, const char* title, int* N);
-    ~GLWrapper();
+    static GLWrapper& getInstance()
+    {
+        static GLWrapper instance;
+        return instance;
+    }
+
+private:
+    GLWrapper() {};
+    GLWrapper(GLWrapper const&);
+    void operator=(GLWrapper const&);
+
+    // Member variables
+public:
+    void initialize(int width, int height, const char* title, int* N);
 
     GLFWwindow* window = nullptr;
     unsigned int* getPosGLBO();
@@ -21,9 +35,10 @@ public:
     bool shouldClose();
     void swapBuffers();
     void render();
+
 private:
     void fillVertexBuffers();
-    void processInput(GLFWwindow *window);
+    void processInput(GLFWwindow* window);
 
     int _previousN;
     unsigned int _posGLBO, _posGLAO;

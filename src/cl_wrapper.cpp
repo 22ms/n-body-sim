@@ -10,7 +10,7 @@
 #include <string.h>
 #include <windows.h>
 
-CLWrapper::CLWrapper(GLFWwindow* window, unsigned int* posBO, vxvyvz* velocities, int* N, float* timeScale)
+void CLWrapper::initialize(GLFWwindow* window, unsigned int* posBO, vxvyvz* velocities, int* N, float* timeScale)
 {
     _posGLBO = posBO;
     _velocities = velocities;

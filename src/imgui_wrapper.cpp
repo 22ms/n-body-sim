@@ -5,7 +5,7 @@
 
 #include <GLFW/glfw3.h>
 
-ImGuiWrapper::ImGuiWrapper (GLFWwindow* window, int* N, float* timeScale) {
+void ImGuiWrapper::initialize (GLFWwindow* window, int* N, float* timeScale) {
     _N = N;
     _timeScale = timeScale;
     IMGUI_CHECKVERSION();
@@ -18,12 +18,6 @@ ImGuiWrapper::ImGuiWrapper (GLFWwindow* window, int* N, float* timeScale) {
     setStyleGruvbox();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 130");
-}
-
-ImGuiWrapper::~ImGuiWrapper () {
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
 }
 
 void ImGuiWrapper::render () {
