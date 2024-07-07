@@ -35,7 +35,7 @@ void GLWrapper::initialize(int width, int height, const char* title, int* N)
     glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
     glfwSetCursorPosCallback(window, mouseCallback);
     glfwSetMouseButtonCallback(window, mouseButtonCallback);
-    // glfwSetScrollCallback(window, scrollCallback);
+    glfwSetScrollCallback(window, scrollCallback);
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
@@ -202,6 +202,11 @@ void GLWrapper::mouseButtonCallback(GLFWwindow* window, int button, int action, 
         instance.captureMouse = false;
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     }
+}
+
+void GLWrapper::scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    GLWrapper::getInstance().camera->ProcessMouseScroll(yoffset);
 }
 
 void GLWrapper::processKeyInput(GLFWwindow* window)
