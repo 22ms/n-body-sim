@@ -61,6 +61,7 @@ void GLWrapper::Initialize(int width, int height, const char* title, int* N)
     m_Shader->Use();
 
     MainCamera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f));
+    MainCameraSpeed = &(MainCamera->MovementSpeed);
     LastX = m_Width / 2.0f;
     LastY = m_Height / 2.0f;
     FirstMouse = true;

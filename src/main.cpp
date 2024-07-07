@@ -24,7 +24,7 @@ int main(int, char**)
     clWrapper.Initialize(glWrapper.Window, glWrapper.GetPosGLBO(), glWrapper.GetVelocities(), &N, &timeScale);
 
     ImGuiWrapper& imGuiWrapper = ImGuiWrapper::GetInstance();
-    imGuiWrapper.Initialize(glWrapper.Window, &N, &timeScale);
+    imGuiWrapper.Initialize(glWrapper.Window, &N, glWrapper.MainCameraSpeed, &timeScale);
 
     // Render loop
     while (!glWrapper.ShouldClose()) {

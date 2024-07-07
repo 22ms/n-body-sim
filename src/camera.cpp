@@ -71,8 +71,8 @@ void Camera::ProcessMouseScroll(float yoffset)
     MovementSpeed += yoffset;
     if (MovementSpeed < 1.0f)
         MovementSpeed = 1.0f;
-    if (MovementSpeed > 45.0f)
-        MovementSpeed = 45.0f;
+    if (MovementSpeed > 50.0f)
+        MovementSpeed = 50.0f;
 }
 
 void Camera::updateCameraVectors()

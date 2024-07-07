@@ -38,6 +38,7 @@ public:
 
     // Camera specific
     Camera* MainCamera = nullptr;
+    float* MainCameraSpeed = nullptr;
     float LastX;
     float LastY;
     bool FirstMouse;
