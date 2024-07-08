@@ -38,6 +38,8 @@ void GLWrapper::Initialize(int width, int height, const char* title, int* N)
     glfwSetScrollCallback(Window, scrollCallback);
 
     glfwSetInputMode(Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    if (glfwRawMouseMotionSupported())
+        glfwSetInputMode(Window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
 
     glEnable(GL_PROGRAM_POINT_SIZE);
     glEnable(GL_BLEND);
@@ -169,7 +171,6 @@ void GLWrapper::framebufferSizeCallback(GLFWwindow* window, int width, int heigh
 
 void GLWrapper::mouseCallback(GLFWwindow* window, double xposIn, double yposIn)
 {
-
     float xpos = static_cast<float>(xposIn);
     float ypos = static_cast<float>(yposIn);
 
