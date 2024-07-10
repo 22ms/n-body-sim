@@ -11,8 +11,8 @@
 #include "cl_wrapper.hpp"
 #include "imgui_wrapper.hpp"
 
-int N = 2048;
-float timeScale = 1.0f;
+unsigned int N = 2048; // Has to be power of 2
+float timeScale = 1.0f; // Has to be >= 0
 
 int main(int, char**)
 {

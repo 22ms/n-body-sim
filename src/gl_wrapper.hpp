@@ -10,7 +10,7 @@ struct GLFWwindow;
 struct xyzm;
 struct vxvyvz;
 
-void glInitialize(int initialWidth, int initialHeight, const char* title, int* nPtr);
+void glInitialize(int initialWidth, int initialHeight, const char* title, unsigned int* nPtr);
 void glRender();
 void glSwapBuffers();
 bool glShouldClose();

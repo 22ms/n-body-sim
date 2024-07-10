@@ -1,20 +1,27 @@
 #include <GLFW/glfw3.h>
+#include <cmath>
+#include <stdio.h>
 
 #include "imgui_wrapper.hpp"
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 
-static int* nPtr = nullptr;
+static unsigned int* nPtr = nullptr;
+static int powOf2;
+
 static float* mainCameraSpeedPtr = nullptr;
 static float* timeScalePtr = nullptr;
 
 void setStyleGruvbox();
+unsigned int nearestPowerOfTwo(unsigned int x);
 
-void imGuiInitialize (GLFWwindow* glWindow, float* _mainCameraSpeedPtr, int* _nPtr, float* _timeScalePtr) {
+void imGuiInitialize (GLFWwindow* glWindow, float* _mainCameraSpeedPtr, unsigned int* _nPtr, float* _timeScalePtr) {
     nPtr = _nPtr;
     mainCameraSpeedPtr = _mainCameraSpeedPtr;
     timeScalePtr = _timeScalePtr;
+    powOf2 = std::round(std::log2(*nPtr));
+    *nPtr = pow(2, powOf2);
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -36,7 +43,11 @@ void imGuiDisplay () {
 
     ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
     ImGui::Begin("Controls", NULL); // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-    ImGui::InputInt("Bodies", nPtr);
+    ImGui::Text("Bodies: %d", *nPtr);
+    ImGui::SliderInt("log2(n)", &powOf2, 0, 19);
+    *nPtr = pow(2, powOf2);
+
+    ImGui::Spacing();
     ImGui::SliderFloat("Time scale", timeScalePtr, 0.0f, 1.0f);
     ImGui::SliderFloat("Camera speed", mainCameraSpeedPtr, 1.0f, 5.0f);
     ImGui::End();

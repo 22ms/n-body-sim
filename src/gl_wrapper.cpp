@@ -32,8 +32,8 @@ Shader* shader = nullptr;
 
 static unsigned int posAttribute;
 
-static int* nPtr = nullptr;
-static int previousN;
+static unsigned int* nPtr = nullptr;
+static unsigned int previousN;
 
 static float lastX;
 static float lastY;
@@ -51,7 +51,7 @@ void mouseCallback(GLFWwindow* glWindow, double xposIn, double yposIn);
 void mouseButtonCallback(GLFWwindow* glWindow, int button, int action, int mods);
 void scrollCallback(GLFWwindow* glWindow, double xoffset, double yoffset);
 
-void glInitialize(int initialWidth, int initialHeight, const char* title, int* _nPtr)
+void glInitialize(int initialWidth, int initialHeight, const char* title, unsigned int* _nPtr)
 {
     glWidth = initialWidth;
     glHeight = initialHeight;

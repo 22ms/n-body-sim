@@ -5,7 +5,7 @@ class GLFWwindow;
 class Kernel;
 struct vxvyvz;
 
-void clInitialize(GLFWwindow* window, unsigned int* _glPosBufferPtr, vxvyvz* _velocities, int* _nPtr, float* _timeScale); // Pointer to GLFWwindow not necessarily needed, but makes the dependency on an initialized OpenGL context obvious.
+void clInitialize(GLFWwindow* window, unsigned int* _glPosBufferPtr, vxvyvz* _velocities, unsigned int* _nPtr, float* _timeScale); // Pointer to GLFWwindow not necessarily needed, but makes the dependency on an initialized OpenGL context obvious.
 void clSimulateTimestep();
 
 #endif

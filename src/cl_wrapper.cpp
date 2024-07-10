@@ -14,8 +14,8 @@
 #include "utilities.hpp"
 
 static unsigned int* glPosBufferPtr = nullptr;
-static int* nPtr = nullptr;
-static int previousN;
+static unsigned int* nPtr = nullptr;
+static unsigned int previousN;
 
 static float* timeScalePtr = nullptr;
 
@@ -34,7 +34,7 @@ void updateBuffers();
 int calculateWorkGroupSize();
 bool isCLExtensionSupported(const char* extension);
 
-void clInitialize(GLFWwindow* glWindow, unsigned int* _glPosBufferPtr, vxvyvz* _velocities, int* _nPtr, float* _timeScale)
+void clInitialize(GLFWwindow* glWindow, unsigned int* _glPosBufferPtr, vxvyvz* _velocities, unsigned int* _nPtr, float* _timeScale)
 {
     glPosBufferPtr = _glPosBufferPtr;
     velocities = _velocities;
