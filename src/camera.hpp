@@ -28,6 +28,7 @@ public:
     float Yaw;
     float Pitch;
     float MovementSpeed;
+    float AppliedMovementSpeed;
     float MouseSensitivity;
     float Zoom;
 
@@ -41,6 +42,7 @@ public:
 
 private:
     void updateCameraVectors();
+    void applyMovementSpeed(float movementSpeed);
 };
 
 #endif

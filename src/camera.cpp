@@ -15,6 +15,7 @@ Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch)
     Yaw = yaw;
     Pitch = pitch;
     updateCameraVectors();
+    applyMovementSpeed(MovementSpeed);
 }
 
 Camera::Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch)
@@ -28,6 +29,7 @@ Camera::Camera(float posX, float posY, float posZ, float upX, float upY, float u
     Yaw = yaw;
     Pitch = pitch;
     updateCameraVectors();
+    applyMovementSpeed(MovementSpeed);
 }
 
 glm::mat4 Camera::GetViewMatrix()
@@ -37,7 +39,7 @@ glm::mat4 Camera::GetViewMatrix()
 
 void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
 {
-    float velocity = MovementSpeed * deltaTime;
+    float velocity = AppliedMovementSpeed * deltaTime;
     if (direction == FORWARD)
         Position += Front * velocity;
     if (direction == BACKWARD)
@@ -73,6 +75,7 @@ void Camera::ProcessMouseScroll(float yoffset)
         MovementSpeed = 1.0f;
     if (MovementSpeed > 5.0f)
         MovementSpeed = 5.0f;
+    applyMovementSpeed(MovementSpeed);
 }
 
 void Camera::updateCameraVectors()
@@ -85,4 +88,8 @@ void Camera::updateCameraVectors()
 
     Right = glm::normalize(glm::cross(Front, WorldUp));
     Up = glm::normalize(glm::cross(Right, Front));
+}
+
+void Camera::applyMovementSpeed(float movementSpeed) {
+    AppliedMovementSpeed = movementSpeed * movementSpeed;
 }
