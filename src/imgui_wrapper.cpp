@@ -8,7 +8,7 @@
 #include "imgui/imgui_impl_opengl3.h"
 
 static unsigned int* nPtr = nullptr;
-static int powOf2;
+static int log2n;
 
 static float* mainCameraSpeedPtr = nullptr;
 static float* timeScalePtr = nullptr;
@@ -20,8 +20,8 @@ void imGuiInitialize (GLFWwindow* glWindow, float* _mainCameraSpeedPtr, unsigned
     nPtr = _nPtr;
     mainCameraSpeedPtr = _mainCameraSpeedPtr;
     timeScalePtr = _timeScalePtr;
-    powOf2 = std::round(std::log2(*nPtr));
-    *nPtr = pow(2, powOf2);
+    log2n = std::round(std::log2(*nPtr));
+    *nPtr = pow(2, log2n);
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -44,8 +44,8 @@ void imGuiDisplay () {
     ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
     ImGui::Begin("Controls", NULL); // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
     ImGui::Text("Bodies: %d", *nPtr);
-    ImGui::SliderInt("log2(n)", &powOf2, 0, 19);
-    *nPtr = pow(2, powOf2);
+    ImGui::SliderInt("log2(n)", &log2n, 0, 19);
+    *nPtr = pow(2, log2n);
 
     ImGui::Spacing();
     ImGui::SliderFloat("Time scale", timeScalePtr, 0.0f, 1.0f);
