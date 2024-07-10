@@ -16,7 +16,7 @@ float timeScale = 1.0f;
 
 int main(int, char**)
 {
-    glInitialize(1280, 720, "N-body simulation", &N);
+    glInitialize(1280, 720, "N-body simulation, O(n²)", &N);
     clInitialize(glWindow, &glPosBuffer, glVelocities, &N, &timeScale);
     imGuiInitialize(glWindow, glMainCameraSpeedPtr, &N, &timeScale);
 
