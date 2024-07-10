@@ -5,10 +5,16 @@
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 
-void ImGuiWrapper::Initialize (GLFWwindow* window, int* N, float* cameraSpeed, float* timeScale) {
-    m_N = N;
-    m_CameraSpeed = cameraSpeed;
-    m_TimeScale = timeScale;
+static int* nPtr = nullptr;
+static float* mainCameraSpeedPtr = nullptr;
+static float* timeScalePtr = nullptr;
+
+void setStyleGruvbox();
+
+void imGuiInitialize (GLFWwindow* glWindow, float* _mainCameraSpeedPtr, int* _nPtr, float* _timeScalePtr) {
+    nPtr = _nPtr;
+    mainCameraSpeedPtr = _mainCameraSpeedPtr;
+    timeScalePtr = _timeScalePtr;
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -18,11 +24,11 @@ void ImGuiWrapper::Initialize (GLFWwindow* window, int* N, float* cameraSpeed, f
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 
     setStyleGruvbox();
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplGlfw_InitForOpenGL(glWindow, true);
     ImGui_ImplOpenGL3_Init("#version 130");
 }
 
-void ImGuiWrapper::Display () {
+void imGuiDisplay () {
     // Start the Dear ImGui frame
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
@@ -30,9 +36,9 @@ void ImGuiWrapper::Display () {
 
     ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
     ImGui::Begin("Controls", NULL); // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-    ImGui::InputInt("Bodies", m_N);
-    ImGui::SliderFloat("Time scale", m_TimeScale, 0.0f, 1.0f);
-    ImGui::SliderFloat("Camera speed", m_CameraSpeed, 1.0f, 5.0f);
+    ImGui::InputInt("Bodies", nPtr);
+    ImGui::SliderFloat("Time scale", timeScalePtr, 0.0f, 1.0f);
+    ImGui::SliderFloat("Camera speed", mainCameraSpeedPtr, 1.0f, 5.0f);
     ImGui::End();
 
     // Rendering
@@ -40,7 +46,7 @@ void ImGuiWrapper::Display () {
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void ImGuiWrapper::setStyleGruvbox () {
+void setStyleGruvbox () {
     auto& style = ImGui::GetStyle();
     style.ChildRounding = 0;
     style.GrabRounding = 0;

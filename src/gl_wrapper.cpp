@@ -24,6 +24,7 @@ unsigned int glPosBuffer;
 int glWidth;
 int glHeight;
 float glDeltaTime;
+float* glMainCameraSpeedPtr = nullptr;
 
 // Static
 
@@ -34,7 +35,6 @@ static unsigned int posAttribute;
 static int* nPtr = nullptr;
 static int previousN;
 
-static float* mainCameraSpeed = nullptr;
 static float lastX;
 static float lastY;
 static float lastFrameTime;
@@ -101,7 +101,7 @@ void glInitialize(int initialWidth, int initialHeight, const char* title, int* _
     shader->Use();
 
     glMainCamera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f));
-    mainCameraSpeed = &(glMainCamera->MovementSpeed);
+    glMainCameraSpeedPtr = &(glMainCamera->MovementSpeed);
     lastX = glWidth / 2.0f;
     lastY = glHeight / 2.0f;
     firstMouse = true;

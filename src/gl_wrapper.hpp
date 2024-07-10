@@ -24,5 +24,6 @@ extern unsigned int glPosBuffer;
 extern int glWidth;
 extern int glHeight;
 extern float glDeltaTime;
+extern float* glMainCameraSpeedPtr;
 
 #endif
