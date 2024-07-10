@@ -13,21 +13,42 @@
 #include "kernel.hpp"
 #include "utilities.hpp"
 
-void CLWrapper::Initialize(GLFWwindow* window, unsigned int* posBO, vxvyvz* velocities, int* N, float* timeScale)
-{
-    m_PosGLBO = posBO;
-    m_Velocities = velocities;
-    m_N = N;
-    m_TimeScale = timeScale;
-    m_PreviousN = *m_N;
+static unsigned int* glPosBufferPtr = nullptr;
+static int* nPtr = nullptr;
+static int previousN;
 
-    cl_int status = clGetPlatformIDs(1, &m_Platform, NULL);
+static float* timeScalePtr = nullptr;
+
+static vxvyvz* velocities = nullptr;
+static cl_mem velCLBO;
+static cl_mem posCLBO;
+
+static cl_context context;
+static cl_command_queue cmdQueue;
+static cl_device_id device;
+static cl_platform_id platform;
+
+static Kernel* nSquared;
+
+void updateBuffers();
+int calculateWorkGroupSize();
+bool isCLExtensionSupported(const char* extension);
+
+void clInitialize(GLFWwindow* glWindow, unsigned int* _glPosBufferPtr, vxvyvz* _velocities, int* _nPtr, float* _timeScale)
+{
+    glPosBufferPtr = _glPosBufferPtr;
+    velocities = _velocities;
+    nPtr = _nPtr;
+    timeScalePtr = _timeScale;
+    previousN = *nPtr;
+
+    cl_int status = clGetPlatformIDs(1, &platform, NULL);
     if (status != CL_SUCCESS) {
         printf("clGetPlatformIDs: %d\n", status);
         std::terminate();
     }
 
-    status = clGetDeviceIDs(m_Platform, CL_DEVICE_TYPE_GPU, 1, &m_Device, NULL);
+    status = clGetDeviceIDs(platform, CL_DEVICE_TYPE_GPU, 1, &device, NULL);
     if (status != CL_SUCCESS) {
         printf("clGetDeviceIDs: %d\n", status);
         std::terminate();
@@ -42,44 +63,115 @@ void CLWrapper::Initialize(GLFWwindow* window, unsigned int* posBO, vxvyvz* velo
     cl_context_properties props[] = {
         CL_GL_CONTEXT_KHR, (cl_context_properties)wglGetCurrentContext(),
         CL_WGL_HDC_KHR, (cl_context_properties)wglGetCurrentDC(),
-        CL_CONTEXT_PLATFORM, (cl_context_properties)m_Platform,
+        CL_CONTEXT_PLATFORM, (cl_context_properties)platform,
         0
     };
 
-    m_Context = clCreateContext(props, 1, &m_Device, NULL, NULL, &status);
+    context = clCreateContext(props, 1, &device, NULL, NULL, &status);
     if (status != CL_SUCCESS) {
         printf("context status: %d\n", status);
         std::terminate();
     }
 
-    m_CmdQueue = clCreateCommandQueue(m_Context, m_Device, 0, &status);
+    cmdQueue = clCreateCommandQueue(context, device, 0, &status);
     if (status != CL_SUCCESS) {
         printf("cmd queue status: %d\n", status);
         std::terminate();
     }
 
     updateBuffers();
-    m_NSquared = new Kernel(m_Context, m_Device, "kernels/n_squared.cl", "n_squared");
+    nSquared = new Kernel(context, device, "kernels/n_squared.cl", "n_squared");
 }
 
-void CLWrapper::updateBuffers()
+void clSimulateTimestep()
+{
+    if (previousN != *nPtr) {
+        glFinish();
+        clFinish(cmdQueue);
+        updateBuffers();
+        previousN = *nPtr;
+    }
+
+    float timestep = 0.0001 * (*timeScalePtr);
+    float minimumSqDistance = 0.0001;
+
+    size_t globalWorkSize[3] = { (size_t)(*nPtr), 1, 1 };
+    size_t localWorkSize[3] = { (size_t)calculateWorkGroupSize(), 1, 1 };
+
+    cl_int status = clSetKernelArg(nSquared->GetKernel(), 0, sizeof(float), &timestep);
+    if (status != CL_SUCCESS) {
+        printf("kernel 1 args 0 status: %d\n", status);
+        std::terminate();
+    }
+
+    status = clSetKernelArg(nSquared->GetKernel(), 1, sizeof(float), &minimumSqDistance);
+    if (status != CL_SUCCESS) {
+        printf("kernel 1 args 1 status: %d\n", status);
+        std::terminate();
+    }
+
+    status = clSetKernelArg(nSquared->GetKernel(), 2, sizeof(cl_mem), &posCLBO);
+    if (status != CL_SUCCESS) {
+        printf("kernel 1 args 2 status: %d\n", status);
+        std::terminate();
+    }
+
+    status = clSetKernelArg(nSquared->GetKernel(), 3, sizeof(cl_mem), &velCLBO);
+    if (status != CL_SUCCESS) {
+        printf("kernel 1 args 3 status: %d\n", status);
+        std::terminate();
+    }
+
+    status = clSetKernelArg(nSquared->GetKernel(), 4, localWorkSize[0] * sizeof(cl_float4), NULL);
+    if (status != CL_SUCCESS) {
+        printf("kernel 1 args 4 status: %d\n", status);
+        std::terminate();
+    }
+
+    glFinish();
+    status = clEnqueueAcquireGLObjects(cmdQueue, 1, &posCLBO, 0, NULL, NULL);
+    if (status != CL_SUCCESS) {
+        printf("clEnqueueAcquireGLObjects status: %d\n", status);
+        std::terminate();
+    }
+
+    clFinish(cmdQueue);
+
+    status = clEnqueueNDRangeKernel(cmdQueue, nSquared->GetKernel(), 1, NULL, globalWorkSize, localWorkSize, 0, NULL, NULL);
+    if (status != CL_SUCCESS) {
+        printf("clEnqueueAcquireGLObjects status: %d\n", status);
+        std::terminate();
+    }
+
+    clFinish(cmdQueue);
+
+    clEnqueueReleaseGLObjects(cmdQueue, 1, &posCLBO, 0, NULL, NULL);
+    if (status != CL_SUCCESS) {
+        printf("clEnqueueAcquireGLObjects status: %d\n", status);
+        std::terminate();
+    }
+
+    clFinish(cmdQueue);
+}
+
+void updateBuffers()
 {
     cl_int status;
 
     printf("Updating buffer...\n");
-    m_VelCLBO = clCreateBuffer(m_Context, CL_MEM_READ_WRITE, 4 * sizeof(float) * (*m_N), NULL, &status);
+    velCLBO = clCreateBuffer(context, CL_MEM_READ_WRITE, 4 * sizeof(float) * (*nPtr), NULL, &status);
     if (status != CL_SUCCESS) {
         printf("m_VelCLBO buffer creation status: %d\n", status);
         std::terminate();
     }
 
-    status = clEnqueueWriteBuffer(m_CmdQueue, m_VelCLBO, CL_FALSE, 0, 4 * sizeof(float) * (*m_N), m_Velocities, 0, NULL, NULL);
+    status = clEnqueueWriteBuffer(cmdQueue, velCLBO, CL_FALSE, 0, 4 * sizeof(float) * (*nPtr), velocities, 0, NULL, NULL);
     if (status != CL_SUCCESS) {
         printf("m_VelCLBO buffer enqueue status: %d\n", status);
         std::terminate();
     }
 
-    m_PosCLBO = clCreateFromGLBuffer(m_Context, CL_MEM_READ_WRITE, *m_PosGLBO, &status);
+    posCLBO = clCreateFromGLBuffer(context, CL_MEM_READ_WRITE, *glPosBufferPtr, &status);
     if (status != CL_SUCCESS) {
         printf("m_PosCLBO buffer creation status: %d\n", status);
         std::terminate();
@@ -87,92 +179,21 @@ void CLWrapper::updateBuffers()
     printf("Buffer updated!\n");
 }
 
-void CLWrapper::SimulateTimestep()
-{
-    if (m_PreviousN != *m_N) {
-        glFinish();
-        clFinish(m_CmdQueue);
-        updateBuffers();
-        m_PreviousN = *m_N;
-    }
-
-    float timestep = 0.0001 * (*m_TimeScale);
-    float minimumSqDistance = 0.0001;
-
-    size_t globalWorkSize[3] = { (size_t)(*m_N), 1, 1 };
-    size_t localWorkSize[3] = { (size_t)calculateWorkGroupSize(), 1, 1 };
-
-    cl_int status = clSetKernelArg(m_NSquared->GetKernel(), 0, sizeof(float), &timestep);
-    if (status != CL_SUCCESS) {
-        printf("kernel 1 args 0 status: %d\n", status);
-        std::terminate();
-    }
-
-    status = clSetKernelArg(m_NSquared->GetKernel(), 1, sizeof(float), &minimumSqDistance);
-    if (status != CL_SUCCESS) {
-        printf("kernel 1 args 1 status: %d\n", status);
-        std::terminate();
-    }
-
-    status = clSetKernelArg(m_NSquared->GetKernel(), 2, sizeof(cl_mem), &m_PosCLBO);
-    if (status != CL_SUCCESS) {
-        printf("kernel 1 args 2 status: %d\n", status);
-        std::terminate();
-    }
-
-    status = clSetKernelArg(m_NSquared->GetKernel(), 3, sizeof(cl_mem), &m_VelCLBO);
-    if (status != CL_SUCCESS) {
-        printf("kernel 1 args 3 status: %d\n", status);
-        std::terminate();
-    }
-
-    status = clSetKernelArg(m_NSquared->GetKernel(), 4, localWorkSize[0] * sizeof(cl_float4), NULL);
-    if (status != CL_SUCCESS) {
-        printf("kernel 1 args 4 status: %d\n", status);
-        std::terminate();
-    }
-
-    glFinish();
-    status = clEnqueueAcquireGLObjects(m_CmdQueue, 1, &m_PosCLBO, 0, NULL, NULL);
-    if (status != CL_SUCCESS) {
-        printf("clEnqueueAcquireGLObjects status: %d\n", status);
-        std::terminate();
-    }
-
-    clFinish(m_CmdQueue);
-
-    status = clEnqueueNDRangeKernel(m_CmdQueue, m_NSquared->GetKernel(), 1, NULL, globalWorkSize, localWorkSize, 0, NULL, NULL);
-    if (status != CL_SUCCESS) {
-        printf("clEnqueueAcquireGLObjects status: %d\n", status);
-        std::terminate();
-    }
-
-    clFinish(m_CmdQueue);
-
-    clEnqueueReleaseGLObjects(m_CmdQueue, 1, &m_PosCLBO, 0, NULL, NULL);
-    if (status != CL_SUCCESS) {
-        printf("clEnqueueAcquireGLObjects status: %d\n", status);
-        std::terminate();
-    }
-
-    clFinish(m_CmdQueue);
-}
-
-int CLWrapper::calculateWorkGroupSize()
+int calculateWorkGroupSize()
 {
     size_t maxWorkGroupSize;
-    cl_int err = clGetDeviceInfo(m_Device, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(maxWorkGroupSize), &maxWorkGroupSize, NULL);
+    cl_int err = clGetDeviceInfo(device, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(maxWorkGroupSize), &maxWorkGroupSize, NULL);
     if (err != CL_SUCCESS) {
         printf("Unable to get device info\n");
         std::terminate();
     }
-    if (maxWorkGroupSize > *m_N) {
-        return *m_N;
+    if (maxWorkGroupSize > *nPtr) {
+        return *nPtr;
     }
     return maxWorkGroupSize;
 }
 
-bool CLWrapper::isCLExtensionSupported(const char* extension)
+bool isCLExtensionSupported(const char* extension)
 {
     // see if the extension is bogus:
     if (extension == NULL || extension[0] == '\0')
@@ -184,9 +205,9 @@ bool CLWrapper::isCLExtensionSupported(const char* extension)
 
     // get the full list of extensions:
     size_t extensionSize;
-    clGetDeviceInfo(m_Device, CL_DEVICE_EXTENSIONS, 0, NULL, &extensionSize);
+    clGetDeviceInfo(device, CL_DEVICE_EXTENSIONS, 0, NULL, &extensionSize);
     char* extensions = new char[extensionSize];
-    clGetDeviceInfo(m_Device, CL_DEVICE_EXTENSIONS, extensionSize, extensions, NULL);
+    clGetDeviceInfo(device, CL_DEVICE_EXTENSIONS, extensionSize, extensions, NULL);
 
     for (char* start = extensions;;) {
         where = (char*)strstr((const char*)start, extension);
