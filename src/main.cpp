@@ -11,8 +11,13 @@
 #include "cl_wrapper.hpp"
 #include "imgui_wrapper.hpp"
 
-unsigned int N = 2048; // Has to be power of 2
+unsigned int N = 1024; // Has to be power of 2
 float timeScale = 1.0f; // Has to be >= 0
+
+// DEBUG:
+#include <stdio.h>
+int numFramesAfterNChange = 1000;
+bool startCounting = false;
 
 int main(int, char**)
 {
@@ -20,13 +25,27 @@ int main(int, char**)
     clInitialize(glWindow, &glPosBuffer, glVelocities, &N, &timeScale);
     imGuiInitialize(glWindow, glMainCameraSpeedPtr, &N, &timeScale);
 
+    int i = 0;
+    int frameCount = 0;
+    int previousN = N;
     // Render loop, order is important!
-    while (!glShouldClose()) {
-        glRender();
+    while (!glShouldClose() && i < numFramesAfterNChange) {
+        printf("frame number: %d\n", frameCount);
+        glRender(clCmdQueue);
         clSimulateTimestep();
         imGuiDisplay();
 
         glSwapBuffers();
+
+        if (previousN != N) {
+            previousN = N;
+            startCounting = true;
+        }
+
+        if(startCounting) {
+            i++;
+        }
+        frameCount++;
     }
 
     return 0;
