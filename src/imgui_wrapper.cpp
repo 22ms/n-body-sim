@@ -44,7 +44,7 @@ void imGuiDisplay () {
     ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
     ImGui::Begin("Controls", NULL); // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
     ImGui::Text("Bodies: %d", *nPtr);
-    ImGui::SliderInt("log2(n)", &log2n, 0, 19);
+    ImGui::SliderInt("log2(n)", &log2n, 0, 16);
     *nPtr = pow(2, log2n);
 
     ImGui::Spacing();

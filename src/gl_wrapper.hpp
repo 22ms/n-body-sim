@@ -1,7 +1,7 @@
 #ifndef GL_WRAPPER_HPP
 #define GL_WRAPPER_HPP
 
-#define GLEW_BUILD
+typedef struct _cl_command_queue* cl_command_queue;
 
 class Shader;
 class Camera;
@@ -11,7 +11,7 @@ struct xyzm;
 struct vxvyvz;
 
 void glInitialize(int initialWidth, int initialHeight, const char* title, unsigned int* nPtr);
-void glRender();
+void glRender(cl_command_queue cmdQueue);
 void glSwapBuffers();
 bool glShouldClose();
 

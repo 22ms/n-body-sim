@@ -5,7 +5,7 @@ set(CMAKE_BUILD_TYPE Debug)
 find_package(glfw3 REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
-find_package(OpenCL 1.2 REQUIRED)
+find_package(OpenCL REQUIRED)
 find_package(glm REQUIRED)
 
 file(GLOB_RECURSE SOURCES "src/*.cpp")
@@ -32,3 +32,6 @@ add_custom_target(copy_kernels ALL
 
 add_dependencies(n-body copy_shaders)
 add_dependencies(n-body copy_kernels)
+
+add_compile_definitions(CL_TARGET_OPENCL_VERSION=120)
+add_compile_definitions(GLEW_BUILD)

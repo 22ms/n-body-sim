@@ -1,4 +1,5 @@
 #include <GL/glew.h>
+#include <CL/cl.h>
 #include <GLFW/glfw3.h>
 #include <cmath>
 #include <exception>
@@ -111,7 +112,7 @@ void glInitialize(int initialWidth, int initialHeight, const char* title, unsign
 
 }
 
-void glRender()
+void glRender(cl_command_queue cmdQueue)
 {
     float currentFrameTime = static_cast<float>(glfwGetTime());
     glDeltaTime = currentFrameTime - lastFrameTime;
@@ -128,8 +129,11 @@ void glRender()
     shader->SetMat4("view", view);
 
     if (*nPtr != previousN) {
+        glFinish();
+        clFinish(cmdQueue);
         fillVertexBuffers();
         glBufferData(GL_ARRAY_BUFFER, sizeof(float) * (*nPtr) * 4, glPositions, GL_DYNAMIC_DRAW);
+        printf("Updated GL Buffer with n: %d\n", (*nPtr));
     }
     glDrawArrays(GL_POINTS, 0, *nPtr);
 
@@ -185,6 +189,8 @@ void fillVertexBuffers()
         glVelocities[i].vy = 0;
         glVelocities[i].vz = 0;
     }
+
+    printf("Updated velocities with n: %d\n", (*nPtr));
 }
 
 void processKeyInput()

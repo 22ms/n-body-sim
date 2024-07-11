@@ -1,5 +1,3 @@
-#define CL_TARGET_OPENCL_VERSION 120
-
 #include <CL/cl.h>
 #include <CL/cl_gl.h>
 #include <GL/glew.h>
@@ -13,6 +11,8 @@
 #include "kernel.hpp"
 #include "utilities.hpp"
 
+cl_command_queue clCmdQueue;
+
 static unsigned int* glPosBufferPtr = nullptr;
 static unsigned int* nPtr = nullptr;
 static unsigned int previousN;
@@ -24,7 +24,6 @@ static cl_mem velCLBO;
 static cl_mem posCLBO;
 
 static cl_context context;
-static cl_command_queue cmdQueue;
 static cl_device_id device;
 static cl_platform_id platform;
 
@@ -73,7 +72,7 @@ void clInitialize(GLFWwindow* glWindow, unsigned int* _glPosBufferPtr, vxvyvz* _
         std::terminate();
     }
 
-    cmdQueue = clCreateCommandQueue(context, device, 0, &status);
+    clCmdQueue = clCreateCommandQueue(context, device, 0, &status);
     if (status != CL_SUCCESS) {
         printf("cmd queue status: %d\n", status);
         std::terminate();
@@ -87,7 +86,7 @@ void clSimulateTimestep()
 {
     if (previousN != *nPtr) {
         glFinish();
-        clFinish(cmdQueue);
+        clFinish(clCmdQueue);
         updateBuffers();
         previousN = *nPtr;
     }
@@ -129,43 +128,43 @@ void clSimulateTimestep()
     }
 
     glFinish();
-    status = clEnqueueAcquireGLObjects(cmdQueue, 1, &posCLBO, 0, NULL, NULL);
+    status = clEnqueueAcquireGLObjects(clCmdQueue, 1, &posCLBO, 0, NULL, NULL);
     if (status != CL_SUCCESS) {
         printf("clEnqueueAcquireGLObjects status: %d\n", status);
         std::terminate();
     }
 
-    clFinish(cmdQueue);
+    clFinish(clCmdQueue);
 
-    status = clEnqueueNDRangeKernel(cmdQueue, nSquared->GetKernel(), 1, NULL, globalWorkSize, localWorkSize, 0, NULL, NULL);
+    status = clEnqueueNDRangeKernel(clCmdQueue, nSquared->GetKernel(), 1, NULL, globalWorkSize, localWorkSize, 0, NULL, NULL);
     if (status != CL_SUCCESS) {
         printf("clEnqueueAcquireGLObjects status: %d\n", status);
         std::terminate();
     }
 
-    clFinish(cmdQueue);
+    clFinish(clCmdQueue);
 
-    clEnqueueReleaseGLObjects(cmdQueue, 1, &posCLBO, 0, NULL, NULL);
+    clEnqueueReleaseGLObjects(clCmdQueue, 1, &posCLBO, 0, NULL, NULL);
     if (status != CL_SUCCESS) {
         printf("clEnqueueAcquireGLObjects status: %d\n", status);
         std::terminate();
     }
 
-    clFinish(cmdQueue);
+    clFinish(clCmdQueue);
 }
 
 void updateBuffers()
 {
     cl_int status;
 
-    printf("Updating buffer...\n");
     velCLBO = clCreateBuffer(context, CL_MEM_READ_WRITE, 4 * sizeof(float) * (*nPtr), NULL, &status);
     if (status != CL_SUCCESS) {
         printf("m_VelCLBO buffer creation status: %d\n", status);
         std::terminate();
     }
 
-    status = clEnqueueWriteBuffer(cmdQueue, velCLBO, CL_FALSE, 0, 4 * sizeof(float) * (*nPtr), velocities, 0, NULL, NULL);
+    printf("Creating buffer with n: %d\n", (*nPtr));
+    status = clEnqueueWriteBuffer(clCmdQueue, velCLBO, CL_FALSE, 0, 4 * sizeof(float) * (*nPtr), velocities, 0, NULL, NULL);
     if (status != CL_SUCCESS) {
         printf("m_VelCLBO buffer enqueue status: %d\n", status);
         std::terminate();
@@ -176,7 +175,6 @@ void updateBuffers()
         printf("m_PosCLBO buffer creation status: %d\n", status);
         std::terminate();
     }
-    printf("Buffer updated!\n");
 }
 
 int calculateWorkGroupSize()

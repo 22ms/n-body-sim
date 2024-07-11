@@ -1,8 +1,6 @@
 #ifndef KERNEL_HPP
 #define KERNEL_HPP
 
-#define CL_TARGET_OPENCL_VERSION 120
-
 typedef struct _cl_context* cl_context;
 typedef struct _cl_device_id* cl_device_id;
 typedef struct _cl_kernel* cl_kernel;
