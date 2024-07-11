@@ -20,8 +20,8 @@ static unsigned int previousN;
 static float* timeScalePtr = nullptr;
 
 static vxvyvz* velocities = nullptr;
-static cl_mem velCLBO;
-static cl_mem posCLBO;
+static cl_mem velBuffer;
+static cl_mem posBuffer;
 
 static cl_context context;
 static cl_device_id device;
@@ -109,13 +109,13 @@ void clSimulateTimestep()
         std::terminate();
     }
 
-    status = clSetKernelArg(nSquared->GetKernel(), 2, sizeof(cl_mem), &posCLBO);
+    status = clSetKernelArg(nSquared->GetKernel(), 2, sizeof(cl_mem), &posBuffer);
     if (status != CL_SUCCESS) {
         printf("kernel 1 args 2 status: %d\n", status);
         std::terminate();
     }
 
-    status = clSetKernelArg(nSquared->GetKernel(), 3, sizeof(cl_mem), &velCLBO);
+    status = clSetKernelArg(nSquared->GetKernel(), 3, sizeof(cl_mem), &velBuffer);
     if (status != CL_SUCCESS) {
         printf("kernel 1 args 3 status: %d\n", status);
         std::terminate();
@@ -128,7 +128,7 @@ void clSimulateTimestep()
     }
 
     glFinish();
-    status = clEnqueueAcquireGLObjects(clCmdQueue, 1, &posCLBO, 0, NULL, NULL);
+    status = clEnqueueAcquireGLObjects(clCmdQueue, 1, &posBuffer, 0, NULL, NULL);
     if (status != CL_SUCCESS) {
         printf("clEnqueueAcquireGLObjects status: %d\n", status);
         std::terminate();
@@ -144,7 +144,7 @@ void clSimulateTimestep()
 
     clFinish(clCmdQueue);
 
-    clEnqueueReleaseGLObjects(clCmdQueue, 1, &posCLBO, 0, NULL, NULL);
+    clEnqueueReleaseGLObjects(clCmdQueue, 1, &posBuffer, 0, NULL, NULL);
     if (status != CL_SUCCESS) {
         printf("clEnqueueAcquireGLObjects status: %d\n", status);
         std::terminate();
@@ -157,20 +157,20 @@ void updateBuffers()
 {
     cl_int status;
 
-    velCLBO = clCreateBuffer(context, CL_MEM_READ_WRITE, 4 * sizeof(float) * (*nPtr), NULL, &status);
+    velBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE, 4 * sizeof(float) * (*nPtr), NULL, &status);
     if (status != CL_SUCCESS) {
         printf("m_VelCLBO buffer creation status: %d\n", status);
         std::terminate();
     }
 
     printf("Creating buffer with n: %d\n", (*nPtr));
-    status = clEnqueueWriteBuffer(clCmdQueue, velCLBO, CL_FALSE, 0, 4 * sizeof(float) * (*nPtr), velocities, 0, NULL, NULL);
+    status = clEnqueueWriteBuffer(clCmdQueue, velBuffer, CL_FALSE, 0, 4 * sizeof(float) * (*nPtr), velocities, 0, NULL, NULL);
     if (status != CL_SUCCESS) {
         printf("m_VelCLBO buffer enqueue status: %d\n", status);
         std::terminate();
     }
 
-    posCLBO = clCreateFromGLBuffer(context, CL_MEM_READ_WRITE, *glPosBufferPtr, &status);
+    posBuffer = clCreateFromGLBuffer(context, CL_MEM_READ_WRITE, *glPosBufferPtr, &status);
     if (status != CL_SUCCESS) {
         printf("m_PosCLBO buffer creation status: %d\n", status);
         std::terminate();
