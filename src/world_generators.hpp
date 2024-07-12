@@ -4,7 +4,9 @@
 struct Position;
 struct Velocity;
 
-void SphereGenerator(Position* positions, Velocity* velocites, const int n);
-void WhateverGenerator(Position* positions, Velocity* velocites, const int n);
+namespace worldgenerators {
+    void SphereGenerator(Position* positions, Velocity* velocites, const int n);
+    void SphereShellGenerator(Position*& positions, Velocity*& velocites, const int n);
+}
 
 #endif

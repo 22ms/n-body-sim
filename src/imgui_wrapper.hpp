@@ -2,8 +2,12 @@
 #define IMGUI_WRAPPER_HPP
 
 class GLFWwindow;
+class Position;
+class Velocity;
 
-void imGuiInitialize (GLFWwindow* glWindow, float* _mainCameraSpeedPtr, unsigned int* _nPtr, float* _timeScalePtr); // Pointer to GLFWwindow not necessarily needed, but makes the dependency on an initialized OpenGL context obvious.
-void imGuiDisplay();
+namespace imguiwrapper {
+    void Initialize (GLFWwindow* glWindow, float* mainCameraSpeedPtr, unsigned int* nPtr, float* timeScalePtr, void (*worldGeneratorPtr)(Position*&, Velocity*&, const int));
+    void Display();
+}
 
 #endif

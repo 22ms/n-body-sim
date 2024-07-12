@@ -7,9 +7,11 @@ class GLFWwindow;
 class Kernel;
 struct Velocity;
 
-void clInitialize(GLFWwindow* window, unsigned int* _glPosBufferPtr, Velocity* _velocities, unsigned int* _nPtr, float* _timeScale); // Pointer to GLFWwindow not necessarily needed, but makes the dependency on an initialized OpenGL context obvious.
-void clSimulateTimestep();
+namespace clwrapper {
+    void Initialize(unsigned int* posBufferPtr, Velocity* velocities, unsigned int* nPtr, float* timeScale); // Pointer to GLFWwindow not necessarily needed, but makes the dependency on an initialized OpenGL context obvious.
+    void SimulateTimestep();
 
-extern cl_command_queue clCmdQueue;
+    extern cl_command_queue cmdQueue;
+}
 
 #endif

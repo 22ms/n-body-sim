@@ -10,20 +10,24 @@ struct GLFWwindow;
 struct Position;
 struct Velocity;
 
-void glInitialize(int initialWidth, int initialHeight, const char* title, unsigned int* nPtr);
-void glRender(cl_command_queue cmdQueue);
-void glSwapBuffers();
-bool glShouldClose();
+namespace glwrapper {
 
-extern GLFWwindow* glWindow;
-extern Camera* glMainCamera;
-extern Position* glPositions;
-extern Velocity* clVelocities;
+    void Initialize(int width, int height, const char* title, unsigned int* nPtr, void (*worldGeneratorPtr)(Position*&, Velocity*&, const int));
+    void Render(cl_command_queue cmdQueue);
+    void SwapBuffers();
+    bool ShouldClose();
 
-extern unsigned int glPosBuffer;
-extern int glWidth;
-extern int glHeight;
-extern float glDeltaTime;
-extern float* glMainCameraSpeedPtr;
+    extern GLFWwindow* Window;
+    extern Camera* MainCamera;
+    extern Position* Positions;
+    extern Velocity* Velocities;
 
-#endif
+    extern unsigned int PosBuffer;
+    extern int Width;
+    extern int Height;
+    extern float DeltaTime;
+    extern float* MainCameraSpeedPtr;
+
+} // namespace glwrapper
+
+#endif // GL_WRAPPER_HPP

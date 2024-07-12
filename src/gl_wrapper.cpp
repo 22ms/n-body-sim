@@ -14,244 +14,212 @@
 #include "shader.hpp"
 #include "utilities.hpp"
 #include "globals.hpp"
+#include "world_generators.hpp"
 
-// Extern
+namespace glwrapper {
 
-GLFWwindow* glWindow = nullptr;
-Camera* glMainCamera = nullptr;
-Position* glPositions = nullptr;
-Velocity* clVelocities = nullptr;
+    // "Public"
 
-unsigned int glPosBuffer;
-int glWidth;
-int glHeight;
-float glDeltaTime;
-float* glMainCameraSpeedPtr = nullptr;
+    GLFWwindow* Window = nullptr;
+    Camera* MainCamera = nullptr;
+    Position* Positions = nullptr;
+    Velocity* Velocities = nullptr;
 
-// Static
+    unsigned int PosBuffer;
+    int Width;
+    int Height;
+    float DeltaTime;
+    float* MainCameraSpeedPtr = nullptr;
 
-Shader* shader = nullptr;
+    // "Private"
 
-static unsigned int posAttribute;
+    static Shader* shader = nullptr;
 
-static unsigned int* nPtr = nullptr;
-static unsigned int previousN;
+    static unsigned int posAttribute;
 
-static float lastX;
-static float lastY;
-static float lastFrameTime;
+    static unsigned int* nPtr = nullptr;
+    static unsigned int previousN;
 
-static bool firstMouse;
-static bool captureMouse;
+    static float lastX;
+    static float lastY;
+    static float lastFrameTime;
 
-void fillVertexBuffers();
-void processKeyInput();
+    static bool firstMouse;
+    static bool captureMouse;
 
-void errorCallback(int error, const char* description);
-void framebufferSizeCallback(GLFWwindow* glWindow, int width, int height);
-void mouseCallback(GLFWwindow* glWindow, double xposIn, double yposIn);
-void mouseButtonCallback(GLFWwindow* glWindow, int button, int action, int mods);
-void scrollCallback(GLFWwindow* glWindow, double xoffset, double yoffset);
+    void processKeyInput();
+    void (*worldGeneratorPtr)(Position*&, Velocity*&, const int);
 
-void glInitialize(int initialWidth, int initialHeight, const char* title, unsigned int* _nPtr)
-{
-    glWidth = initialWidth;
-    glHeight = initialHeight;
-    nPtr = _nPtr;
-    previousN = *nPtr;
+    void errorCallback(int error, const char* description);
+    void framebufferSizeCallback(GLFWwindow* glWindow, int width, int height);
+    void mouseCallback(GLFWwindow* glWindow, double xposIn, double yposIn);
+    void mouseButtonCallback(GLFWwindow* glWindow, int button, int action, int mods);
+    void scrollCallback(GLFWwindow* glWindow, double xoffset, double yoffset);
 
-    glfwSetErrorCallback(errorCallback);
-    glfwInit();
+    void Initialize(int width, int height, const char* title, unsigned int* nPtr, void (*worldGeneratorPtr)(Position*&, Velocity*&, const int))
+    {
+        glwrapper::Width = width;
+        glwrapper::Height = height;
+        glwrapper::nPtr = nPtr;
+        glwrapper::worldGeneratorPtr = worldGeneratorPtr;
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        previousN = *glwrapper::nPtr;
 
-    glWindow = glfwCreateWindow(glWidth, glHeight, title, nullptr, nullptr);
+        glfwSetErrorCallback(errorCallback);
+        glfwInit();
 
-    glfwMakeContextCurrent(glWindow);
-    glfwSwapInterval(1); // Enable vsync
-    glViewport(0, 0, glWidth, glHeight);
-    glfwSetFramebufferSizeCallback(glWindow, framebufferSizeCallback);
-    glfwSetCursorPosCallback(glWindow, mouseCallback);
-    glfwSetMouseButtonCallback(glWindow, mouseButtonCallback);
-    glfwSetScrollCallback(glWindow, scrollCallback);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    glfwSetInputMode(glWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-    if (glfwRawMouseMotionSupported())
-        glfwSetInputMode(glWindow, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+        Window = glfwCreateWindow(Width, Height, title, nullptr, nullptr);
 
-    glEnable(GL_PROGRAM_POINT_SIZE);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glfwMakeContextCurrent(Window);
+        glfwSwapInterval(1); // Enable vsync
+        glViewport(0, 0, Width, Height);
+        glfwSetFramebufferSizeCallback(Window, framebufferSizeCallback);
+        glfwSetCursorPosCallback(Window, mouseCallback);
+        glfwSetMouseButtonCallback(Window, mouseButtonCallback);
+        glfwSetScrollCallback(Window, scrollCallback);
 
-    GLenum err = glewInit();
-    fillVertexBuffers();
+        glfwSetInputMode(Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        if (glfwRawMouseMotionSupported())
+            glfwSetInputMode(Window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
 
-    glGenBuffers(1, &glPosBuffer);
-    glGenVertexArrays(1, &posAttribute);
+        glEnable(GL_PROGRAM_POINT_SIZE);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-    glBindVertexArray(posAttribute);
-    glBindBuffer(GL_ARRAY_BUFFER, glPosBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * MAX_N * 4, glPositions, GL_STATIC_DRAW);
+        GLenum err = glewInit();
+        worldGeneratorPtr(Positions, Velocities, *nPtr);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
+        glGenBuffers(1, &PosBuffer);
+        glGenVertexArrays(1, &posAttribute);
 
-    shader = new Shader("shaders/basic.vert", "shaders/basic.frag");
-    shader->Use();
+        glBindVertexArray(posAttribute);
+        glBindBuffer(GL_ARRAY_BUFFER, PosBuffer);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * MAX_N * 4, Positions, GL_STATIC_DRAW);
 
-    glMainCamera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f));
-    glMainCameraSpeedPtr = &(glMainCamera->MovementSpeed);
-    lastX = glWidth / 2.0f;
-    lastY = glHeight / 2.0f;
-    firstMouse = true;
-    captureMouse = false;
-    glDeltaTime = 0.0f;
-    lastFrameTime = 0.0f;
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
 
-}
+        shader = new Shader("shaders/basic.vert", "shaders/basic.frag");
+        shader->Use();
 
-void glRender(cl_command_queue cmdQueue)
-{
-    float currentFrameTime = static_cast<float>(glfwGetTime());
-    glDeltaTime = currentFrameTime - lastFrameTime;
-    lastFrameTime = currentFrameTime;
-
-    glClear(GL_COLOR_BUFFER_BIT);
-    glfwPollEvents();
-    processKeyInput();
-
-    glm::mat4 projection = glm::perspective(glm::radians(glMainCamera->Zoom), (float)glWidth / (float)glHeight, 0.1f, 100.0f);
-    shader->SetMat4("projection", projection);
-
-    glm::mat4 view = glMainCamera->GetViewMatrix();
-    shader->SetMat4("view", view);
-
-    if (*nPtr != previousN) {
-        glFinish();
-        clFinish(cmdQueue);
-        fillVertexBuffers();
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * (*nPtr) * 4, glPositions);
-        printf("Updated GL Buffer with n: %d\n", (*nPtr));
-    }
-    glDrawArrays(GL_POINTS, 0, *nPtr);
-
-    previousN = *nPtr;
-
-    GLenum err = glGetError();
-    if (err != 0) {
-        printf("OpenGL error: 0x%x\n", err);
-        std::terminate();
-    }
-}
-
-void glSwapBuffers()
-{
-    glfwSwapBuffers(glWindow);
-}
-
-bool glShouldClose() {
-    return glfwWindowShouldClose(glWindow);
-}
-
-void fillVertexBuffers()
-{
-    if (glPositions != nullptr) {
-        delete[] glPositions;
+        MainCamera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f));
+        MainCameraSpeedPtr = &(MainCamera->MovementSpeed);
+        lastX = Width / 2.0f;
+        lastY = Height / 2.0f;
+        firstMouse = true;
+        captureMouse = false;
+        DeltaTime = 0.0f;
+        lastFrameTime = 0.0f;
     }
 
-    if (clVelocities != nullptr) {
-        delete[] clVelocities;
+    void Render(cl_command_queue cmdQueue)
+    {
+        float currentFrameTime = static_cast<float>(glfwGetTime());
+        DeltaTime = currentFrameTime - lastFrameTime;
+        lastFrameTime = currentFrameTime;
+
+        glClear(GL_COLOR_BUFFER_BIT);
+        glfwPollEvents();
+        processKeyInput();
+
+        glm::mat4 projection = glm::perspective(glm::radians(MainCamera->Zoom), (float)Width / (float)Height, 0.1f, 100.0f);
+        shader->SetMat4("projection", projection);
+
+        glm::mat4 view = MainCamera->GetViewMatrix();
+        shader->SetMat4("view", view);
+
+        if (*nPtr != previousN) {
+            glFinish();
+            clFinish(cmdQueue);
+            worldGeneratorPtr(Positions, Velocities, *nPtr);
+            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * (*nPtr) * 4, Positions);
+        }
+        glDrawArrays(GL_POINTS, 0, *nPtr);
+
+        previousN = *nPtr;
+
+        GLenum err = glGetError();
+        if (err != 0) {
+            printf("OpenGL error: 0x%x\n", err);
+            std::terminate();
+        }
     }
 
-    glPositions = new Position[MAX_N];
-    clVelocities = new Velocity[MAX_N];
-
-    float endRadius = 1.0f;
-    float spacing = endRadius / MAX_N;
-
-    // set positions
-    for (int i = 0; i < *nPtr; i++) {
-        double theta = acos(2 * rand() / double(RAND_MAX) - 1); // Polar angle
-        double phi = rand() / double(RAND_MAX) * 2 * M_PI; // Azimuthal angle
-        double radius = endRadius; // Radius of the sphere
-
-        glPositions[i].x = radius * sin(theta) * cos(phi);
-        glPositions[i].y = radius * sin(theta) * sin(phi);
-        glPositions[i].z = radius * cos(theta);
-        glPositions[i].m = 1;
+    void SwapBuffers()
+    {
+        glfwSwapBuffers(Window);
     }
 
-    // set velocities
-    for (int i = 0; i < *nPtr; i++) {
-        clVelocities[i].x = 0.0f;
-        clVelocities[i].y = 0.0f;
-        clVelocities[i].z = 0.0f;
+    bool ShouldClose() {
+        return glfwWindowShouldClose(Window);
     }
-}
 
-void processKeyInput()
-{
-    if (glfwGetKey(glWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(glWindow, true);
+    void processKeyInput()
+    {
+        if (glfwGetKey(Window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+            glfwSetWindowShouldClose(Window, true);
 
-    if (glfwGetKey(glWindow, GLFW_KEY_W) == GLFW_PRESS)
-        glMainCamera->ProcessKeyboard(FORWARD, glDeltaTime);
-    if (glfwGetKey(glWindow, GLFW_KEY_S) == GLFW_PRESS)
-        glMainCamera->ProcessKeyboard(BACKWARD, glDeltaTime);
-    if (glfwGetKey(glWindow, GLFW_KEY_A) == GLFW_PRESS)
-        glMainCamera->ProcessKeyboard(LEFT, glDeltaTime);
-    if (glfwGetKey(glWindow, GLFW_KEY_D) == GLFW_PRESS)
-        glMainCamera->ProcessKeyboard(RIGHT, glDeltaTime);
-}
+        if (glfwGetKey(Window, GLFW_KEY_W) == GLFW_PRESS)
+            MainCamera->ProcessKeyboard(FORWARD, DeltaTime);
+        if (glfwGetKey(Window, GLFW_KEY_S) == GLFW_PRESS)
+            MainCamera->ProcessKeyboard(BACKWARD, DeltaTime);
+        if (glfwGetKey(Window, GLFW_KEY_A) == GLFW_PRESS)
+            MainCamera->ProcessKeyboard(LEFT, DeltaTime);
+        if (glfwGetKey(Window, GLFW_KEY_D) == GLFW_PRESS)
+            MainCamera->ProcessKeyboard(RIGHT, DeltaTime);
+    }
 
-void errorCallback(int error, const char* description)
-{
-    fprintf(stderr, "GLFW Error %d: %s\n", error, description);
-}
+    void errorCallback(int error, const char* description)
+    {
+        fprintf(stderr, "GLFW Error %d: %s\n", error, description);
+    }
 
-void framebufferSizeCallback(GLFWwindow* glWindow, int width, int height)
-{
-    glViewport(0, 0, width, height);
-}
+    void framebufferSizeCallback(GLFWwindow* glWindow, int width, int height)
+    {
+        glViewport(0, 0, width, height);
+    }
 
-void mouseCallback(GLFWwindow* glWindow, double xposIn, double yposIn)
-{
-    float xpos = static_cast<float>(xposIn);
-    float ypos = static_cast<float>(yposIn);
+    void mouseCallback(GLFWwindow* glWindow, double xposIn, double yposIn)
+    {
+        float xpos = static_cast<float>(xposIn);
+        float ypos = static_cast<float>(yposIn);
 
-    if (firstMouse) {
+        if (firstMouse) {
+            lastX = xpos;
+            lastY = ypos;
+            firstMouse = false;
+        }
+
+        float xoffset = xpos - lastX;
+        float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+
         lastX = xpos;
         lastY = ypos;
-        firstMouse = false;
+
+        if (captureMouse) {
+            MainCamera->ProcessMouseMovement(xoffset, yoffset);
+        }
     }
 
-    float xoffset = xpos - lastX;
-    float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
-
-    lastX = xpos;
-    lastY = ypos;
-
-    if (captureMouse) {
-        glMainCamera->ProcessMouseMovement(xoffset, yoffset);
+    void mouseButtonCallback(GLFWwindow* glWindow, int button, int action, int mods)
+    {
+        if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
+            captureMouse = true;
+            glfwSetInputMode(glWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        }
+        if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE) {
+            captureMouse = false;
+            glfwSetInputMode(glWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        }
     }
-}
 
-void mouseButtonCallback(GLFWwindow* glWindow, int button, int action, int mods)
-{
-    if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
-        captureMouse = true;
-        glfwSetInputMode(glWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    void scrollCallback(GLFWwindow* glWindow, double xoffset, double yoffset)
+    {
+        MainCamera->ProcessMouseScroll(yoffset);
     }
-    if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE) {
-        captureMouse = false;
-        glfwSetInputMode(glWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-    }
-}
-
-void scrollCallback(GLFWwindow* glWindow, double xoffset, double yoffset)
-{
-    glMainCamera->ProcessMouseScroll(yoffset);
-}
+} // namespace glwrapper

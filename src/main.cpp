@@ -9,24 +9,26 @@
 
 #include "gl_wrapper.hpp"
 #include "cl_wrapper.hpp"
-#include "imgui_wrapper.hpp" // maximum possible amount of particles for buffer allocation
+#include "imgui_wrapper.hpp"
+#include "world_generators.hpp"
 
 unsigned int N = 1024; // Has to be power of 2, must be lower than MAX_N
 float timeScale = 1.0f; // Has to be >= 0
+void (*worldGeneratorPtr)(Position*&, Velocity*&, const int) = worldgenerators::SphereShellGenerator; // Specifies the initial particle configuration
 
 int main(int, char**)
 {
-    glInitialize(1280, 720, "N-body simulation, O(n²)", &N);
-    clInitialize(glWindow, &glPosBuffer, clVelocities, &N, &timeScale);
-    imGuiInitialize(glWindow, glMainCameraSpeedPtr, &N, &timeScale);
+    glwrapper::Initialize(1280, 720, "N-body simulation, O(n²)", &N, worldGeneratorPtr);
+    clwrapper::Initialize(&glwrapper::PosBuffer, glwrapper::Velocities, &N, &timeScale);
+    imguiwrapper::Initialize(glwrapper::Window, glwrapper::MainCameraSpeedPtr, &N, &timeScale, worldGeneratorPtr);
 
     // Render loop, order is important!
-    while (!glShouldClose()) {
-        glRender(clCmdQueue);
-        clSimulateTimestep();
-        imGuiDisplay();
+    while (!glwrapper::ShouldClose()) {
+        glwrapper::Render(clwrapper::cmdQueue);
+        clwrapper::SimulateTimestep();
+        imguiwrapper::Display();
 
-        glSwapBuffers();
+        glwrapper::SwapBuffers();
     }
 
     return 0;
