@@ -13,13 +13,14 @@
 #include "gl_wrapper.hpp"
 #include "shader.hpp"
 #include "utilities.hpp"
+#include "globals.hpp"
 
 // Extern
 
 GLFWwindow* glWindow = nullptr;
 Camera* glMainCamera = nullptr;
-xyzm* glPositions = nullptr;
-vxvyvz* glVelocities = nullptr;
+Position* glPositions = nullptr;
+Velocity* clVelocities = nullptr;
 
 unsigned int glPosBuffer;
 int glWidth;
@@ -93,7 +94,7 @@ void glInitialize(int initialWidth, int initialHeight, const char* title, unsign
 
     glBindVertexArray(posAttribute);
     glBindBuffer(GL_ARRAY_BUFFER, glPosBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * (*nPtr) * 4, glPositions, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * MAX_N * 4, glPositions, GL_STATIC_DRAW);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
@@ -132,7 +133,7 @@ void glRender(cl_command_queue cmdQueue)
         glFinish();
         clFinish(cmdQueue);
         fillVertexBuffers();
-        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * (*nPtr) * 4, glPositions, GL_DYNAMIC_DRAW);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * (*nPtr) * 4, glPositions);
         printf("Updated GL Buffer with n: %d\n", (*nPtr));
     }
     glDrawArrays(GL_POINTS, 0, *nPtr);
@@ -157,7 +158,38 @@ bool glShouldClose() {
 
 void fillVertexBuffers()
 {
-    
+    if (glPositions != nullptr) {
+        delete[] glPositions;
+    }
+
+    if (clVelocities != nullptr) {
+        delete[] clVelocities;
+    }
+
+    glPositions = new Position[MAX_N];
+    clVelocities = new Velocity[MAX_N];
+
+    float endRadius = 1.0f;
+    float spacing = endRadius / MAX_N;
+
+    // set positions
+    for (int i = 0; i < *nPtr; i++) {
+        double theta = acos(2 * rand() / double(RAND_MAX) - 1); // Polar angle
+        double phi = rand() / double(RAND_MAX) * 2 * M_PI; // Azimuthal angle
+        double radius = endRadius; // Radius of the sphere
+
+        glPositions[i].x = radius * sin(theta) * cos(phi);
+        glPositions[i].y = radius * sin(theta) * sin(phi);
+        glPositions[i].z = radius * cos(theta);
+        glPositions[i].m = 1;
+    }
+
+    // set velocities
+    for (int i = 0; i < *nPtr; i++) {
+        clVelocities[i].x = 0.0f;
+        clVelocities[i].y = 0.0f;
+        clVelocities[i].z = 0.0f;
+    }
 }
 
 void processKeyInput()

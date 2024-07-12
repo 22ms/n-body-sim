@@ -9,43 +9,24 @@
 
 #include "gl_wrapper.hpp"
 #include "cl_wrapper.hpp"
-#include "imgui_wrapper.hpp"
+#include "imgui_wrapper.hpp" // maximum possible amount of particles for buffer allocation
 
-unsigned int N = 1024; // Has to be power of 2
+unsigned int N = 1024; // Has to be power of 2, must be lower than MAX_N
 float timeScale = 1.0f; // Has to be >= 0
-
-// DEBUG:
-#include <stdio.h>
-int numFramesAfterNChange = 1000;
-bool startCounting = false;
 
 int main(int, char**)
 {
     glInitialize(1280, 720, "N-body simulation, O(n²)", &N);
-    clInitialize(glWindow, &glPosBuffer, glVelocities, &N, &timeScale);
+    clInitialize(glWindow, &glPosBuffer, clVelocities, &N, &timeScale);
     imGuiInitialize(glWindow, glMainCameraSpeedPtr, &N, &timeScale);
 
-    int i = 0;
-    int frameCount = 0;
-    int previousN = N;
     // Render loop, order is important!
-    while (!glShouldClose() && i < numFramesAfterNChange) {
-        printf("frame number: %d\n", frameCount);
+    while (!glShouldClose()) {
         glRender(clCmdQueue);
         clSimulateTimestep();
         imGuiDisplay();
 
         glSwapBuffers();
-
-        if (previousN != N) {
-            previousN = N;
-            startCounting = true;
-        }
-
-        if(startCounting) {
-            i++;
-        }
-        frameCount++;
     }
 
     return 0;
