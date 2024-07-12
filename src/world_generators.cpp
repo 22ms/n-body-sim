@@ -6,7 +6,21 @@
 #include "world_generators.hpp"
 
 namespace worldgenerators {
-    void SphereGenerator (Position* positions, Velocity* velocites, const int n)
+    void SphereGenerator(Position*& positions, Velocity*& velocites, const int n);
+    void SphereShellGenerator(Position*& positions, Velocity*& velocites, const int n);
+
+    GeneratorFunction getGenerator(GeneratorType type) {
+        switch(type) {
+            case GeneratorType::SPHERE:
+                return SphereGenerator;
+            case GeneratorType::SPHERE_SHELL:
+                return SphereShellGenerator;
+            default:
+                return nullptr; // or handle the error appropriately
+        }
+    }
+
+    void SphereGenerator (Position*& positions, Velocity*& velocites, const int n)
     {
         // TODO: implement
     }

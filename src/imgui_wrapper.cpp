@@ -23,15 +23,16 @@ namespace imguiwrapper {
     static float* mainCameraSpeedPtr = nullptr;
     static float* timeScalePtr = nullptr;
 
-    void (*worldGeneratorPtr)(Position*&, Velocity*&, const int);
+    const char* worldGens[] = { "Sphere", "SphereShell" };
+    static worldgenerators::GeneratorType* worldGeneratorType;
 
     void setStyleGruvbox();
 
-    void Initialize (GLFWwindow* glWindow, float* mainCameraSpeedPtr, unsigned int* nPtr, float* timeScalePtr, void (*worldGeneratorPtr)(Position*&, Velocity*&, const int)) {
+    void Initialize (GLFWwindow* glWindow, float* mainCameraSpeedPtr, unsigned int* nPtr, float* timeScalePtr, worldgenerators::GeneratorType* generatorType) {
         imguiwrapper::nPtr = nPtr;
         imguiwrapper::mainCameraSpeedPtr = mainCameraSpeedPtr;
         imguiwrapper::timeScalePtr = timeScalePtr;
-        imguiwrapper::worldGeneratorPtr = worldGeneratorPtr;
+        imguiwrapper::worldGeneratorType = worldGeneratorType;
 
         log2n = std::round(std::log2(*imguiwrapper::nPtr));
         log2maxn = std::round(std::log2(MAX_N));
@@ -60,6 +61,22 @@ namespace imguiwrapper {
         ImGui::Text("Bodies: %d", *nPtr);
         ImGui::SliderInt("log2(n)", &log2n, 0, log2maxn);
         *nPtr = pow(2, log2n);
+
+        static int item_current_idx = 0;
+        if (ImGui::BeginCombo("World Gen", worldGens[item_current_idx])) // The second parameter is the label previewed before opening the combo.
+        {
+            for (int n = 0; n < IM_ARRAYSIZE(worldGens); n++)
+            {
+                const bool is_selected = (item_current_idx == n);
+                if (ImGui::Selectable(worldGens[n], is_selected))
+                    item_current_idx = n;
+
+                // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+                if (is_selected)
+                    ImGui::SetItemDefaultFocus();
+            }
+            ImGui::EndCombo();
+        }
 
         ImGui::Spacing();
         ImGui::SliderFloat("Time scale", timeScalePtr, 0.0f, 1.0f);

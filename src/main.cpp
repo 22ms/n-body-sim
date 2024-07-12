@@ -14,13 +14,13 @@
 
 unsigned int N = 1024; // Has to be power of 2, must be lower than MAX_N
 float timeScale = 1.0f; // Has to be >= 0
-void (*worldGeneratorPtr)(Position*&, Velocity*&, const int) = worldgenerators::SphereShellGenerator; // Specifies the initial particle configuration
+worldgenerators::GeneratorType generator = worldgenerators::GeneratorType::SPHERE_SHELL; // Sets initial particle config
 
 int main(int, char**)
 {
-    glwrapper::Initialize(1280, 720, "N-body simulation, O(n²)", &N, worldGeneratorPtr);
-    clwrapper::Initialize(&glwrapper::PosBuffer, glwrapper::Velocities, &N, &timeScale);
-    imguiwrapper::Initialize(glwrapper::Window, glwrapper::MainCameraSpeedPtr, &N, &timeScale, worldGeneratorPtr);
+    glwrapper::Initialize(1280, 720, "N-body simulation, O(n²)", &N, clwrapper::UpdateCLBuffers, &generator);
+    clwrapper::Initialize(glwrapper::PosBuffer, glwrapper::Velocities, N, &timeScale);
+    imguiwrapper::Initialize(glwrapper::Window, glwrapper::MainCameraSpeedPtr, &N, &timeScale, worldgenerators::getGenerator(generator));
 
     // Render loop, order is important!
     while (!glwrapper::ShouldClose()) {

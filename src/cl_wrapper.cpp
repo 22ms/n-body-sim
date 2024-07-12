@@ -20,9 +20,8 @@ namespace clwrapper {
 
     // "Private"
 
-    static unsigned int* posBufferPtr = nullptr;
-    static unsigned int* nPtr = nullptr;
-    static unsigned int previousN;
+    static unsigned int glPosBuffer;
+    static unsigned int n;
 
     static float* timeScalePtr = nullptr;
 
@@ -37,17 +36,14 @@ namespace clwrapper {
     static Velocity* velocities = nullptr;
 
     int calculateWorkGroupSize();
-    void copyArraysToDevice();
     bool isCLExtensionSupported(const char* extension);
 
-    void Initialize(unsigned int* posBufferPtr, Velocity* velocities, unsigned int* nPtr, float* timeScalePtr)
+    void Initialize(unsigned int glPosBuffer, Velocity* velocities, unsigned int n, float* timeScalePtr)
     {
-        clwrapper::posBufferPtr = posBufferPtr;
+        clwrapper::glPosBuffer = glPosBuffer;
         clwrapper::velocities = velocities;
-        clwrapper::nPtr = nPtr;
+        clwrapper::n = n;
         clwrapper::timeScalePtr = timeScalePtr;
-
-        previousN = *nPtr;
 
         cl_int status = clGetPlatformIDs(1, &platform, NULL);
         if (status != CL_SUCCESS) {
@@ -92,21 +88,16 @@ namespace clwrapper {
             std::terminate();
         }
 
-        copyArraysToDevice();
+        UpdateCLBuffers(n);
         nSquared = new Kernel(context, device, "kernels/n_squared.cl", "n_squared");
     }
 
     void SimulateTimestep()
     {
-        if (previousN != *nPtr) {
-            copyArraysToDevice();
-            previousN = *nPtr;
-        }
-
         float timestep = 0.0001 * (*timeScalePtr);
         float minimumSqDistance = 0.0001;
 
-        size_t globalWorkSize[3] = { (size_t)(*nPtr), 1, 1 };
+        size_t globalWorkSize[3] = { (size_t)(n), 1, 1 };
         size_t localWorkSize[3] = { (size_t)calculateWorkGroupSize(), 1, 1 };
 
         cl_int status = clSetKernelArg(nSquared->GetKernel(), 0, sizeof(float), &timestep);
@@ -165,7 +156,9 @@ namespace clwrapper {
         clFinish(cmdQueue);
     }
 
-    void copyArraysToDevice () {
+    void UpdateCLBuffers (int n) {
+        clwrapper::n = n;
+
         glFinish();
         clFinish(cmdQueue);
 
@@ -177,7 +170,7 @@ namespace clwrapper {
             std::terminate();
         }
 
-        posBuffer = clCreateFromGLBuffer(context, CL_MEM_READ_WRITE, *posBufferPtr, &status);
+        posBuffer = clCreateFromGLBuffer(context, CL_MEM_READ_WRITE, glPosBuffer, &status);
         if (status != CL_SUCCESS) {
             printf("glPosBufferPtr buffer creation status: %d\n", status);
             std::terminate();
@@ -192,8 +185,8 @@ namespace clwrapper {
             printf("Unable to get device info\n");
             std::terminate();
         }
-        if (maxWorkGroupSize > *nPtr) {
-            return *nPtr;
+        if (maxWorkGroupSize > n) {
+            return n;
         }
         return maxWorkGroupSize;
     }

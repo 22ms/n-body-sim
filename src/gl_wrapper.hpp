@@ -3,6 +3,10 @@
 
 typedef struct _cl_command_queue* cl_command_queue;
 
+namespace worldgenerators {
+    enum class GeneratorType;
+}
+
 class Shader;
 class Camera;
 
@@ -12,7 +16,7 @@ struct Velocity;
 
 namespace glwrapper {
 
-    void Initialize(int width, int height, const char* title, unsigned int* nPtr, void (*worldGeneratorPtr)(Position*&, Velocity*&, const int));
+    void Initialize(int width, int height, const char* title, unsigned int* nPtr, void (*bufferUpdateCallback)(int), worldgenerators::GeneratorType* generatorType);
     void Render(cl_command_queue cmdQueue);
     void SwapBuffers();
     bool ShouldClose();
