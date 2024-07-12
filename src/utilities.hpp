@@ -1,14 +1,15 @@
 #ifndef UTILITIES_HPP
 #define UTILITIES_HPP
 
-struct xyzm
+struct Position
 {
     float x, y, z, m;
 };
 
-struct vxvyvz
+struct Velocity
 {
-    float vx, vy, vz, EMPTY_FOR_ALIGNMENT;
+    float x, y, z;
+    float EMPTY_FOR_ALIGNMENT = 0;
 };
 
 #endif

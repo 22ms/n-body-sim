@@ -6,9 +6,11 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
+#include "globals.hpp"
 
 static unsigned int* nPtr = nullptr;
 static int log2n;
+static int log2maxn;
 
 static float* mainCameraSpeedPtr = nullptr;
 static float* timeScalePtr = nullptr;
@@ -21,6 +23,7 @@ void imGuiInitialize (GLFWwindow* glWindow, float* _mainCameraSpeedPtr, unsigned
     mainCameraSpeedPtr = _mainCameraSpeedPtr;
     timeScalePtr = _timeScalePtr;
     log2n = std::round(std::log2(*nPtr));
+    log2maxn = std::round(std::log2(MAX_N));
     *nPtr = pow(2, log2n);
 
     IMGUI_CHECKVERSION();
@@ -44,7 +47,7 @@ void imGuiDisplay () {
     ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
     ImGui::Begin("Controls", NULL); // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
     ImGui::Text("Bodies: %d", *nPtr);
-    ImGui::SliderInt("log2(n)", &log2n, 0, 16);
+    ImGui::SliderInt("log2(n)", &log2n, 0, log2maxn);
     *nPtr = pow(2, log2n);
 
     ImGui::Spacing();

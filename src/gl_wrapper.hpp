@@ -7,8 +7,8 @@ class Shader;
 class Camera;
 
 struct GLFWwindow;
-struct xyzm;
-struct vxvyvz;
+struct Position;
+struct Velocity;
 
 void glInitialize(int initialWidth, int initialHeight, const char* title, unsigned int* nPtr);
 void glRender(cl_command_queue cmdQueue);
@@ -17,8 +17,8 @@ bool glShouldClose();
 
 extern GLFWwindow* glWindow;
 extern Camera* glMainCamera;
-extern xyzm* glPositions;
-extern vxvyvz* glVelocities;
+extern Position* glPositions;
+extern Velocity* clVelocities;
 
 extern unsigned int glPosBuffer;
 extern int glWidth;
