@@ -44,7 +44,23 @@ void imGuiDisplay () {
     ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
     ImGui::Begin("Controls", NULL); // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
     ImGui::Text("Bodies: %d", *nPtr);
-    ImGui::SliderInt("log2(n)", &log2n, 0, 16);
+    ImGui::SliderInt("log2(n)", &log2n, 0, log2maxn);
+    const char* items[] = { "Option1", "Option2", "Option3" };
+    static int item_current_idx = 0; // Here we store our selection data as an index.
+    if (ImGui::BeginCombo("Combo", items[item_current_idx])) // The second parameter is the label previewed before opening the combo.
+    {
+        for (int n = 0; n < IM_ARRAYSIZE(items); n++)
+        {
+            const bool is_selected = (item_current_idx == n);
+            if (ImGui::Selectable(items[n], is_selected))
+                item_current_idx = n;
+
+            // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+            if (is_selected)
+                ImGui::SetItemDefaultFocus();
+        }
+        ImGui::EndCombo();
+    }
     *nPtr = pow(2, log2n);
 
     ImGui::Spacing();

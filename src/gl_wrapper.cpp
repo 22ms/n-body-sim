@@ -157,40 +157,7 @@ bool glShouldClose() {
 
 void fillVertexBuffers()
 {
-    if (glPositions != nullptr) {
-        delete[] glPositions;
-    }
-
-    if (glVelocities != nullptr) {
-        delete[] glVelocities;
-    }
-
-    glPositions = new xyzm[*nPtr];
-    glVelocities = new vxvyvz[*nPtr];
-
-    float endRadius = 1.0f;
-    float spacing = endRadius / *nPtr;
-
-    // set positions
-    for (int i = 0; i < *nPtr; i++) {
-        double theta = acos(2 * rand() / double(RAND_MAX) - 1); // Polar angle
-        double phi = rand() / double(RAND_MAX) * 2 * M_PI; // Azimuthal angle
-        double radius = endRadius; // Radius of the sphere
-
-        glPositions[i].x = radius * sin(theta) * cos(phi);
-        glPositions[i].y = radius * sin(theta) * sin(phi);
-        glPositions[i].z = radius * cos(theta);
-        glPositions[i].m = 1;
-    }
-
-    // set velocities
-    for (int i = 0; i < *nPtr; i++) {
-        glVelocities[i].vx = 0;
-        glVelocities[i].vy = 0;
-        glVelocities[i].vz = 0;
-    }
-
-    printf("Updated velocities with n: %d\n", (*nPtr));
+    
 }
 
 void processKeyInput()
