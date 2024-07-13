@@ -3,7 +3,7 @@
 
 typedef struct _cl_command_queue* cl_command_queue;
 
-namespace worldgenerators{
+namespace worldgenerators {
     class WorldGenerator;
 }
 

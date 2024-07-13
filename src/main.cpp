@@ -12,9 +12,9 @@
 #include "imgui_wrapper.hpp"
 #include "world_generators.hpp"
 
-unsigned int N = 1024; // Has to be power of 2, must be lower than MAX_N
+unsigned int N = 16'384; // Has to be power of 2, must be lower than MAX_N
 float timeScale = 1.0f; // Has to be >= 0
-worldgenerators::WorldGenerator* worldGenerator = new worldgenerators::SphereGenerator(); // Sets initial particle config
+worldgenerators::WorldGenerator* worldGenerator = new worldgenerators::TwoSpheresGenerator(); // Sets initial particle config
 
 int main(int, char**)
 {

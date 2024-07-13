@@ -8,7 +8,10 @@ find_package(OpenGL REQUIRED)
 find_package(OpenCL REQUIRED)
 find_package(glm REQUIRED)
 
-file(GLOB_RECURSE SOURCES "src/*.cpp")
+file(GLOB_RECURSE SOURCES
+    "src/*.cpp"
+    "src/world_generators/*.cpp"
+)
 
 add_executable(n-body ${SOURCES})
 
