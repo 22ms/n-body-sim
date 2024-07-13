@@ -27,6 +27,12 @@ namespace worldgenerators {
             void Generate(Position*& positions, Velocity*& velocities, int n) override;
             const char* ToString() override;
     };
+
+    class BlackHoleSphere : public WorldGenerator {
+        public:
+            void Generate(Position*& positions, Velocity*& velocities, int n) override;
+            const char* ToString() override;
+    };
 }
 
 #endif

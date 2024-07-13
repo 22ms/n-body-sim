@@ -137,7 +137,6 @@ namespace glwrapper {
         glm::mat4 view = MainCamera->GetViewMatrix();
         shader->SetMat4("view", view);
 
-        printf("%s\n", (*worldGeneratorPtr)->ToString());
         if (*nPtr != previousN || *worldGeneratorPtr != previousWorldGeneratorPtr) {
             glFinish();
             clFinish(cmdQueue);
