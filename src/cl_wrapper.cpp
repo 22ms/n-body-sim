@@ -33,12 +33,12 @@ namespace clwrapper {
     static cl_platform_id platform;
 
     static Kernel* nSquared;
-    static Velocity* velocities = nullptr;
+    static Velocity** velocities = nullptr;
 
     int calculateWorkGroupSize();
     bool isCLExtensionSupported(const char* extension);
 
-    void Initialize(unsigned int glPosBuffer, Velocity* velocities, unsigned int n, float* timeScalePtr)
+    void Initialize(unsigned int glPosBuffer, Velocity** velocities, unsigned int n, float* timeScalePtr)
     {
         clwrapper::glPosBuffer = glPosBuffer;
         clwrapper::velocities = velocities;
@@ -84,7 +84,7 @@ namespace clwrapper {
 
         velBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE, 4 * sizeof(float) * MAX_N, NULL, &status);
         if (status != CL_SUCCESS) {
-            printf("m_VelCLBO buffer creation status: %d\n", status);
+            printf("velBuffer buffer creation status: %d\n", status);
             std::terminate();
         }
 
@@ -158,13 +158,12 @@ namespace clwrapper {
 
     void UpdateCLBuffers (int n) {
         clwrapper::n = n;
+        cl_int status;
 
         glFinish();
         clFinish(cmdQueue);
 
-        cl_int status;
-
-        status = clEnqueueWriteBuffer(cmdQueue, velBuffer, CL_FALSE, 0, 4 * sizeof(float) * MAX_N, velocities, 0, NULL, NULL);
+        status = clEnqueueWriteBuffer(cmdQueue, velBuffer, CL_TRUE, 0, 4 * sizeof(float) * MAX_N, *velocities, 0, NULL, NULL);
         if (status != CL_SUCCESS) {
             printf("velBuffer buffer enqueue status: %d\n", status);
             std::terminate();
@@ -172,7 +171,7 @@ namespace clwrapper {
 
         posBuffer = clCreateFromGLBuffer(context, CL_MEM_READ_WRITE, glPosBuffer, &status);
         if (status != CL_SUCCESS) {
-            printf("glPosBufferPtr buffer creation status: %d\n", status);
+            printf("glPosBuffer buffer creation status: %d\n", status);
             std::terminate();
         }
     }

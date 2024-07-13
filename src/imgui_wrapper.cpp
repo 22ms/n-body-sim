@@ -44,7 +44,6 @@ namespace imguiwrapper {
         imguiwrapper::worldGenOptionsSize = worldgenerators::WorldGeneratorOptions.size();
         imguiwrapper::worldGeneratorStrOptions = new const char* [worldGenOptionsSize];
         for (int i = 0; i < worldGenOptionsSize; i++) {
-            printf("Adding %s\n", worldgenerators::WorldGeneratorOptions[i]->ToString());
             imguiwrapper::worldGeneratorStrOptions[i] = worldgenerators::WorldGeneratorOptions[i]->ToString();
         }
 

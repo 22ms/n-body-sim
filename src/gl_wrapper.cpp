@@ -145,6 +145,9 @@ namespace glwrapper {
             glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * (*nPtr) * 4, Positions);
             bufferUpdateCallback(*nPtr);
 
+            glFinish();
+            clFinish(cmdQueue);
+
             previousN = *nPtr;
             previousWorldGeneratorPtr = *worldGeneratorPtr;
         }

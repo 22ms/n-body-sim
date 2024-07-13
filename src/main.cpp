@@ -20,7 +20,7 @@ int main(int, char**)
 {
     worldgenerators::Initialize(worldGenerator);
     glwrapper::Initialize(1280, 720, "N-body simulation, O(n²)", &N, clwrapper::UpdateCLBuffers, &worldGenerator);
-    clwrapper::Initialize(glwrapper::PosBuffer, glwrapper::Velocities, N, &timeScale);
+    clwrapper::Initialize(glwrapper::PosBuffer, &glwrapper::Velocities, N, &timeScale);
     imguiwrapper::Initialize(glwrapper::Window, glwrapper::MainCameraSpeedPtr, &N, &timeScale, &worldGenerator);
 
     // Render loop, order is important!
@@ -32,6 +32,5 @@ int main(int, char**)
         glwrapper::SwapBuffers();
     }
 
-    delete worldGenerator; // Cleanup dynamically allocated memory
     return 0;
 }
