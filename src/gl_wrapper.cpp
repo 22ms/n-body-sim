@@ -131,7 +131,7 @@ namespace glwrapper {
         glfwPollEvents();
         processKeyInput();
 
-        glm::mat4 projection = glm::perspective(glm::radians(MainCamera->Zoom), (float)Width / (float)Height, 0.1f, 100.0f);
+        glm::mat4 projection = glm::perspective(glm::radians(MainCamera->Zoom), (float)Width / (float)Height, 0.1f, 1000.0f);
         shader->SetMat4("projection", projection);
 
         glm::mat4 view = MainCamera->GetViewMatrix();
