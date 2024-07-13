@@ -17,7 +17,7 @@ struct Velocity;
 namespace glwrapper {
 
     void Initialize(int width, int height, const char* title, unsigned int* nPtr, void (*bufferUpdateCallback)(int), worldgenerators::WorldGenerator** worldGeneratorPtr);
-    void Render(cl_command_queue cmdQueue);
+    void Render();
     void SwapBuffers();
     bool ShouldClose();
 

@@ -121,7 +121,7 @@ namespace glwrapper {
         lastFrameTime = 0.0f;
     }
 
-    void Render(cl_command_queue cmdQueue)
+    void Render()
     {
         float currentFrameTime = static_cast<float>(glfwGetTime());
         DeltaTime = currentFrameTime - lastFrameTime;
@@ -138,15 +138,9 @@ namespace glwrapper {
         shader->SetMat4("view", view);
 
         if (*nPtr != previousN || *worldGeneratorPtr != previousWorldGeneratorPtr) {
-            glFinish();
-            clFinish(cmdQueue);
-
             (*worldGeneratorPtr)->Generate(Positions, Velocities, *nPtr);
             glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * (*nPtr) * 4, Positions);
             bufferUpdateCallback(*nPtr);
-
-            glFinish();
-            clFinish(cmdQueue);
 
             previousN = *nPtr;
             previousWorldGeneratorPtr = *worldGeneratorPtr;

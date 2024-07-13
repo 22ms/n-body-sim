@@ -25,7 +25,7 @@ int main(int, char**)
 
     // Render loop, order is important!
     while (!glwrapper::ShouldClose()) {
-        glwrapper::Render(clwrapper::cmdQueue);
+        glwrapper::Render();
         clwrapper::SimulateTimestep();
         imguiwrapper::Display();
 
