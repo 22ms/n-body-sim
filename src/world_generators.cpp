@@ -1,42 +1,72 @@
 #include <cmath>
 #include <stdio.h>
+#include <vector>
+#include <cstdlib>
 
 #include "globals.hpp"
 #include "utilities.hpp"
 #include "world_generators.hpp"
 
 namespace worldgenerators {
-    void SphereGenerator(Position*& positions, Velocity*& velocites, const int n);
-    void SphereShellGenerator(Position*& positions, Velocity*& velocites, const int n);
 
-    GeneratorFunction getGenerator(GeneratorType type) {
-        switch(type) {
-            case GeneratorType::SPHERE:
-                return SphereGenerator;
-            case GeneratorType::SPHERE_SHELL:
-                return SphereShellGenerator;
-            default:
-                return nullptr; // or handle the error appropriately
-        }
+    std::vector<WorldGenerator*> WorldGeneratorOptions;
+
+    void Initialize(WorldGenerator* initialWorldGenerator) {
+        WorldGeneratorOptions.push_back(initialWorldGenerator);
+        WorldGeneratorOptions.push_back(new SphereGenerator());
+        // add more options if needed
     }
 
-    void SphereGenerator (Position*& positions, Velocity*& velocites, const int n)
-    {
-        // TODO: implement
-    }
-
-    void SphereShellGenerator (Position*& positions, Velocity*& velocites, const int n)
-    {
+    void SphereGenerator::Generate(Position*& positions, Velocity*& velocities, int n) {
         if (positions != nullptr) {
             delete[] positions;
         }
 
-        if (velocites != nullptr) {
-            delete[] velocites;
+        if (velocities != nullptr) {
+            delete[] velocities;
         }
 
         positions = new Position[MAX_N];
-        velocites = new Velocity[MAX_N];
+        velocities = new Velocity[MAX_N];
+
+        float endRadius = 1.0f;
+        float spacing = endRadius / n;
+
+        // set positions
+        for (int i = 0; i < n; i++) {
+            double theta = acos(2 * rand() / double(RAND_MAX) - 1); // Polar angle
+            double phi = rand() / double(RAND_MAX) * 2 * M_PI; // Azimuthal angle
+            double radius = rand() / double(RAND_MAX)* endRadius; // Radius of the sphere
+
+            positions[i].x = radius * sin(theta) * cos(phi);
+            positions[i].y = radius * sin(theta) * sin(phi);
+            positions[i].z = radius * cos(theta);
+            positions[i].m = 1;
+        }
+
+        // set velocities
+        for (int i = 0; i < n; i++) {
+            velocities[i].x = 0.0f;
+            velocities[i].y = 0.0f;
+            velocities[i].z = 0.0f;
+        }
+    }
+
+    const char* SphereGenerator::ToString() {
+        return "SPHERE";
+    }
+
+    void SphereShellGenerator::Generate(Position*& positions, Velocity*& velocities, int n) {
+        if (positions != nullptr) {
+            delete[] positions;
+        }
+
+        if (velocities != nullptr) {
+            delete[] velocities;
+        }
+
+        positions = new Position[MAX_N];
+        velocities = new Velocity[MAX_N];
 
         float endRadius = 1.0f;
         float spacing = endRadius / n;
@@ -55,9 +85,13 @@ namespace worldgenerators {
 
         // set velocities
         for (int i = 0; i < n; i++) {
-            velocites[i].x = 0.0f;
-            velocites[i].y = 0.0f;
-            velocites[i].z = 0.0f;
+            velocities[i].x = 0.0f;
+            velocities[i].y = 0.0f;
+            velocities[i].z = 0.0f;
         }
+    }
+
+    const char* SphereShellGenerator::ToString() {
+        return "SPHERE_SHELL";
     }
 }
