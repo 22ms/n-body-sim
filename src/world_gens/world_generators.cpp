@@ -1,6 +1,16 @@
 #include "world_generators.hpp"
+#include "../utilities.hpp"
+#include "../config.hpp"
 
 namespace worldgens {
+    void WorldGenerator::Generate(std::vector<utilities::Position>& positions, std::vector<utilities::Velocity>& velocities, int n) {
+        positions.clear();
+        velocities.clear();
+
+        positions.resize(config::simulation::MAX_N);
+        velocities.resize(config::simulation::MAX_N);
+    }
+
     bool WorldGenerator::isSameType (const WorldGenerator& other) const {
         return this->ToString() == other.ToString();
     }

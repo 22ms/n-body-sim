@@ -89,7 +89,7 @@ namespace clwrapper {
         glFinish();
         clFinish(cmdQueue);
 
-        status = clEnqueueWriteBuffer(cmdQueue, velBuffer, CL_TRUE, 0, 4 * sizeof(float) * config::simulation::MAX_N, glwrapper::Velocities, 0, NULL, NULL);
+        status = clEnqueueWriteBuffer(cmdQueue, velBuffer, CL_TRUE, 0, 4 * sizeof(float) * config::simulation::MAX_N, &glwrapper::Velocities[0], 0, NULL, NULL);
         if (status != CL_SUCCESS) {
             printf("velBuffer buffer enqueue status: %d\n", status);
             std::terminate();

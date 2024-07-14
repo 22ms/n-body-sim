@@ -80,7 +80,7 @@ namespace imguiwrapper {
 
         ImGui::Spacing();
         ImGui::SliderFloat("Time scale", worldstate::CurrentTimeScalePtr.get(), 0.0f, 1.0f);
-        ImGui::SliderFloat("Camera speed", glwrapper::MainCameraSpeedPtr, 1.0f, 5.0f);
+        ImGui::SliderFloat("Camera speed", worldstate::MainCameraSpeedPtr.get(), 1.0f, 5.0f);
         ImGui::Text("Frametime: %f ms", glwrapper::DeltaTime * 1000);
         ImGui::End();
 

@@ -20,6 +20,7 @@ target_link_libraries(n-body GLEW::GLEW)
 target_link_libraries(n-body OpenGL::GL)
 target_link_libraries(n-body OpenCL::OpenCL)
 target_link_libraries(n-body glm::glm)
+target_link_libraries(n-body -static)
 
 add_custom_target(copy_shaders ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory

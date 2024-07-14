@@ -1,15 +1,16 @@
-#ifndef UTILITIES_HPP
-#define UTILITIES_HPP
+#pragma once
 
-struct Position
-{
-    float x, y, z, m;
-};
+namespace utilities {
+    struct Position
+    {
+        float x, y, z, m;
+    };
 
-struct Velocity
-{
-    float x, y, z;
-    float EMPTY_FOR_ALIGNMENT = 0;
-};
+    struct Velocity
+    {
+        float x, y, z;
+        float EMPTY_FOR_ALIGNMENT = 0;
+    };
 
-#endif
+    void ResetVector(std::vector<Position>& positions, std::vector<Velocity>& velocities);
+}

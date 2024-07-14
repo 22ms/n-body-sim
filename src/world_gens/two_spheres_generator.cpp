@@ -6,17 +6,8 @@
 
 namespace worldgens {
 
-    void TwoSpheresGenerator::Generate(Position*& positions, Velocity*& velocities, int n) {
-        if (positions != nullptr) {
-            delete[] positions;
-        }
-
-        if (velocities != nullptr) {
-            delete[] velocities;
-        }
-
-        positions = new Position[config::simulation::MAX_N];
-        velocities = new Velocity[config::simulation::MAX_N];
+    void TwoSpheresGenerator::Generate(std::vector<utilities::Position>& positions, std::vector<utilities::Velocity>& velocities, int n) {
+        WorldGenerator::Generate(positions, velocities, n);
 
         float endRadius = 1.0f;
         float spacing = endRadius / n;
