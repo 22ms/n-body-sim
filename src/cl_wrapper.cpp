@@ -29,10 +29,10 @@ namespace clwrapper {
     static cl_device_id device;
     static cl_platform_id platform;
 
-    static Kernel* nSquared;
+    static std::unique_ptr<Kernel> nSquared;
 
     int calculateWorkGroupSize();
-    bool isCLExtensionSupported(const char* extension);
+    bool isCLExtensionSupported(const std::string& extension);
 
     void Initialize()
     {
@@ -80,7 +80,7 @@ namespace clwrapper {
         }
 
         UpdateCLBuffers();
-        nSquared = new Kernel(context, device, "kernels/n_squared.cl", "n_squared");
+        nSquared = std::make_unique<Kernel>(Kernel(context, device, "kernels/n_squared.cl", "n_squared"));
     }
 
     void UpdateCLBuffers () {
@@ -180,35 +180,44 @@ namespace clwrapper {
         return maxWorkGroupSize;
     }
 
-    bool isCLExtensionSupported(const char* extension)
+    bool isCLExtensionSupported(const std::string& extension)
     {
-        // see if the extension is bogus:
-        if (extension == NULL || extension[0] == '\0')
+        // Check if the extension is empty
+        if (extension.empty())
             return false;
 
-        char* where = (char*)strchr(extension, ' ');
-        if (where != NULL)
+        // Check if the extension contains a space, which is invalid
+        if (extension.find(' ') != std::string::npos)
             return false;
 
-        // get the full list of extensions:
+        // Get the size of the extensions string
         size_t extensionSize;
-        clGetDeviceInfo(device, CL_DEVICE_EXTENSIONS, 0, NULL, &extensionSize);
-        char* extensions = new char[extensionSize];
-        clGetDeviceInfo(device, CL_DEVICE_EXTENSIONS, extensionSize, extensions, NULL);
+        cl_int result = clGetDeviceInfo(device, CL_DEVICE_EXTENSIONS, 0, nullptr, &extensionSize);
+        if (result != CL_SUCCESS)
+            return false;
 
-        for (char* start = extensions;;) {
-            where = (char*)strstr((const char*)start, extension);
-            if (where == 0) {
-                delete[] extensions;
-                return false;
-            }
-            char* terminator = where + strlen(extension); // points to what should be the separator
-            if (*terminator == ' ' || *terminator == '\0' || *terminator == '\r' || *terminator == '\n') {
-                delete[] extensions;
+        // Get the extensions string
+        std::unique_ptr<char[]> extensions(new char[extensionSize]);
+        result = clGetDeviceInfo(device, CL_DEVICE_EXTENSIONS, extensionSize, extensions.get(), nullptr);
+        if (result != CL_SUCCESS)
+            return false;
+
+        // Convert the extensions C-string to a std::string for easier manipulation
+        std::string extensionsStr(extensions.get(), extensionSize);
+
+        // Check if the extension is in the extensions string
+        size_t pos = extensionsStr.find(extension);
+        while (pos != std::string::npos) {
+            // Check if the found extension is correctly delimited
+            size_t endPos = pos + extension.length();
+            if ((endPos == extensionsStr.length() || std::isspace(extensionsStr[endPos])) &&
+                (pos == 0 || std::isspace(extensionsStr[pos - 1]))) {
                 return true;
             }
-            start = terminator;
+            pos = extensionsStr.find(extension, endPos);
         }
+
+        return false;
     }
 
 }
