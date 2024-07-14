@@ -1,7 +1,5 @@
 // Source: https://learnopengl.com/code_viewer_gh.php?code=includes/learnopengl/camera.h
-
-#ifndef CAMERA_HPP
-#define CAMERA_HPP
+#pragma once
 
 #include <glm/glm.hpp>
 
@@ -44,5 +42,3 @@ private:
     void updateCameraVectors();
     void applyMovementSpeed(float movementSpeed);
 };
-
-#endif

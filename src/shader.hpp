@@ -1,7 +1,5 @@
 // Source: https://learnopengl.com/code_viewer_gh.php?code=includes/learnopengl/shader_s.h
-
-#ifndef SHADER_HPP
-#define SHADER_HPP
+#pragma once
 
 #include <glm/glm.hpp>
 
@@ -24,5 +22,3 @@ public:
 private:
     void checkCompileErrors(unsigned int shader, const char* type);
 };
-  
-#endif

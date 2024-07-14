@@ -1,13 +1,12 @@
 #include <cmath>
 
-#include "../globals.hpp"
+#include "../config.hpp"
 #include "../utilities.hpp"
-#include "../world_generators.hpp"
+#include "world_generators.hpp"
 
 namespace worldgens {
 
-    void SphereShellGenerator::Generate(Position*& positions, Velocity*& velocities, int n)
-    {
+    void BlackHoleSphereGenerator::Generate(Position*& positions, Velocity*& velocities, int n) {
         if (positions != nullptr) {
             delete[] positions;
         }
@@ -22,11 +21,16 @@ namespace worldgens {
         float endRadius = 1.0f;
         float spacing = endRadius / n;
 
+        positions[0].x = 0.0f;
+        positions[0].y = 0.0f;
+        positions[0].z = 0.0f;
+        positions[0].m = 2.0f;
+
         // set positions
-        for (int i = 0; i < n; i++) {
+        for (int i = 1; i < n; i++) {
             double theta = acos(2 * rand() / double(RAND_MAX) - 1); // Polar angle
             double phi = rand() / double(RAND_MAX) * 2 * M_PI; // Azimuthal angle
-            double radius = endRadius; // Radius of the sphere
+            double radius = rand() / double(RAND_MAX)* endRadius; // Radius of the sphere
 
             positions[i].x = radius * sin(theta) * cos(phi);
             positions[i].y = radius * sin(theta) * sin(phi);
@@ -42,12 +46,11 @@ namespace worldgens {
         }
     }
 
-    std::string SphereShellGenerator::ToString() const {
-        return "SPHERE_SHELL";
+    std::string BlackHoleSphereGenerator::ToString() const {
+        return "BLACK_HOLE_SPHERE";
     }
 
-    std::unique_ptr<WorldGenerator> SphereShellGenerator::clone() const {
-        return std::make_unique<SphereShellGenerator>(*this);
+    std::unique_ptr<WorldGenerator> BlackHoleSphereGenerator::clone() const {
+        return std::make_unique<BlackHoleSphereGenerator>(*this);
     }
-
 }

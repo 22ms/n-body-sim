@@ -1,5 +1,4 @@
-#ifndef KERNEL_HPP
-#define KERNEL_HPP
+#pragma once
 
 typedef struct _cl_context* cl_context;
 typedef struct _cl_device_id* cl_device_id;
@@ -15,5 +14,3 @@ private:
     cl_program m_Program;
     cl_kernel m_Kernel;
 };
-
-#endif

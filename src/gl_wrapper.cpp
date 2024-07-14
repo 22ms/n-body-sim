@@ -39,7 +39,6 @@ namespace glwrapper {
 
     static unsigned int posAttribute;
 
-    static unsigned int* nPtr = nullptr;
     static unsigned int previousN;
 
     static float lastX;
@@ -50,7 +49,6 @@ namespace glwrapper {
     static bool captureMouse;
 
     void processKeyInput();
-    void (*bufferUpdateCallback)(int);
 
     void errorCallback(int error, const char* description);
     void framebufferSizeCallback(GLFWwindow* glWindow, int width, int height);
@@ -58,12 +56,10 @@ namespace glwrapper {
     void mouseButtonCallback(GLFWwindow* glWindow, int button, int action, int mods);
     void scrollCallback(GLFWwindow* glWindow, double xoffset, double yoffset);
 
-    void Initialize(int width, int height, const char* title, unsigned int* nPtr, void (*bufferUpdateCallback)(int))
+    void Initialize(int width, int height, const char* title)
     {
         glwrapper::Width = width;
         glwrapper::Height = height;
-        glwrapper::nPtr = nPtr;
-        glwrapper::bufferUpdateCallback = bufferUpdateCallback;
 
         previousN = *glwrapper::nPtr;
         previousWorldGeneratorPtr = worldgens::CurrentWorldGenerator->clone();

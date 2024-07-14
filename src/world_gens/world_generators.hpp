@@ -1,5 +1,4 @@
-#ifndef WORLD_GENERATORS_HPP
-#define WORLD_GENERATORS_HPP
+#pragma once
 
 #include <memory>
 #include <vector>
@@ -9,6 +8,13 @@ struct Position;
 struct Velocity;
 
 namespace worldgens {
+    enum class WorldType {
+        SPHERE,
+        SPHERE_SHELL,
+        TWO_SPHERES,
+        BLACK_HOLE
+    };
+
     class WorldGenerator {
         public:
             virtual void Generate(Position*& positions, Velocity*& velocities, int n) = 0;
@@ -17,13 +23,9 @@ namespace worldgens {
             bool isSameType(const WorldGenerator& other) const;
     };
 
-    void Initialize(WorldGenerator& initialWorldGenerator);
-    void Cleanup();
+    std::unique_ptr<WorldGenerator> CreateFromWorldType (WorldType worldType);
 
-    extern std::vector<std::unique_ptr<WorldGenerator>> WorldGeneratorOptions;
-    extern std::unique_ptr<WorldGenerator> CurrentWorldGenerator;
-
-    class SphereGenerator : public worldgens::WorldGenerator {
+    class SphereGenerator : public WorldGenerator {
         public:
             void Generate(Position*& positions, Velocity*& velocities, int n) override;
             std::string ToString() const override;
@@ -37,19 +39,17 @@ namespace worldgens {
             std::unique_ptr<WorldGenerator> clone() const override;
     };
 
-    class BlackHoleSphereGenerator : public WorldGenerator {
-        public:
-            void Generate(Position*& positions, Velocity*& velocities, int n) override;
-            std::string ToString() const override;
-            std::unique_ptr<WorldGenerator> clone() const override;
-    };
-
     class TwoSpheresGenerator : public WorldGenerator {
         public:
             void Generate(Position*& positions, Velocity*& velocities, int n) override;
             std::string ToString() const override;
             std::unique_ptr<WorldGenerator> clone() const override;
     };
-}
 
-#endif
+    class BlackHoleSphereGenerator : public WorldGenerator {
+        public:
+            void Generate(Position*& positions, Velocity*& velocities, int n) override;
+            std::string ToString() const override;
+            std::unique_ptr<WorldGenerator> clone() const override;
+    };
+}

@@ -1,5 +1,4 @@
-#ifndef GL_WRAPPER_HPP
-#define GL_WRAPPER_HPP
+#pragma once
 
 typedef struct _cl_command_queue* cl_command_queue;
 
@@ -34,5 +33,3 @@ namespace glwrapper {
     extern float* MainCameraSpeedPtr;
 
 } // namespace glwrapper
-
-#endif // GL_WRAPPER_HPP

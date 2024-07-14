@@ -1,5 +1,4 @@
-#ifndef CL_WRAPPER_HPP
-#define CL_WRAPPER_HPP
+#pragma once
 
 typedef struct _cl_command_queue* cl_command_queue;
 
@@ -14,5 +13,3 @@ namespace clwrapper {
 
     extern cl_command_queue cmdQueue;
 }
-
-#endif

@@ -10,7 +10,7 @@ find_package(glm REQUIRED)
 
 file(GLOB_RECURSE SOURCES
     "src/*.cpp"
-    "src/world_generators/*.cpp"
+    "src/world_gens/*.cpp"
 )
 
 add_executable(n-body ${SOURCES})

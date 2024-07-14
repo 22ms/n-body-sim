@@ -1,12 +1,12 @@
 #include <cmath>
 
-#include "../world_generators.hpp"
+#include "../config.hpp"
 #include "../utilities.hpp"
-#include "../globals.hpp"
+#include "world_generators.hpp"
 
 namespace worldgens {
 
-    void SphereGenerator::Generate(Position*& positions, Velocity*& velocities, int n) {
+    void TwoSpheresGenerator::Generate(Position*& positions, Velocity*& velocities, int n) {
         if (positions != nullptr) {
             delete[] positions;
         }
@@ -23,11 +23,15 @@ namespace worldgens {
 
         // set positions
         for (int i = 0; i < n; i++) {
+            bool firstHalf = i < n/2;
+
             double theta = acos(2 * rand() / double(RAND_MAX) - 1); // Polar angle
             double phi = rand() / double(RAND_MAX) * 2 * M_PI; // Azimuthal angle
             double radius = rand() / double(RAND_MAX)* endRadius; // Radius of the sphere
 
-            positions[i].x = radius * sin(theta) * cos(phi);
+            double xOffset = firstHalf ? -endRadius : endRadius;
+
+            positions[i].x = radius * sin(theta) * cos(phi) + xOffset;
             positions[i].y = radius * sin(theta) * sin(phi);
             positions[i].z = radius * cos(theta);
             positions[i].m = 1;
@@ -68,12 +72,11 @@ namespace worldgens {
         }
     }
 
-    std::string SphereGenerator::ToString() const {
-        return "SPHERE";
+    std::string TwoSpheresGenerator::ToString() const {
+        return "TWO_SPHERES";
     }
 
-    std::unique_ptr<WorldGenerator> SphereGenerator::clone() const {
-        return std::make_unique<SphereGenerator>(*this); 
+    std::unique_ptr<WorldGenerator> TwoSpheresGenerator::clone() const {
+        return std::make_unique<TwoSpheresGenerator>(*this);
     }
-
 }
