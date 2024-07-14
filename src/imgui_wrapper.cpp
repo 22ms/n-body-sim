@@ -8,6 +8,7 @@
 #include "imgui/imgui_impl_opengl3.h"
 
 #include "world_generators.hpp"
+#include "gl_wrapper.hpp"
 #include "globals.hpp"
 
 namespace imguiwrapper {
@@ -91,6 +92,7 @@ namespace imguiwrapper {
         ImGui::Spacing();
         ImGui::SliderFloat("Time scale", timeScalePtr, 0.0f, 1.0f);
         ImGui::SliderFloat("Camera speed", mainCameraSpeedPtr, 1.0f, 5.0f);
+        ImGui::Text("Frametime: %g ms", glwrapper::DeltaTime*1000);
         ImGui::End();
 
         // Rendering
