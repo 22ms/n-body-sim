@@ -1,22 +1,13 @@
 #include <cmath>
 
-#include "../world_generators.hpp"
+#include "../config.hpp"
 #include "../utilities.hpp"
-#include "../globals.hpp"
+#include "world_generators.hpp"
 
-namespace worldgenerators {
+namespace worldgens {
 
-    void BlackHoleSphereGenerator::Generate(Position*& positions, Velocity*& velocities, int n) {
-        if (positions != nullptr) {
-            delete[] positions;
-        }
-
-        if (velocities != nullptr) {
-            delete[] velocities;
-        }
-
-        positions = new Position[MAX_N];
-        velocities = new Velocity[MAX_N];
+    void BlackHoleSphereGenerator::Generate(std::vector<utilities::Position>& positions, std::vector<utilities::Velocity>& velocities, int n) {
+        WorldGenerator::Generate(positions, velocities, n);
 
         float endRadius = 1.0f;
         float spacing = endRadius / n;
@@ -46,12 +37,11 @@ namespace worldgenerators {
         }
     }
 
-    const char* BlackHoleSphereGenerator::ToString() {
+    std::string BlackHoleSphereGenerator::ToString() const {
         return "BLACK_HOLE_SPHERE";
     }
 
-    bool BlackHoleSphereGenerator::isSameType(const WorldGenerator* other) const {
-        return dynamic_cast<const BlackHoleSphereGenerator*>(other) != nullptr;
+    std::unique_ptr<WorldGenerator> BlackHoleSphereGenerator::clone() const {
+        return std::make_unique<BlackHoleSphereGenerator>(*this);
     }
-
 }

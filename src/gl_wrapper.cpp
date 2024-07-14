@@ -4,6 +4,7 @@
 #include <cmath>
 #include <exception>
 #include <stdio.h>
+#include <memory>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -11,46 +12,44 @@
 
 #include "camera.hpp"
 #include "gl_wrapper.hpp"
+#include "cl_wrapper.hpp"
 #include "shader.hpp"
 #include "utilities.hpp"
-#include "world_generators.hpp"
-#include "globals.hpp"
+#include "config.hpp"
+#include "world_state.hpp"
+#include "world_gens/world_generators.hpp"
 
 namespace glwrapper {
 
     // "Public"
 
-    GLFWwindow* Window = nullptr;
-    Camera* MainCamera = nullptr;
-    Position* Positions = nullptr;
-    Velocity* Velocities = nullptr;
+    GLFWwindow* Window;
+    std::unique_ptr<camera::Camera> MainCamera;
+    std::vector<utilities::Position> Positions (config::simulation::MAX_N);
+    std::vector<utilities::Velocity> Velocities (config::simulation::MAX_N);
 
     unsigned int PosBuffer;
-    int Width;
-    int Height;
+    int CurrentWidth;
+    int CurrentHeight;
     float DeltaTime;
-    float* MainCameraSpeedPtr = nullptr;
 
     // "Private"
 
-    static Shader* shader = nullptr;
-    worldgenerators::WorldGenerator** worldGeneratorPtr = nullptr;
-    worldgenerators::WorldGenerator* previousWorldGeneratorPtr;
+    std::unique_ptr<Shader> shader;
+    std::unique_ptr<worldgens::WorldGenerator> previousWorldGeneratorPtr;
 
     static unsigned int posAttribute;
 
-    static unsigned int* nPtr = nullptr;
     static unsigned int previousN;
 
     static float lastX;
     static float lastY;
     static float lastFrameTime;
 
-    static bool firstMouse;
-    static bool captureMouse;
+    static bool firstMouse = true;
+    static bool captureMouse = false;
 
     void processKeyInput();
-    void (*bufferUpdateCallback)(int);
 
     void errorCallback(int error, const char* description);
     void framebufferSizeCallback(GLFWwindow* glWindow, int width, int height);
@@ -58,16 +57,20 @@ namespace glwrapper {
     void mouseButtonCallback(GLFWwindow* glWindow, int button, int action, int mods);
     void scrollCallback(GLFWwindow* glWindow, double xoffset, double yoffset);
 
-    void Initialize(int width, int height, const char* title, unsigned int* nPtr, void (*bufferUpdateCallback)(int), worldgenerators::WorldGenerator** worldGeneratorPtr)
-    {
-        glwrapper::Width = width;
-        glwrapper::Height = height;
-        glwrapper::nPtr = nPtr;
-        glwrapper::bufferUpdateCallback = bufferUpdateCallback;
-        glwrapper::worldGeneratorPtr = worldGeneratorPtr;
+    void Test(utilities::Position* positions, utilities::Velocity* velocities) {
+        for (int i = 0; i < config::simulation::MAX_N; i++) {
+            printf("pos x %d: %g\n", i, positions[i].x);
+            printf("vel x %d: %g\n", i, velocities[i].x);
+        }
+    }
 
-        previousN = *glwrapper::nPtr;
-        previousWorldGeneratorPtr = *glwrapper::worldGeneratorPtr;
+    void Initialize()
+    {
+        glwrapper::CurrentWidth = config::window::Width;
+        glwrapper::CurrentHeight = config::window::Height;
+
+        previousN = *worldstate::CurrentNPtr;
+        previousWorldGeneratorPtr = worldstate::CurrentWorldGeneratorPtr->clone();
 
         glfwSetErrorCallback(errorCallback);
         glfwInit();
@@ -76,11 +79,11 @@ namespace glwrapper {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-        Window = glfwCreateWindow(Width, Height, title, nullptr, nullptr);
+        Window = glfwCreateWindow(CurrentWidth, CurrentHeight, config::window::Title.c_str(), nullptr, nullptr);
 
         glfwMakeContextCurrent(Window);
         glfwSwapInterval(1); // Enable vsync
-        glViewport(0, 0, Width, Height);
+        glViewport(0, 0, CurrentWidth, CurrentHeight);
         glfwSetFramebufferSizeCallback(Window, framebufferSizeCallback);
         glfwSetCursorPosCallback(Window, mouseCallback);
         glfwSetMouseButtonCallback(Window, mouseButtonCallback);
@@ -96,29 +99,31 @@ namespace glwrapper {
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
         GLenum err = glewInit();
-        (*worldGeneratorPtr)->Generate(Positions, Velocities, *nPtr);
+        worldstate::CurrentWorldGeneratorPtr->Generate(Positions, Velocities, *worldstate::CurrentNPtr);
 
         glGenBuffers(1, &PosBuffer);
         glGenVertexArrays(1, &posAttribute);
 
         glBindVertexArray(posAttribute);
         glBindBuffer(GL_ARRAY_BUFFER, PosBuffer);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * MAX_N * 4, Positions, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * config::simulation::MAX_N * 4, &Positions[0], GL_STATIC_DRAW);
 
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
         glEnableVertexAttribArray(0);
 
-        shader = new Shader("shaders/basic.vert", "shaders/basic.frag");
+        shader = std::make_unique<Shader>("shaders/basic.vert", "shaders/basic.frag");
         shader->Use();
 
-        MainCamera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f));
-        MainCameraSpeedPtr = &(MainCamera->MovementSpeed);
-        lastX = Width / 2.0f;
-        lastY = Height / 2.0f;
-        firstMouse = true;
-        captureMouse = false;
-        DeltaTime = 0.0f;
-        lastFrameTime = 0.0f;
+        MainCamera = std::make_unique<camera::Camera>(
+            camera::Camera(
+                glm::vec3(0.0f, 0.0f, 3.0f),
+                45.0f,
+                *worldstate::MainCameraSpeedPtr,
+                0.1f
+        ));
+
+        lastX = CurrentWidth / 2.0f;
+        lastY = CurrentHeight / 2.0f;
     }
 
     void Render()
@@ -131,21 +136,21 @@ namespace glwrapper {
         glfwPollEvents();
         processKeyInput();
 
-        glm::mat4 projection = glm::perspective(glm::radians(MainCamera->Zoom), (float)Width / (float)Height, 0.1f, 1000.0f);
+        glm::mat4 projection = glm::perspective(glm::radians(MainCamera->Zoom), (float)CurrentWidth / (float)CurrentHeight, 0.1f, 1000.0f);
         shader->SetMat4("projection", projection);
 
         glm::mat4 view = MainCamera->GetViewMatrix();
         shader->SetMat4("view", view);
 
-        if (*nPtr != previousN || *worldGeneratorPtr != previousWorldGeneratorPtr) {
-            (*worldGeneratorPtr)->Generate(Positions, Velocities, *nPtr);
-            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * (*nPtr) * 4, Positions);
-            bufferUpdateCallback(*nPtr);
+        if (*worldstate::CurrentNPtr != previousN || !worldstate::CurrentWorldGeneratorPtr->isSameType(*previousWorldGeneratorPtr)) {
+            worldstate::CurrentWorldGeneratorPtr->Generate(Positions, Velocities, *worldstate::CurrentNPtr);
+            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * (*worldstate::CurrentNPtr) * 4, &Positions[0]);
+            clwrapper::UpdateCLBuffers();
 
-            previousN = *nPtr;
-            previousWorldGeneratorPtr = *worldGeneratorPtr;
+            previousN = *worldstate::CurrentNPtr;
+            previousWorldGeneratorPtr = worldstate::CurrentWorldGeneratorPtr->clone();
         }
-        glDrawArrays(GL_POINTS, 0, *nPtr);
+        glDrawArrays(GL_POINTS, 0, *worldstate::CurrentNPtr);
 
         GLenum err = glGetError();
         if (err != 0) {
@@ -159,6 +164,13 @@ namespace glwrapper {
         glfwSwapBuffers(Window);
     }
 
+    void Cleanup() {
+        glDeleteVertexArrays(1, &posAttribute);
+        glDeleteBuffers(1, &PosBuffer);
+        glfwDestroyWindow(Window);
+        glfwTerminate();
+    }
+
     bool ShouldClose() {
         return glfwWindowShouldClose(Window);
     }
@@ -169,13 +181,13 @@ namespace glwrapper {
             glfwSetWindowShouldClose(Window, true);
 
         if (glfwGetKey(Window, GLFW_KEY_W) == GLFW_PRESS)
-            MainCamera->ProcessKeyboard(FORWARD, DeltaTime);
+            MainCamera->ProcessKeyboard(camera::CameraMovement::FORWARD, DeltaTime);
         if (glfwGetKey(Window, GLFW_KEY_S) == GLFW_PRESS)
-            MainCamera->ProcessKeyboard(BACKWARD, DeltaTime);
+            MainCamera->ProcessKeyboard(camera::CameraMovement::BACKWARD, DeltaTime);
         if (glfwGetKey(Window, GLFW_KEY_A) == GLFW_PRESS)
-            MainCamera->ProcessKeyboard(LEFT, DeltaTime);
+            MainCamera->ProcessKeyboard(camera::CameraMovement::LEFT, DeltaTime);
         if (glfwGetKey(Window, GLFW_KEY_D) == GLFW_PRESS)
-            MainCamera->ProcessKeyboard(RIGHT, DeltaTime);
+            MainCamera->ProcessKeyboard(camera::CameraMovement::RIGHT, DeltaTime);
     }
 
     void errorCallback(int error, const char* description)
@@ -226,4 +238,4 @@ namespace glwrapper {
     {
         MainCamera->ProcessMouseScroll(yoffset);
     }
-} // namespace glwrapper
+}

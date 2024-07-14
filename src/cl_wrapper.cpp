@@ -8,9 +8,11 @@
 #include <windows.h>
 
 #include "cl_wrapper.hpp"
+#include "gl_wrapper.hpp"
 #include "kernel.hpp"
 #include "utilities.hpp"
-#include "globals.hpp"
+#include "config.hpp"
+#include "world_state.hpp"
 
 namespace clwrapper {
 
@@ -20,11 +22,6 @@ namespace clwrapper {
 
     // "Private"
 
-    static unsigned int glPosBuffer;
-    static unsigned int n;
-
-    static float* timeScalePtr = nullptr;
-
     static cl_mem velBuffer;
     static cl_mem posBuffer;
 
@@ -32,19 +29,13 @@ namespace clwrapper {
     static cl_device_id device;
     static cl_platform_id platform;
 
-    static Kernel* nSquared;
-    static Velocity** velocities = nullptr;
+    static std::unique_ptr<Kernel> nSquared;
 
     int calculateWorkGroupSize();
-    bool isCLExtensionSupported(const char* extension);
+    bool isCLExtensionSupported(const std::string& extension);
 
-    void Initialize(unsigned int glPosBuffer, Velocity** velocities, unsigned int n, float* timeScalePtr)
+    void Initialize()
     {
-        clwrapper::glPosBuffer = glPosBuffer;
-        clwrapper::velocities = velocities;
-        clwrapper::n = n;
-        clwrapper::timeScalePtr = timeScalePtr;
-
         cl_int status = clGetPlatformIDs(1, &platform, NULL);
         if (status != CL_SUCCESS) {
             printf("clGetPlatformIDs: %d\n", status);
@@ -82,22 +73,41 @@ namespace clwrapper {
             std::terminate();
         }
 
-        velBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE, 4 * sizeof(float) * MAX_N, NULL, &status);
+        velBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE, 4 * sizeof(float) * config::simulation::MAX_N, NULL, &status);
         if (status != CL_SUCCESS) {
             printf("velBuffer buffer creation status: %d\n", status);
             std::terminate();
         }
 
-        UpdateCLBuffers(n);
-        nSquared = new Kernel(context, device, "kernels/n_squared.cl", "n_squared");
+        UpdateCLBuffers();
+        nSquared = std::make_unique<Kernel>(Kernel(context, device, "kernels/n_squared.cl", "n_squared"));
+    }
+
+    void UpdateCLBuffers () {
+        cl_int status;
+
+        glFinish();
+        clFinish(cmdQueue);
+
+        status = clEnqueueWriteBuffer(cmdQueue, velBuffer, CL_TRUE, 0, 4 * sizeof(float) * config::simulation::MAX_N, &glwrapper::Velocities[0], 0, NULL, NULL);
+        if (status != CL_SUCCESS) {
+            printf("velBuffer buffer enqueue status: %d\n", status);
+            std::terminate();
+        }
+
+        posBuffer = clCreateFromGLBuffer(context, CL_MEM_READ_WRITE, glwrapper::PosBuffer, &status);
+        if (status != CL_SUCCESS) {
+            printf("posBuffer buffer creation status: %d\n", status);
+            std::terminate();
+        }
     }
 
     void SimulateTimestep()
     {
-        float timestep = 0.0001 * (*timeScalePtr);
+        float timestep = 0.0001 * (*worldstate::CurrentTimeScalePtr);
         float minimumSqDistance = 0.0001;
 
-        size_t globalWorkSize[3] = { (size_t)(n), 1, 1 };
+        size_t globalWorkSize[3] = { (size_t)(*worldstate::CurrentNPtr), 1, 1 };
         size_t localWorkSize[3] = { (size_t)calculateWorkGroupSize(), 1, 1 };
 
         cl_int status = clSetKernelArg(nSquared->GetKernel(), 0, sizeof(float), &timestep);
@@ -156,26 +166,6 @@ namespace clwrapper {
         clFinish(cmdQueue);
     }
 
-    void UpdateCLBuffers (int n) {
-        clwrapper::n = n;
-        cl_int status;
-
-        glFinish();
-        clFinish(cmdQueue);
-
-        status = clEnqueueWriteBuffer(cmdQueue, velBuffer, CL_TRUE, 0, 4 * sizeof(float) * MAX_N, *velocities, 0, NULL, NULL);
-        if (status != CL_SUCCESS) {
-            printf("velBuffer buffer enqueue status: %d\n", status);
-            std::terminate();
-        }
-
-        posBuffer = clCreateFromGLBuffer(context, CL_MEM_READ_WRITE, glPosBuffer, &status);
-        if (status != CL_SUCCESS) {
-            printf("glPosBuffer buffer creation status: %d\n", status);
-            std::terminate();
-        }
-    }
-
     int calculateWorkGroupSize()
     {
         size_t maxWorkGroupSize;
@@ -184,41 +174,50 @@ namespace clwrapper {
             printf("Unable to get device info\n");
             std::terminate();
         }
-        if (maxWorkGroupSize > n) {
-            return n;
+        if (maxWorkGroupSize > *worldstate::CurrentNPtr) {
+            return *worldstate::CurrentNPtr;
         }
         return maxWorkGroupSize;
     }
 
-    bool isCLExtensionSupported(const char* extension)
+    bool isCLExtensionSupported(const std::string& extension)
     {
-        // see if the extension is bogus:
-        if (extension == NULL || extension[0] == '\0')
+        // Check if the extension is empty
+        if (extension.empty())
             return false;
 
-        char* where = (char*)strchr(extension, ' ');
-        if (where != NULL)
+        // Check if the extension contains a space, which is invalid
+        if (extension.find(' ') != std::string::npos)
             return false;
 
-        // get the full list of extensions:
+        // Get the size of the extensions string
         size_t extensionSize;
-        clGetDeviceInfo(device, CL_DEVICE_EXTENSIONS, 0, NULL, &extensionSize);
-        char* extensions = new char[extensionSize];
-        clGetDeviceInfo(device, CL_DEVICE_EXTENSIONS, extensionSize, extensions, NULL);
+        cl_int result = clGetDeviceInfo(device, CL_DEVICE_EXTENSIONS, 0, nullptr, &extensionSize);
+        if (result != CL_SUCCESS)
+            return false;
 
-        for (char* start = extensions;;) {
-            where = (char*)strstr((const char*)start, extension);
-            if (where == 0) {
-                delete[] extensions;
-                return false;
-            }
-            char* terminator = where + strlen(extension); // points to what should be the separator
-            if (*terminator == ' ' || *terminator == '\0' || *terminator == '\r' || *terminator == '\n') {
-                delete[] extensions;
+        // Get the extensions string
+        std::unique_ptr<char[]> extensions(new char[extensionSize]);
+        result = clGetDeviceInfo(device, CL_DEVICE_EXTENSIONS, extensionSize, extensions.get(), nullptr);
+        if (result != CL_SUCCESS)
+            return false;
+
+        // Convert the extensions C-string to a std::string for easier manipulation
+        std::string extensionsStr(extensions.get(), extensionSize);
+
+        // Check if the extension is in the extensions string
+        size_t pos = extensionsStr.find(extension);
+        while (pos != std::string::npos) {
+            // Check if the found extension is correctly delimited
+            size_t endPos = pos + extension.length();
+            if ((endPos == extensionsStr.length() || std::isspace(extensionsStr[endPos])) &&
+                (pos == 0 || std::isspace(extensionsStr[pos - 1]))) {
                 return true;
             }
-            start = terminator;
+            pos = extensionsStr.find(extension, endPos);
         }
+
+        return false;
     }
 
 }

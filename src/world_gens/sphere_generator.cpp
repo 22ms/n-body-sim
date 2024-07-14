@@ -1,37 +1,24 @@
 #include <cmath>
 
-#include "../globals.hpp"
+#include "../config.hpp"
 #include "../utilities.hpp"
-#include "../world_generators.hpp"
+#include "world_generators.hpp"
 
-namespace worldgenerators {
+namespace worldgens {
 
-    void TwoSpheresGenerator::Generate(Position*& positions, Velocity*& velocities, int n) {
-        if (positions != nullptr) {
-            delete[] positions;
-        }
-
-        if (velocities != nullptr) {
-            delete[] velocities;
-        }
-
-        positions = new Position[MAX_N];
-        velocities = new Velocity[MAX_N];
+    void SphereGenerator::Generate(std::vector<utilities::Position>& positions, std::vector<utilities::Velocity>& velocities, int n) {
+        WorldGenerator::Generate(positions, velocities, n);
 
         float endRadius = 1.0f;
         float spacing = endRadius / n;
 
         // set positions
         for (int i = 0; i < n; i++) {
-            bool firstHalf = i < n/2;
-
             double theta = acos(2 * rand() / double(RAND_MAX) - 1); // Polar angle
             double phi = rand() / double(RAND_MAX) * 2 * M_PI; // Azimuthal angle
             double radius = rand() / double(RAND_MAX)* endRadius; // Radius of the sphere
 
-            double xOffset = firstHalf ? -endRadius : endRadius;
-
-            positions[i].x = radius * sin(theta) * cos(phi) + xOffset;
+            positions[i].x = radius * sin(theta) * cos(phi);
             positions[i].y = radius * sin(theta) * sin(phi);
             positions[i].z = radius * cos(theta);
             positions[i].m = 1;
@@ -72,11 +59,12 @@ namespace worldgenerators {
         }
     }
 
-    const char* TwoSpheresGenerator::ToString() {
-        return "TWO_SPHERES";
+    std::string SphereGenerator::ToString() const {
+        return "SPHERE";
     }
 
-    bool TwoSpheresGenerator::isSameType(const WorldGenerator* other) const {
-        return dynamic_cast<const TwoSpheresGenerator*>(other) != nullptr;
+    std::unique_ptr<WorldGenerator> SphereGenerator::clone() const {
+        return std::make_unique<SphereGenerator>(*this); 
     }
+
 }

@@ -1,23 +1,13 @@
 #include <cmath>
 
-#include "../globals.hpp"
+#include "../config.hpp"
 #include "../utilities.hpp"
-#include "../world_generators.hpp"
+#include "world_generators.hpp"
 
-namespace worldgenerators {
+namespace worldgens {
 
-    void SphereShellGenerator::Generate(Position*& positions, Velocity*& velocities, int n)
-    {
-        if (positions != nullptr) {
-            delete[] positions;
-        }
-
-        if (velocities != nullptr) {
-            delete[] velocities;
-        }
-
-        positions = new Position[MAX_N];
-        velocities = new Velocity[MAX_N];
+    void SphereShellGenerator::Generate(std::vector<utilities::Position>& positions, std::vector<utilities::Velocity>& velocities, int n) {
+        WorldGenerator::Generate(positions, velocities, n);
 
         float endRadius = 1.0f;
         float spacing = endRadius / n;
@@ -42,13 +32,12 @@ namespace worldgenerators {
         }
     }
 
-    const char* SphereShellGenerator::ToString()
-    {
+    std::string SphereShellGenerator::ToString() const {
         return "SPHERE_SHELL";
     }
 
-    bool SphereShellGenerator::isSameType(const WorldGenerator* other) const {
-        return dynamic_cast<const SphereShellGenerator*>(other) != nullptr;
+    std::unique_ptr<WorldGenerator> SphereShellGenerator::clone() const {
+        return std::make_unique<SphereShellGenerator>(*this);
     }
 
 }

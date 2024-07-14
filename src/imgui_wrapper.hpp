@@ -1,7 +1,6 @@
-#ifndef IMGUI_WRAPPER_HPP
-#define IMGUI_WRAPPER_HPP
+#pragma once
 
-namespace worldgenerators{
+namespace worldgens {
     class WorldGenerator;
 }
 
@@ -10,8 +9,6 @@ class Position;
 class Velocity;
 
 namespace imguiwrapper {
-    void Initialize (GLFWwindow* glWindow, float* mainCameraSpeedPtr, unsigned int* nPtr, float* timeScalePtr, worldgenerators::WorldGenerator** worldGeneratorPtr);
-    void Display();
+    void Initialize ();
+    void Display ();
 }
-
-#endif

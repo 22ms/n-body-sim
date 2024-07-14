@@ -1,7 +1,5 @@
 // Source: https://learnopengl.com/code_viewer_gh.php?code=includes/learnopengl/shader_s.h
-
-#ifndef SHADER_HPP
-#define SHADER_HPP
+#pragma once
 
 #include <glm/glm.hpp>
 
@@ -13,6 +11,7 @@ public:
   
     // constructor reads and builds the shader
     Shader(const char* vertexPath, const char* fragmentPath);
+    ~Shader();
     // use/activate the shader
     void Use();
     // utility uniform functions
@@ -23,5 +22,3 @@ public:
 private:
     void checkCompileErrors(unsigned int shader, const char* type);
 };
-  
-#endif
