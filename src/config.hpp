@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #include "world_gens/world_generators.hpp"
 
 // Declare config, modify somewhere else
@@ -11,7 +13,8 @@ namespace config {
         extern const worldgens::WorldType WorldType;
     }
     namespace window {
-        const unsigned int Width;
-        const unsigned int Height;
+        extern const unsigned int Width;
+        extern const unsigned int Height;
+        extern const std::string Title;
     }
 }

@@ -11,5 +11,6 @@ namespace config {
     namespace window {
         const unsigned int Width = 1280; // Width of the glfw window
         const unsigned int Height = 720; // Height of the glfw window
+        const std::string Title = "N-body simulation, O(n²))";
     }
 }

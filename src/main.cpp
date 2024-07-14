@@ -5,7 +5,6 @@
 // https://bashbaug.github.io/OpenCL-Docs/pdf/OpenCL_API.pdf
 // https://web.engr.oregonstate.edu/~mjb/cs575/Handouts/opencl.opengl.vbo.1pp.pdf
 // https://dournac.org/info/nbody_tutorial
-#include "config.hpp"
 #include "world_state.hpp"
 #include "gl_wrapper.hpp"
 #include "cl_wrapper.hpp"
@@ -18,7 +17,6 @@ int main(int, char**)
     clwrapper::Initialize();
     imguiwrapper::Initialize();
 
-    // Render loop, order is important!
     while (!glwrapper::ShouldClose()) {
         glwrapper::Render();
         clwrapper::SimulateTimestep();
@@ -29,5 +27,5 @@ int main(int, char**)
     
 
     glwrapper::Cleanup();
-    worldgens::Cleanup();
+    worldstate::Cleanup();
 }

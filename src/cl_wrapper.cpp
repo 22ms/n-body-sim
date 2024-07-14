@@ -8,9 +8,11 @@
 #include <windows.h>
 
 #include "cl_wrapper.hpp"
+#include "gl_wrapper.hpp"
 #include "kernel.hpp"
 #include "utilities.hpp"
-#include "globals.hpp"
+#include "config.hpp"
+#include "world_state.hpp"
 
 namespace clwrapper {
 
@@ -20,11 +22,6 @@ namespace clwrapper {
 
     // "Private"
 
-    static unsigned int glPosBuffer;
-    static unsigned int n;
-
-    static float* timeScalePtr = nullptr;
-
     static cl_mem velBuffer;
     static cl_mem posBuffer;
 
@@ -33,18 +30,12 @@ namespace clwrapper {
     static cl_platform_id platform;
 
     static Kernel* nSquared;
-    static Velocity** velocities = nullptr;
 
     int calculateWorkGroupSize();
     bool isCLExtensionSupported(const char* extension);
 
-    void Initialize(unsigned int glPosBuffer, Velocity** velocities, unsigned int n, float* timeScalePtr)
+    void Initialize()
     {
-        clwrapper::glPosBuffer = glPosBuffer;
-        clwrapper::velocities = velocities;
-        clwrapper::n = n;
-        clwrapper::timeScalePtr = timeScalePtr;
-
         cl_int status = clGetPlatformIDs(1, &platform, NULL);
         if (status != CL_SUCCESS) {
             printf("clGetPlatformIDs: %d\n", status);
@@ -82,22 +73,41 @@ namespace clwrapper {
             std::terminate();
         }
 
-        velBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE, 4 * sizeof(float) * MAX_N, NULL, &status);
+        velBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE, 4 * sizeof(float) * config::simulation::MAX_N, NULL, &status);
         if (status != CL_SUCCESS) {
             printf("velBuffer buffer creation status: %d\n", status);
             std::terminate();
         }
 
-        UpdateCLBuffers(n);
+        UpdateCLBuffers();
         nSquared = new Kernel(context, device, "kernels/n_squared.cl", "n_squared");
+    }
+
+    void UpdateCLBuffers () {
+        cl_int status;
+
+        glFinish();
+        clFinish(cmdQueue);
+
+        status = clEnqueueWriteBuffer(cmdQueue, velBuffer, CL_TRUE, 0, 4 * sizeof(float) * config::simulation::MAX_N, glwrapper::Velocities, 0, NULL, NULL);
+        if (status != CL_SUCCESS) {
+            printf("velBuffer buffer enqueue status: %d\n", status);
+            std::terminate();
+        }
+
+        posBuffer = clCreateFromGLBuffer(context, CL_MEM_READ_WRITE, glwrapper::PosBuffer, &status);
+        if (status != CL_SUCCESS) {
+            printf("posBuffer buffer creation status: %d\n", status);
+            std::terminate();
+        }
     }
 
     void SimulateTimestep()
     {
-        float timestep = 0.0001 * (*timeScalePtr);
+        float timestep = 0.0001 * (*worldstate::CurrentTimeScalePtr);
         float minimumSqDistance = 0.0001;
 
-        size_t globalWorkSize[3] = { (size_t)(n), 1, 1 };
+        size_t globalWorkSize[3] = { (size_t)(*worldstate::CurrentNPtr), 1, 1 };
         size_t localWorkSize[3] = { (size_t)calculateWorkGroupSize(), 1, 1 };
 
         cl_int status = clSetKernelArg(nSquared->GetKernel(), 0, sizeof(float), &timestep);
@@ -156,26 +166,6 @@ namespace clwrapper {
         clFinish(cmdQueue);
     }
 
-    void UpdateCLBuffers (int n) {
-        clwrapper::n = n;
-        cl_int status;
-
-        glFinish();
-        clFinish(cmdQueue);
-
-        status = clEnqueueWriteBuffer(cmdQueue, velBuffer, CL_TRUE, 0, 4 * sizeof(float) * MAX_N, *velocities, 0, NULL, NULL);
-        if (status != CL_SUCCESS) {
-            printf("velBuffer buffer enqueue status: %d\n", status);
-            std::terminate();
-        }
-
-        posBuffer = clCreateFromGLBuffer(context, CL_MEM_READ_WRITE, glPosBuffer, &status);
-        if (status != CL_SUCCESS) {
-            printf("glPosBuffer buffer creation status: %d\n", status);
-            std::terminate();
-        }
-    }
-
     int calculateWorkGroupSize()
     {
         size_t maxWorkGroupSize;
@@ -184,8 +174,8 @@ namespace clwrapper {
             printf("Unable to get device info\n");
             std::terminate();
         }
-        if (maxWorkGroupSize > n) {
-            return n;
+        if (maxWorkGroupSize > *worldstate::CurrentNPtr) {
+            return *worldstate::CurrentNPtr;
         }
         return maxWorkGroupSize;
     }

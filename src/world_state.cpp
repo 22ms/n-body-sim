@@ -5,17 +5,18 @@
 
 #include "config.hpp"
 #include "utilities.hpp"
-#include "world_generators.hpp"
 
 namespace worldstate {
 
-    std::unique_ptr<unsigned int> CurrentN;
-    std::unique_ptr<worldgens::WorldGenerator> CurrentWorldGenerator;
+    std::unique_ptr<unsigned int> CurrentNPtr;
+    std::unique_ptr<float> CurrentTimeScalePtr;
+    std::unique_ptr<worldgens::WorldGenerator> CurrentWorldGeneratorPtr;
     std::vector<std::unique_ptr<worldgens::WorldGenerator>> WorldGeneratorOptions;
 
     void Initialize() {
-        CurrentN = std::make_unique<unsigned int>(config::simulation::N);
-        CurrentWorldGenerator = initialWorldGenerator.clone();
+        CurrentNPtr = std::make_unique<unsigned int>(config::simulation::N);
+        CurrentTimeScalePtr = std::make_unique<float>(config::simulation::TimeScale);
+        CurrentWorldGeneratorPtr = worldgens::CreateFromWorldType(config::simulation::WorldType);
 
         WorldGeneratorOptions.push_back(std::make_unique<worldgens::SphereGenerator>());
         WorldGeneratorOptions.push_back(std::make_unique<worldgens::SphereShellGenerator>());

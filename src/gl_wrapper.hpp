@@ -15,7 +15,7 @@ struct Velocity;
 
 namespace glwrapper {
 
-    void Initialize(int width, int height, const char* title, unsigned int* nPtr, void (*bufferUpdateCallback)(int));
+    void Initialize();
     void Render();
     void SwapBuffers();
     void Cleanup();
@@ -27,8 +27,8 @@ namespace glwrapper {
     extern Velocity* Velocities;
 
     extern unsigned int PosBuffer;
-    extern int Width;
-    extern int Height;
+    extern int CurrentWidth;
+    extern int CurrentHeight;
     extern float DeltaTime;
     extern float* MainCameraSpeedPtr;
 

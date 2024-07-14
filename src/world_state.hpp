@@ -11,7 +11,8 @@ namespace worldstate {
     void Initialize();
     void Cleanup();
 
-    extern std::unique_ptr<unsigned int> CurrentN;
-    extern std::unique_ptr<worldgens::WorldGenerator> CurrentWorldGenerator;
+    extern std::unique_ptr<unsigned int> CurrentNPtr;
+    extern std::unique_ptr<float> CurrentTimeScalePtr;
+    extern std::unique_ptr<worldgens::WorldGenerator> CurrentWorldGeneratorPtr;
     extern std::vector<std::unique_ptr<worldgens::WorldGenerator>> WorldGeneratorOptions;
 }

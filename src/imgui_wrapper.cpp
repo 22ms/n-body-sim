@@ -8,8 +8,9 @@
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 
-#include "world_generators.hpp"
-#include "globals.hpp"
+#include "gl_wrapper.hpp"
+#include "world_state.hpp"
+#include "config.hpp"
 
 namespace imguiwrapper {
 
@@ -19,29 +20,21 @@ namespace imguiwrapper {
 
     std::vector<std::string> worldGeneratorStrOptions;
 
-    static unsigned int* nPtr = nullptr;
     static int worldGenOptionsSize;
     static int currentWorldGenIndex = 0;
     static int log2n;
     static int log2maxn;
 
-    static float* mainCameraSpeedPtr = nullptr;
-    static float* timeScalePtr = nullptr;
-
     void setStyleGruvbox();
 
-    void Initialize (GLFWwindow* glWindow, float* mainCameraSpeedPtr, unsigned int* nPtr, float* timeScalePtr) {
-        imguiwrapper::nPtr = nPtr;
-        imguiwrapper::mainCameraSpeedPtr = mainCameraSpeedPtr;
-        imguiwrapper::timeScalePtr = timeScalePtr;
+    void Initialize () {
+        log2n = std::round(std::log2(*worldstate::CurrentNPtr));
+        log2maxn = std::round(std::log2(config::simulation::MAX_N));
+        *worldstate::CurrentNPtr = pow(2, log2n);
 
-        log2n = std::round(std::log2(*imguiwrapper::nPtr));
-        log2maxn = std::round(std::log2(MAX_N));
-        *imguiwrapper::nPtr = pow(2, log2n);
-
-        imguiwrapper::worldGenOptionsSize = worldgens::WorldGeneratorOptions.size();
+        imguiwrapper::worldGenOptionsSize = worldstate::WorldGeneratorOptions.size();
         for (int i = 0; i < worldGenOptionsSize; i++) {
-            imguiwrapper::worldGeneratorStrOptions.push_back(worldgens::WorldGeneratorOptions[i]->ToString());
+            imguiwrapper::worldGeneratorStrOptions.push_back(worldstate::WorldGeneratorOptions[i]->ToString());
         }
 
         IMGUI_CHECKVERSION();
@@ -52,7 +45,7 @@ namespace imguiwrapper {
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 
         setStyleGruvbox();
-        ImGui_ImplGlfw_InitForOpenGL(glWindow, true);
+        ImGui_ImplGlfw_InitForOpenGL(glwrapper::Window, true);
         ImGui_ImplOpenGL3_Init("#version 130");
     }
 
@@ -64,9 +57,9 @@ namespace imguiwrapper {
 
         ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
         ImGui::Begin("Controls", NULL); // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-        ImGui::Text("Bodies: %d", *nPtr);
+        ImGui::Text("Bodies: %d", *worldstate::CurrentNPtr);
         ImGui::SliderInt("log2(n)", &log2n, 0, log2maxn);
-        *nPtr = pow(2, log2n);
+        *worldstate::CurrentNPtr = pow(2, log2n);
 
         if (ImGui::BeginCombo("World Gen", worldGeneratorStrOptions[currentWorldGenIndex].c_str())) // The second parameter is the label previewed before opening the combo.
         {
@@ -75,7 +68,7 @@ namespace imguiwrapper {
                 const bool is_selected = (currentWorldGenIndex == n);
                 if (ImGui::Selectable(worldGeneratorStrOptions[n].c_str(), is_selected)) {
                     currentWorldGenIndex = n;
-                    worldgens::CurrentWorldGenerator = worldgens::WorldGeneratorOptions[currentWorldGenIndex]->clone();
+                    worldstate::CurrentWorldGeneratorPtr = worldstate::WorldGeneratorOptions[currentWorldGenIndex]->clone();
                 }
 
                 // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
@@ -86,8 +79,8 @@ namespace imguiwrapper {
         }
 
         ImGui::Spacing();
-        ImGui::SliderFloat("Time scale", timeScalePtr, 0.0f, 1.0f);
-        ImGui::SliderFloat("Camera speed", mainCameraSpeedPtr, 1.0f, 5.0f);
+        ImGui::SliderFloat("Time scale", worldstate::CurrentTimeScalePtr.get(), 0.0f, 1.0f);
+        ImGui::SliderFloat("Camera speed", glwrapper::MainCameraSpeedPtr, 1.0f, 5.0f);
         ImGui::End();
 
         // Rendering

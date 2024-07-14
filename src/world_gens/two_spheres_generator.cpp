@@ -15,8 +15,8 @@ namespace worldgens {
             delete[] velocities;
         }
 
-        positions = new Position[MAX_N];
-        velocities = new Velocity[MAX_N];
+        positions = new Position[config::simulation::MAX_N];
+        velocities = new Velocity[config::simulation::MAX_N];
 
         float endRadius = 1.0f;
         float spacing = endRadius / n;

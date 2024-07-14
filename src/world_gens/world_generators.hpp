@@ -12,7 +12,7 @@ namespace worldgens {
         SPHERE,
         SPHERE_SHELL,
         TWO_SPHERES,
-        BLACK_HOLE
+        BLACK_HOLE_SPHERE
     };
 
     class WorldGenerator {

@@ -12,10 +12,12 @@
 
 #include "camera.hpp"
 #include "gl_wrapper.hpp"
+#include "cl_wrapper.hpp"
 #include "shader.hpp"
 #include "utilities.hpp"
-#include "world_generators.hpp"
-#include "globals.hpp"
+#include "config.hpp"
+#include "world_state.hpp"
+#include "world_gens/world_generators.hpp"
 
 namespace glwrapper {
 
@@ -27,8 +29,8 @@ namespace glwrapper {
     Velocity* Velocities = nullptr;
 
     unsigned int PosBuffer;
-    int Width;
-    int Height;
+    int CurrentWidth;
+    int CurrentHeight;
     float DeltaTime;
     float* MainCameraSpeedPtr = nullptr;
 
@@ -56,13 +58,13 @@ namespace glwrapper {
     void mouseButtonCallback(GLFWwindow* glWindow, int button, int action, int mods);
     void scrollCallback(GLFWwindow* glWindow, double xoffset, double yoffset);
 
-    void Initialize(int width, int height, const char* title)
+    void Initialize()
     {
-        glwrapper::Width = width;
-        glwrapper::Height = height;
+        glwrapper::CurrentWidth = config::window::Width;
+        glwrapper::CurrentHeight = config::window::Height;
 
-        previousN = *glwrapper::nPtr;
-        previousWorldGeneratorPtr = worldgens::CurrentWorldGenerator->clone();
+        previousN = *worldstate::CurrentNPtr;
+        previousWorldGeneratorPtr = worldstate::CurrentWorldGeneratorPtr->clone();
 
         glfwSetErrorCallback(errorCallback);
         glfwInit();
@@ -71,11 +73,11 @@ namespace glwrapper {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-        Window = glfwCreateWindow(Width, Height, title, nullptr, nullptr);
+        Window = glfwCreateWindow(CurrentWidth, CurrentHeight, config::window::Title.c_str(), nullptr, nullptr);
 
         glfwMakeContextCurrent(Window);
         glfwSwapInterval(1); // Enable vsync
-        glViewport(0, 0, Width, Height);
+        glViewport(0, 0, CurrentWidth, CurrentHeight);
         glfwSetFramebufferSizeCallback(Window, framebufferSizeCallback);
         glfwSetCursorPosCallback(Window, mouseCallback);
         glfwSetMouseButtonCallback(Window, mouseButtonCallback);
@@ -91,14 +93,14 @@ namespace glwrapper {
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
         GLenum err = glewInit();
-        worldgens::CurrentWorldGenerator->Generate(Positions, Velocities, *nPtr);
+        worldstate::CurrentWorldGeneratorPtr->Generate(Positions, Velocities, *worldstate::CurrentNPtr);
 
         glGenBuffers(1, &PosBuffer);
         glGenVertexArrays(1, &posAttribute);
 
         glBindVertexArray(posAttribute);
         glBindBuffer(GL_ARRAY_BUFFER, PosBuffer);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * MAX_N * 4, Positions, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * config::simulation::MAX_N * 4, Positions, GL_STATIC_DRAW);
 
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
         glEnableVertexAttribArray(0);
@@ -108,8 +110,8 @@ namespace glwrapper {
 
         MainCamera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f));
         MainCameraSpeedPtr = &(MainCamera->MovementSpeed);
-        lastX = Width / 2.0f;
-        lastY = Height / 2.0f;
+        lastX = CurrentWidth / 2.0f;
+        lastY = CurrentHeight / 2.0f;
         firstMouse = true;
         captureMouse = false;
         DeltaTime = 0.0f;
@@ -126,21 +128,21 @@ namespace glwrapper {
         glfwPollEvents();
         processKeyInput();
 
-        glm::mat4 projection = glm::perspective(glm::radians(MainCamera->Zoom), (float)Width / (float)Height, 0.1f, 1000.0f);
+        glm::mat4 projection = glm::perspective(glm::radians(MainCamera->Zoom), (float)CurrentWidth / (float)CurrentHeight, 0.1f, 1000.0f);
         shader->SetMat4("projection", projection);
 
         glm::mat4 view = MainCamera->GetViewMatrix();
         shader->SetMat4("view", view);
 
-        if (*nPtr != previousN || !worldgens::CurrentWorldGenerator->isSameType(*previousWorldGeneratorPtr)) {
-            worldgens::CurrentWorldGenerator->Generate(Positions, Velocities, *nPtr);
-            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * (*nPtr) * 4, Positions);
-            bufferUpdateCallback(*nPtr);
+        if (*worldstate::CurrentNPtr != previousN || !worldstate::CurrentWorldGeneratorPtr->isSameType(*previousWorldGeneratorPtr)) {
+            worldstate::CurrentWorldGeneratorPtr->Generate(Positions, Velocities, *worldstate::CurrentNPtr);
+            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * (*worldstate::CurrentNPtr) * 4, Positions);
+            clwrapper::UpdateCLBuffers();
 
-            previousN = *nPtr;
-            previousWorldGeneratorPtr = worldgens::CurrentWorldGenerator->clone();
+            previousN = *worldstate::CurrentNPtr;
+            previousWorldGeneratorPtr = worldstate::CurrentWorldGeneratorPtr->clone();
         }
-        glDrawArrays(GL_POINTS, 0, *nPtr);
+        glDrawArrays(GL_POINTS, 0, *worldstate::CurrentNPtr);
 
         GLenum err = glGetError();
         if (err != 0) {
@@ -159,15 +161,6 @@ namespace glwrapper {
         glDeleteBuffers(1, &PosBuffer);
         glfwDestroyWindow(Window);
         glfwTerminate();
-
-        delete Window;
-        delete MainCamera;
-        delete[] Positions;
-        delete[] Velocities;
-        delete MainCameraSpeedPtr;
-
-        delete shader;
-        delete nPtr;
     }
 
     bool ShouldClose() {
