@@ -4,7 +4,7 @@
 #include "../utilities.hpp"
 #include "../world_generators.hpp"
 
-namespace worldgenerators {
+namespace worldgens {
 
     void SphereShellGenerator::Generate(Position*& positions, Velocity*& velocities, int n)
     {
@@ -42,13 +42,12 @@ namespace worldgenerators {
         }
     }
 
-    const char* SphereShellGenerator::ToString()
-    {
+    std::string SphereShellGenerator::ToString() const {
         return "SPHERE_SHELL";
     }
 
-    bool SphereShellGenerator::isSameType(const WorldGenerator* other) const {
-        return dynamic_cast<const SphereShellGenerator*>(other) != nullptr;
+    std::unique_ptr<WorldGenerator> SphereShellGenerator::clone() const {
+        return std::make_unique<SphereShellGenerator>(*this);
     }
 
 }

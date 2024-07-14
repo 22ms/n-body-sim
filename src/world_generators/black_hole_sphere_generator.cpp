@@ -1,10 +1,11 @@
 #include <cmath>
+#include <string>
 
 #include "../world_generators.hpp"
 #include "../utilities.hpp"
 #include "../globals.hpp"
 
-namespace worldgenerators {
+namespace worldgens {
 
     void BlackHoleSphereGenerator::Generate(Position*& positions, Velocity*& velocities, int n) {
         if (positions != nullptr) {
@@ -46,12 +47,11 @@ namespace worldgenerators {
         }
     }
 
-    const char* BlackHoleSphereGenerator::ToString() {
+    std::string BlackHoleSphereGenerator::ToString() const {
         return "BLACK_HOLE_SPHERE";
     }
 
-    bool BlackHoleSphereGenerator::isSameType(const WorldGenerator* other) const {
-        return dynamic_cast<const BlackHoleSphereGenerator*>(other) != nullptr;
+    std::unique_ptr<WorldGenerator> BlackHoleSphereGenerator::clone() const {
+        return std::make_unique<BlackHoleSphereGenerator>(*this);
     }
-
 }

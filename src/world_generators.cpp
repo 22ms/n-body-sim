@@ -1,34 +1,31 @@
 #include <cmath>
 #include <stdio.h>
-#include <vector>
+#include <memory>
 #include <cstdlib>
 
 #include "globals.hpp"
 #include "utilities.hpp"
 #include "world_generators.hpp"
 
-namespace worldgenerators {
+namespace worldgens {
 
-    std::vector<WorldGenerator*> WorldGeneratorOptions;
+    bool WorldGenerator::isSameType (const WorldGenerator& other) const {
+        return this->ToString() == other.ToString();
+    }
 
-    void Initialize(WorldGenerator* initialWorldGenerator) {
-        WorldGeneratorOptions.push_back(new SphereGenerator());
-        WorldGeneratorOptions.push_back(new SphereShellGenerator());
-        WorldGeneratorOptions.push_back(new BlackHoleSphereGenerator());
-        WorldGeneratorOptions.push_back(new TwoSpheresGenerator());
+    std::vector<std::unique_ptr<WorldGenerator>> WorldGeneratorOptions;
+    std::unique_ptr<WorldGenerator> CurrentWorldGenerator;
 
-        // Initialize the options, placing initialWorldGenerator in front.
-        bool found = false;
-        for (size_t i = 0; i < WorldGeneratorOptions.size(); ++i) {
-            if (WorldGeneratorOptions[i]->isSameType(initialWorldGenerator)) {
-                std::swap(WorldGeneratorOptions[i], WorldGeneratorOptions[0]);
-                found = true;
-                break;
-            }
-        }
+    void Initialize(WorldGenerator& initialWorldGenerator) {
+        CurrentWorldGenerator = initialWorldGenerator.clone();
 
-        if (!found) {
-            WorldGeneratorOptions.insert(WorldGeneratorOptions.begin(), initialWorldGenerator);
-        } 
+        WorldGeneratorOptions.push_back(std::make_unique<SphereGenerator>());
+        WorldGeneratorOptions.push_back(std::make_unique<SphereShellGenerator>());
+        WorldGeneratorOptions.push_back(std::make_unique<BlackHoleSphereGenerator>());
+        WorldGeneratorOptions.push_back(std::make_unique<TwoSpheresGenerator>());
+    }
+
+    void Cleanup () {
+        WorldGeneratorOptions.clear();
     }
 }

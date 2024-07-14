@@ -1,6 +1,7 @@
 #include <GLFW/glfw3.h>
 #include <cmath>
 #include <stdio.h>
+#include <memory>
 
 #include "imgui_wrapper.hpp"
 #include "imgui/imgui.h"
@@ -16,7 +17,7 @@ namespace imguiwrapper {
 
     // "Private"
 
-    worldgenerators::WorldGenerator** worldGeneratorPtr;
+    std::vector<std::string> worldGeneratorStrOptions;
 
     static unsigned int* nPtr = nullptr;
     static int worldGenOptionsSize;
@@ -27,24 +28,20 @@ namespace imguiwrapper {
     static float* mainCameraSpeedPtr = nullptr;
     static float* timeScalePtr = nullptr;
 
-    const char** worldGeneratorStrOptions = nullptr;
-
     void setStyleGruvbox();
 
-    void Initialize (GLFWwindow* glWindow, float* mainCameraSpeedPtr, unsigned int* nPtr, float* timeScalePtr, worldgenerators::WorldGenerator** worldGeneratorPtr) {
+    void Initialize (GLFWwindow* glWindow, float* mainCameraSpeedPtr, unsigned int* nPtr, float* timeScalePtr) {
         imguiwrapper::nPtr = nPtr;
         imguiwrapper::mainCameraSpeedPtr = mainCameraSpeedPtr;
         imguiwrapper::timeScalePtr = timeScalePtr;
-        imguiwrapper::worldGeneratorPtr = worldGeneratorPtr;
 
         log2n = std::round(std::log2(*imguiwrapper::nPtr));
         log2maxn = std::round(std::log2(MAX_N));
         *imguiwrapper::nPtr = pow(2, log2n);
 
-        imguiwrapper::worldGenOptionsSize = worldgenerators::WorldGeneratorOptions.size();
-        imguiwrapper::worldGeneratorStrOptions = new const char* [worldGenOptionsSize];
+        imguiwrapper::worldGenOptionsSize = worldgens::WorldGeneratorOptions.size();
         for (int i = 0; i < worldGenOptionsSize; i++) {
-            imguiwrapper::worldGeneratorStrOptions[i] = worldgenerators::WorldGeneratorOptions[i]->ToString();
+            imguiwrapper::worldGeneratorStrOptions.push_back(worldgens::WorldGeneratorOptions[i]->ToString());
         }
 
         IMGUI_CHECKVERSION();
@@ -71,14 +68,14 @@ namespace imguiwrapper {
         ImGui::SliderInt("log2(n)", &log2n, 0, log2maxn);
         *nPtr = pow(2, log2n);
 
-        if (ImGui::BeginCombo("World Gen", worldGeneratorStrOptions[currentWorldGenIndex])) // The second parameter is the label previewed before opening the combo.
+        if (ImGui::BeginCombo("World Gen", worldGeneratorStrOptions[currentWorldGenIndex].c_str())) // The second parameter is the label previewed before opening the combo.
         {
             for (int n = 0; n < worldGenOptionsSize; n++)
             {
                 const bool is_selected = (currentWorldGenIndex == n);
-                if (ImGui::Selectable(worldGeneratorStrOptions[n], is_selected)) {
+                if (ImGui::Selectable(worldGeneratorStrOptions[n].c_str(), is_selected)) {
                     currentWorldGenIndex = n;
-                    *worldGeneratorPtr = worldgenerators::WorldGeneratorOptions[currentWorldGenIndex];
+                    worldgens::CurrentWorldGenerator = worldgens::WorldGeneratorOptions[currentWorldGenIndex]->clone();
                 }
 
                 // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)

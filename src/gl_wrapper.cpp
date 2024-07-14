@@ -4,6 +4,7 @@
 #include <cmath>
 #include <exception>
 #include <stdio.h>
+#include <memory>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -34,8 +35,7 @@ namespace glwrapper {
     // "Private"
 
     static Shader* shader = nullptr;
-    worldgenerators::WorldGenerator** worldGeneratorPtr = nullptr;
-    worldgenerators::WorldGenerator* previousWorldGeneratorPtr;
+    std::unique_ptr<worldgens::WorldGenerator> previousWorldGeneratorPtr;
 
     static unsigned int posAttribute;
 
@@ -58,16 +58,15 @@ namespace glwrapper {
     void mouseButtonCallback(GLFWwindow* glWindow, int button, int action, int mods);
     void scrollCallback(GLFWwindow* glWindow, double xoffset, double yoffset);
 
-    void Initialize(int width, int height, const char* title, unsigned int* nPtr, void (*bufferUpdateCallback)(int), worldgenerators::WorldGenerator** worldGeneratorPtr)
+    void Initialize(int width, int height, const char* title, unsigned int* nPtr, void (*bufferUpdateCallback)(int))
     {
         glwrapper::Width = width;
         glwrapper::Height = height;
         glwrapper::nPtr = nPtr;
         glwrapper::bufferUpdateCallback = bufferUpdateCallback;
-        glwrapper::worldGeneratorPtr = worldGeneratorPtr;
 
         previousN = *glwrapper::nPtr;
-        previousWorldGeneratorPtr = *glwrapper::worldGeneratorPtr;
+        previousWorldGeneratorPtr = worldgens::CurrentWorldGenerator->clone();
 
         glfwSetErrorCallback(errorCallback);
         glfwInit();
@@ -96,7 +95,7 @@ namespace glwrapper {
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
         GLenum err = glewInit();
-        (*worldGeneratorPtr)->Generate(Positions, Velocities, *nPtr);
+        worldgens::CurrentWorldGenerator->Generate(Positions, Velocities, *nPtr);
 
         glGenBuffers(1, &PosBuffer);
         glGenVertexArrays(1, &posAttribute);
@@ -137,13 +136,13 @@ namespace glwrapper {
         glm::mat4 view = MainCamera->GetViewMatrix();
         shader->SetMat4("view", view);
 
-        if (*nPtr != previousN || *worldGeneratorPtr != previousWorldGeneratorPtr) {
-            (*worldGeneratorPtr)->Generate(Positions, Velocities, *nPtr);
+        if (*nPtr != previousN || !worldgens::CurrentWorldGenerator->isSameType(*previousWorldGeneratorPtr)) {
+            worldgens::CurrentWorldGenerator->Generate(Positions, Velocities, *nPtr);
             glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * (*nPtr) * 4, Positions);
             bufferUpdateCallback(*nPtr);
 
             previousN = *nPtr;
-            previousWorldGeneratorPtr = *worldGeneratorPtr;
+            previousWorldGeneratorPtr = worldgens::CurrentWorldGenerator->clone();
         }
         glDrawArrays(GL_POINTS, 0, *nPtr);
 
@@ -157,6 +156,22 @@ namespace glwrapper {
     void SwapBuffers()
     {
         glfwSwapBuffers(Window);
+    }
+
+    void Cleanup() {
+        glDeleteVertexArrays(1, &posAttribute);
+        glDeleteBuffers(1, &PosBuffer);
+        glfwDestroyWindow(Window);
+        glfwTerminate();
+
+        delete Window;
+        delete MainCamera;
+        delete[] Positions;
+        delete[] Velocities;
+        delete MainCameraSpeedPtr;
+
+        delete shader;
+        delete nPtr;
     }
 
     bool ShouldClose() {

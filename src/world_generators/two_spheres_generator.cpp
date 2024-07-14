@@ -4,7 +4,7 @@
 #include "../utilities.hpp"
 #include "../world_generators.hpp"
 
-namespace worldgenerators {
+namespace worldgens {
 
     void TwoSpheresGenerator::Generate(Position*& positions, Velocity*& velocities, int n) {
         if (positions != nullptr) {
@@ -72,11 +72,11 @@ namespace worldgenerators {
         }
     }
 
-    const char* TwoSpheresGenerator::ToString() {
+    std::string TwoSpheresGenerator::ToString() const {
         return "TWO_SPHERES";
     }
 
-    bool TwoSpheresGenerator::isSameType(const WorldGenerator* other) const {
-        return dynamic_cast<const TwoSpheresGenerator*>(other) != nullptr;
+    std::unique_ptr<WorldGenerator> TwoSpheresGenerator::clone() const {
+        return std::make_unique<TwoSpheresGenerator>(*this);
     }
 }
