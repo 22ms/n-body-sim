@@ -11,6 +11,7 @@
 #include "gl_wrapper.hpp"
 #include "world_state.hpp"
 #include "config.hpp"
+#include "world_gens/world_generators.hpp"
 
 namespace imguiwrapper {
 

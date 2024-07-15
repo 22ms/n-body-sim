@@ -1,4 +1,5 @@
 #include "config.hpp"
+#include "world_gens/world_generators.hpp"
 
 // Initial parameters, can later be changed in UI
 namespace config {

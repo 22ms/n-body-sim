@@ -2,7 +2,9 @@
 
 #include <string>
 
-#include "world_gens/world_generators.hpp"
+namespace worldgens {
+    enum class WorldType;
+}
 
 // Declare config, modify somewhere else
 namespace config {

@@ -11,6 +11,4 @@ namespace utilities {
         float x, y, z;
         float EMPTY_FOR_ALIGNMENT = 0;
     };
-
-    void ResetVector(std::vector<Position>& positions, std::vector<Velocity>& velocities);
 }
