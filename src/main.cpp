@@ -5,6 +5,7 @@
 // https://bashbaug.github.io/OpenCL-Docs/pdf/OpenCL_API.pdf
 // https://web.engr.oregonstate.edu/~mjb/cs575/Handouts/opencl.opengl.vbo.1pp.pdf
 // https://dournac.org/info/nbody_tutorial
+
 #include "world_state.hpp"
 #include "gl_wrapper.hpp"
 #include "cl_wrapper.hpp"
