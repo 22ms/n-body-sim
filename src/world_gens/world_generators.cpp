@@ -11,7 +11,7 @@ namespace worldgens {
         velocities.resize(config::simulation::MAX_N);
     }
 
-    bool WorldGenerator::isSameType (const WorldGenerator& other) const {
+    bool WorldGenerator::IsSameType (const WorldGenerator& other) const {
         return this->ToString() == other.ToString();
     }
 

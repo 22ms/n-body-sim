@@ -22,7 +22,7 @@ namespace worldgens {
             virtual void Generate(std::vector<utilities::Position>& positions, std::vector<utilities::Velocity>& velocities, int n) = 0;
             virtual std::string ToString() const = 0;
             virtual std::unique_ptr<WorldGenerator> clone() const = 0;
-            bool isSameType(const WorldGenerator& other) const;
+            bool IsSameType(const WorldGenerator& other) const;
     };
 
     std::unique_ptr<WorldGenerator> CreateFromWorldType (WorldType worldType);

@@ -142,7 +142,7 @@ namespace glwrapper {
         glm::mat4 view = MainCamera->GetViewMatrix();
         shader->SetMat4("view", view);
 
-        if (*worldstate::CurrentNPtr != previousN || !worldstate::CurrentWorldGeneratorPtr->isSameType(*previousWorldGeneratorPtr)) {
+        if (*worldstate::CurrentNPtr != previousN || !worldstate::CurrentWorldGeneratorPtr->IsSameType(*previousWorldGeneratorPtr)) {
             worldstate::CurrentWorldGeneratorPtr->Generate(Positions, Velocities, *worldstate::CurrentNPtr);
             glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * (*worldstate::CurrentNPtr) * 4, &Positions[0]);
             clwrapper::UpdateCLBuffers();
