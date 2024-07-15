@@ -80,4 +80,3 @@ add_dependencies(n-body copy_shaders)
 add_dependencies(n-body copy_kernels)
 
 add_compile_definitions(CL_TARGET_OPENCL_VERSION=120)
-add_compile_definitions(GLEW_BUILD)
