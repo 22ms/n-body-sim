@@ -49,20 +49,21 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(glm)
 
-message(glad_BINARY_DIR: ${glad_BINARY_DIR})
-target_include_directories(n-body PRIVATE ${glad_BINARY_DIR}/include ${OPENGL_INCLDUE_DIRS})
-
-target_link_libraries(n-body glfw)
-target_link_libraries(n-body glad)
-target_link_libraries(n-body OpenCL)
-target_link_libraries(n-body glm::glm)
-
 find_package(OpenGL REQUIRED)
-if (OpenGL_FOUND)
-    target_link_libraries(n-body ${OPENGL_LIBRARIES})
-else()
-    message(FATAL_ERROR "OpenGL was not found on the system")
-endif()
+
+target_include_directories(n-body PRIVATE 
+    ${glad_BINARY_DIR}/include
+    ${OPENCL_ICD_LOADER_HEADERS_DIR}
+    ${OpenCLHeaders_SOURCE_DIR}
+)
+
+target_link_libraries(n-body
+    glfw
+    glad
+    OpenCL
+    glm::glm
+    ${OPENGL_LIBRARIES}
+)
 
 add_custom_target(copy_shaders ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory
@@ -76,7 +77,10 @@ add_custom_target(copy_kernels ALL
     DEPENDS ${SOURCES}
 )
 
-add_dependencies(n-body copy_shaders)
-add_dependencies(n-body copy_kernels)
+add_dependencies(n-body copy_shaders copy_kernels)
 
-add_compile_definitions(CL_TARGET_OPENCL_VERSION=120)
+target_compile_definitions(n-body PRIVATE CL_TARGET_OPENCL_VERSION=120)
+
+if (NOT OpenGL_FOUND)
+    message(FATAL_ERROR "OpenGL was not found on the system")
+endif()
