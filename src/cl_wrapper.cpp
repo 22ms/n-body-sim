@@ -1,6 +1,3 @@
-#ifdef __unix__
-#include <GL/glx.h>
-#endif
 #include <CL/cl.h>
 #include <CL/cl_gl.h>
 #include <glad/glad.h>
@@ -8,6 +5,10 @@
 #include <exception>
 #include <stdio.h>
 #include <string.h>
+
+#ifdef __unix__
+#include <GL/glx.h>
+#endif
 
 #include "cl_wrapper.hpp"
 #include "gl_wrapper.hpp"
@@ -64,7 +65,7 @@ namespace clwrapper {
         };
         #elif __unix__
         cl_context_properties props[] = {
-            CL_GL_CONTEXT_KHR, (cl_context_properties)glXGetCurrentDisplay(),
+            CL_GL_CONTEXT_KHR, (cl_context_properties)glXGetCurrentContext(),
             CL_WGL_HDC_KHR, (cl_context_properties)glXGetCurrentDisplay(),
             CL_CONTEXT_PLATFORM, (cl_context_properties)platform,
             0
