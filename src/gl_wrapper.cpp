@@ -1,5 +1,6 @@
-#include <GL/glew.h>
 #include <CL/cl.h>
+
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <cmath>
 #include <exception>
@@ -82,6 +83,12 @@ namespace glwrapper {
         Window = glfwCreateWindow(CurrentWidth, CurrentHeight, config::window::Title.c_str(), nullptr, nullptr);
 
         glfwMakeContextCurrent(Window);
+        if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+        {
+            printf("Failed to initialize GLAD\n");
+            std::terminate();
+        }
+        
         glfwSwapInterval(1); // Enable vsync
         glViewport(0, 0, CurrentWidth, CurrentHeight);
         glfwSetFramebufferSizeCallback(Window, framebufferSizeCallback);
@@ -98,7 +105,6 @@ namespace glwrapper {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-        GLenum err = glewInit();
         worldstate::CurrentWorldGeneratorPtr->Generate(Positions, Velocities, *worldstate::CurrentNPtr);
 
         glGenBuffers(1, &PosBuffer);

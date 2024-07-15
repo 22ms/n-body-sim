@@ -1,8 +1,0 @@
-{
-  "dependencies": [
-    "glfw3",
-    "glew",
-    "opencl",
-    "glm"
-  ]
-}
