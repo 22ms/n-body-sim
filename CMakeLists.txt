@@ -28,39 +28,46 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(glad)
 
 FetchContent_Declare(
-    OpenCLHeaders
-    GIT_REPOSITORY https://github.com/KhronosGroup/OpenCL-Headers
-    GIT_TAG v2024.05.08
-)
-FetchContent_MakeAvailable(OpenCLHeaders)
-
-FetchContent_Declare(
-    OpenCL
-    GIT_REPOSITORY https://github.com/KhronosGroup/OpenCL-ICD-Loader
-    GIT_TAG v2024.05.08
-)
-set(OPENCL_ICD_LOADER_HEADERS_DIR ${openclheaders_SOURCE_DIR})
-FetchContent_MakeAvailable(OpenCL)
-
-FetchContent_Declare(
     glm
     GIT_REPOSITORY https://github.com/g-truc/glm
     GIT_TAG 1.0.1
 )
 FetchContent_MakeAvailable(glm)
 
+find_package(OpenCL)
+if (OpenCL_FOUND)
+    target_link_libraries(n-body ${OpenCL_LIBRARY})
+else()
+    FetchContent_Declare(
+        OpenCLHeaders
+        GIT_REPOSITORY https://github.com/KhronosGroup/OpenCL-Headers
+        GIT_TAG v2024.05.08
+    )
+    FetchContent_MakeAvailable(OpenCLHeaders)
+
+    FetchContent_Declare(
+        OpenCL
+        GIT_REPOSITORY https://github.com/KhronosGroup/OpenCL-ICD-Loader
+        GIT_TAG v2024.05.08
+    )
+    set(OPENCL_ICD_LOADER_HEADERS_DIR ${OpenCLHeaders_SOURCE_DIR})
+    FetchContent_MakeAvailable(OpenCL)
+    target_include_directories(n-body PRIVATE
+        ${OPENCL_ICD_LOADER_HEADERS_DIR}
+        ${OpenCLHeaders_SOURCE_DIR}
+    )
+    target_link_libraries(n-body OpenCL)
+endif()
+
 find_package(OpenGL REQUIRED)
 
-target_include_directories(n-body PRIVATE 
+target_include_directories(n-body PRIVATE
     ${glad_BINARY_DIR}/include
-    ${OPENCL_ICD_LOADER_HEADERS_DIR}
-    ${OpenCLHeaders_SOURCE_DIR}
 )
 
 target_link_libraries(n-body
     glfw
     glad
-    OpenCL
     glm::glm
     ${OPENGL_LIBRARIES}
 )

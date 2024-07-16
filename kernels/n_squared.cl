@@ -18,7 +18,7 @@ __kernel void n_squared(
 
     for(int workgroupIndex = 0; workgroupIndex < nWorkgroups; workgroupIndex++) { // for each workgroup
         posBlock[localId] = posBuffer[workgroupIndex*nWorkgroupItems+localId]; // cache one particle position
-        work_group_barrier(CLK_LOCAL_MEM_FENCE); // wait for others in work group
+        barrier(CLK_LOCAL_MEM_FENCE); // wait for others in work group
         for(int i = 0; i < nWorkgroupItems; i++) { // for each pos in work group
             float4 cached_pos = posBlock[i];
             float4 distance = cached_pos - position;
@@ -26,7 +26,7 @@ __kernel void n_squared(
             float force = cached_pos.w*inverse_r*inverse_r*inverse_r;
             acceleration += force * distance;
         }
-        work_group_barrier(CLK_LOCAL_MEM_FENCE);
+        barrier(CLK_LOCAL_MEM_FENCE);
     }
 
     position += timestep*velocity + 0.5f*timestep*timestep*acceleration;

@@ -1,13 +1,22 @@
-#include <CL/cl.h>
-#include <CL/cl_gl.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <exception>
 #include <stdio.h>
 #include <string.h>
 
-#ifdef __unix__
+#ifdef _WIN32
+#include <CL/cl.h>
+#include <CL/cl_gl.h>
+#elif __linux__
+#include <CL/cl.h>
+#include <CL/cl_gl.h>
 #include <GL/glx.h>
+#elif __APPLE__
+#define CL_HPP_TARGET_OPENCL_VERSION 120
+#define CL_HPP_MINIMUM_OPENCL_VERSION 120
+#include <OpenCL/opencl.hpp>
+#include <OpenGL/CGLCurrent.h>
+#include <OpenGL/CGLDevice.h>
 #endif
 
 #include "cl_wrapper.hpp"
@@ -19,12 +28,10 @@
 
 namespace clwrapper {
 
-    // "Public"
-
+    // External variables
     cl_command_queue cmdQueue;
 
-    // "Private"
-
+    // Internal variables
     static cl_mem velBuffer;
     static cl_mem posBuffer;
 
@@ -51,10 +58,10 @@ namespace clwrapper {
             std::terminate();
         }
 
-        if (!isCLExtensionSupported("cl_khr_gl_sharing")) {
-            fprintf(stderr, "cl_khr_gl_sharing is not supported.\n");
-            std::terminate();
-        }
+        // if (!isCLExtensionSupported("cl_khr_gl_sharing")) {
+        //     fprintf(stderr, "cl_khr_gl_sharing is not supported.\n");
+        //     std::terminate();
+        // }
 
         #ifdef _WIN32
         cl_context_properties props[] = {
@@ -63,6 +70,7 @@ namespace clwrapper {
             CL_CONTEXT_PLATFORM, (cl_context_properties)platform,
             0
         };
+        context = clCreateContext(props, 1, &device, NULL, NULL, &status);
         #elif __unix__
         cl_context_properties props[] = {
             CL_GL_CONTEXT_KHR, (cl_context_properties)glXGetCurrentContext(),
@@ -70,6 +78,13 @@ namespace clwrapper {
             CL_CONTEXT_PLATFORM, (cl_context_properties)platform,
             0
         };
+        context = clCreateContext(props, 1, &device, NULL, NULL, &status);
+        #elif __APPLE__
+        cl_context_properties props[] = {
+            CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE, (cl_context_properties) CGLGetShareGroup(CGLGetCurrentContext()),
+            0
+        };
+        context = clCreateContext(props, 0, 0, NULL, NULL, &status);
         #endif
 
         context = clCreateContext(props, 1, &device, NULL, NULL, &status);

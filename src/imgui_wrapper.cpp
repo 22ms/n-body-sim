@@ -44,7 +44,7 @@ namespace imguiwrapper {
 
         setStyleGruvbox();
         ImGui_ImplGlfw_InitForOpenGL(glwrapper::Window, true);
-        ImGui_ImplOpenGL3_Init("#version 130");
+        ImGui_ImplOpenGL3_Init("#version 150");
     }
 
     void Display () {
