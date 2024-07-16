@@ -15,12 +15,9 @@ Adhering to the OpenCL 1.2 specification, it demonstrates the seamless integrati
 ```console
 sudo apt-get update
 sudo apt-get install -y \
-    build-essential cmake \
-    xorg-dev \
-    mesa-common-dev libglu1-mesa-dev freeglut3-dev \
-    libglew-dev libglfw3-dev libglm-dev \
-    libao-dev libmpg123-dev \
-    wayland-protocols libwayland-dev
+    build-essential cmake pkg-config python3\
+    libxkbcommon-dev xorg-dev libwayland \
+    mesa-utils mesa-common-dev \
 ```
 > [!NOTE]
 > 
@@ -35,7 +32,7 @@ build ..
 
 ### Install using cmake
 ```console
-cmake --build . --target install --config Debug
+sudo cmake --build . --target install --config Debug
 ```
 
 ### Run
