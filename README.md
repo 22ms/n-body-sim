@@ -1,4 +1,4 @@
-<img src="preview.gif"/>
+![preview](preview.gif)
 # About the project
 
 This project showcases OpenCL/OpenGL interoperability through a simulation of gravitational forces acting on n particles. 
