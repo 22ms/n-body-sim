@@ -1,5 +1,5 @@
 ![preview](preview.gif)
-# About the project
+# About this project
 
 This project showcases OpenCL/OpenGL interoperability through a simulation of gravitational forces acting on n particles. 
 Employing a brute-force algorithm with O(n²) complexity, it leverages the power of parallel computing to manage and render the simulation efficiently. 
