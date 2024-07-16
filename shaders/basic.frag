@@ -19,5 +19,5 @@ void main()
     float intensity = dot(position, position);
     vec3 color = mix(vec3(204.0/255.0, 36.0/255.0, 29.0/255.0), vec3(250.0/255.0, 189.0/255.0, 47.0/255.0), intensity);
 
-    FragColor = vec4(color, smoothed);
+    FragColor = vec4(1.0, 1.0, 1.0, smoothed);
 }
