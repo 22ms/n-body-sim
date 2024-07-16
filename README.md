@@ -1,6 +1,6 @@
 ```mermaid
 ---
-title: N-body Simulation
+title: N-body simulation
 ---
 classDiagram
 note for WorldState "These are not classes since they all manage one global state"
