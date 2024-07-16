@@ -66,7 +66,7 @@ Download and install [Git](https://git-scm.com/download/win)
 ### Clone this repository
 
 ```console
-git clone https://github.com/22ms.git
+git clone https://github.com/22ms/n-body-sim.git
 ```
 
 ### Build using cmake
