@@ -59,8 +59,8 @@ namespace clwrapper {
         }
 
         #ifdef __APPLE__
-        if (!isCLExtensionSupported("cl_apple_gl_sharing")) {
-            fprintf(stderr, "cl_apple_gl_sharing is not supported.\n");
+        if (!isCLExtensionSupported("cl_APPLE_gl_sharing")) {
+            fprintf(stderr, "cl_APPLE_gl_sharing is not supported.\n");
             std::terminate();
         }
         #else
