@@ -1,4 +1,5 @@
 #include <cmath>
+#include <random>
 
 #include "../config.hpp"
 #include "../utilities.hpp"
@@ -12,13 +13,19 @@ namespace worldgens {
         float endRadius = 1.0f;
         float spacing = endRadius / n;
 
+        // random generator
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_real_distribution<> dist(0.0, 1.0);
+        std::uniform_real_distribution<> distPhi(0.0, 2 * M_PI);
+
         // set positions
         for (int i = 0; i < n; i++) {
             bool firstHalf = i < n/2;
 
-            double theta = acos(2 * rand() / double(RAND_MAX) - 1); // Polar angle
-            double phi = rand() / double(RAND_MAX) * 2 * M_PI; // Azimuthal angle
-            double radius = rand() / double(RAND_MAX)* endRadius; // Radius of the sphere
+            double theta = acos(2 * dist(gen) - 1); // Polar angle
+            double phi = distPhi(gen); // Azimuthal angle
+            double radius = dist(gen) * endRadius; // Radius of the sphere
 
             double xOffset = firstHalf ? -endRadius : endRadius;
 
