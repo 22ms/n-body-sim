@@ -1,4 +1,4 @@
-![Preview]([preview.gif](https://github.com/22ms/n-body-sim/blob/main/preview.gif))
+<img src="preview.gif"/>
 # About the project
 
 This project showcases OpenCL/OpenGL interoperability through a simulation of gravitational forces acting on n particles. 
