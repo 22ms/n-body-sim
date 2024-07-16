@@ -88,6 +88,11 @@ add_dependencies(n-body copy_shaders copy_kernels)
 
 target_compile_definitions(n-body PRIVATE CL_TARGET_OPENCL_VERSION=120)
 
+if (APPLE)
+    target_compile_definitions(n-body PRIVATE CL_HPP_TARGET_OPENCL_VERSION=120)
+    target_compile_definitions(n-body PRIVATE CL_HPP_MINIMUM_OPENCL_VERSION=120)
+endif()
+
 if (NOT OpenGL_FOUND)
     message(FATAL_ERROR "OpenGL was not found on the system")
 endif()

@@ -1,9 +1,3 @@
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#include <exception>
-#include <stdio.h>
-#include <string.h>
-
 #ifdef _WIN32
 #include <CL/cl.h>
 #include <CL/cl_gl.h>
@@ -12,12 +6,16 @@
 #include <CL/cl_gl.h>
 #include <GL/glx.h>
 #elif __APPLE__
-#define CL_HPP_TARGET_OPENCL_VERSION 120
-#define CL_HPP_MINIMUM_OPENCL_VERSION 120
 #include <OpenCL/opencl.hpp>
 #include <OpenGL/CGLCurrent.h>
 #include <OpenGL/CGLDevice.h>
 #endif
+
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <exception>
+#include <stdio.h>
+#include <string.h>
 
 #include "cl_wrapper.hpp"
 #include "gl_wrapper.hpp"
