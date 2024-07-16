@@ -25,11 +25,11 @@ struct GLFWwindow;
 
 namespace glwrapper {
 
-    void Initialize();
-    void Render();
-    void SwapBuffers();
-    void Cleanup();
-    bool ShouldClose();
+    extern void Initialize();
+    extern void Render();
+    extern void SwapBuffers();
+    extern void Cleanup();
+    extern bool ShouldClose();
 
     extern GLFWwindow* Window;
     extern std::unique_ptr<camera::Camera> MainCamera;

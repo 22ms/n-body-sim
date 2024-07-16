@@ -15,18 +15,15 @@
 
 namespace imguiwrapper {
 
-    // "Public"
-
-    // "Private"
-
-    std::vector<std::string> worldGeneratorStrOptions;
+    // Internal variables
+    static std::vector<std::string> worldGeneratorStrOptions;
 
     static int worldGenOptionsSize;
     static int currentWorldGenIndex = 0;
     static int log2n;
     static int log2maxn;
 
-    void setStyleGruvbox();
+    static void setStyleGruvbox();
 
     void Initialize () {
         log2n = std::round(std::log2(*worldstate::CurrentNPtr));
@@ -88,6 +85,10 @@ namespace imguiwrapper {
         // Rendering
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    }
+
+    void Cleanup() {
+        worldGeneratorStrOptions.clear();
     }
 
     void setStyleGruvbox () {

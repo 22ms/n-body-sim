@@ -34,8 +34,8 @@ namespace clwrapper {
 
     static std::unique_ptr<Kernel> nSquared;
 
-    int calculateWorkGroupSize();
-    bool isCLExtensionSupported(const std::string& extension);
+    static int calculateWorkGroupSize();
+    static bool isCLExtensionSupported(const std::string& extension);
 
     void Initialize()
     {
@@ -177,7 +177,14 @@ namespace clwrapper {
         clFinish(cmdQueue);
     }
 
-    int calculateWorkGroupSize()
+    void Cleanup () {
+        clReleaseCommandQueue(cmdQueue);
+        clReleaseMemObject(velBuffer);
+        clReleaseMemObject(posBuffer);
+        clReleaseContext(context);
+    }
+
+    static int calculateWorkGroupSize()
     {
         size_t maxWorkGroupSize;
         cl_int err = clGetDeviceInfo(device, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(maxWorkGroupSize), &maxWorkGroupSize, NULL);
@@ -191,7 +198,7 @@ namespace clwrapper {
         return maxWorkGroupSize;
     }
 
-    bool isCLExtensionSupported(const std::string& extension)
+    static bool isCLExtensionSupported(const std::string& extension)
     {
         // Check if the extension is empty
         if (extension.empty())

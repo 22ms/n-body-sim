@@ -22,8 +22,7 @@
 
 namespace glwrapper {
 
-    // "Public"
-
+    // External variables
     GLFWwindow* Window;
     std::unique_ptr<camera::Camera> MainCamera;
     std::vector<utilities::Position> Positions (config::simulation::MAX_N);
@@ -34,13 +33,11 @@ namespace glwrapper {
     int CurrentHeight;
     float DeltaTime;
 
-    // "Private"
-
-    std::unique_ptr<Shader> shader;
-    std::unique_ptr<worldgens::WorldGenerator> previousWorldGeneratorPtr;
+    // Internal variables
+    static std::unique_ptr<Shader> shader;
+    static std::unique_ptr<worldgens::WorldGenerator> previousWorldGeneratorPtr;
 
     static unsigned int posAttribute;
-
     static unsigned int previousN;
 
     static float lastX;
@@ -50,13 +47,13 @@ namespace glwrapper {
     static bool firstMouse = true;
     static bool captureMouse = false;
 
-    void processKeyInput();
+    static void processKeyInput();
 
-    void errorCallback(int error, const char* description);
-    void framebufferSizeCallback(GLFWwindow* glWindow, int width, int height);
-    void mouseCallback(GLFWwindow* glWindow, double xposIn, double yposIn);
-    void mouseButtonCallback(GLFWwindow* glWindow, int button, int action, int mods);
-    void scrollCallback(GLFWwindow* glWindow, double xoffset, double yoffset);
+    static void errorCallback(int error, const char* description);
+    static void framebufferSizeCallback(GLFWwindow* glWindow, int width, int height);
+    static void mouseCallback(GLFWwindow* glWindow, double xposIn, double yposIn);
+    static void mouseButtonCallback(GLFWwindow* glWindow, int button, int action, int mods);
+    static void scrollCallback(GLFWwindow* glWindow, double xoffset, double yoffset);
 
     void Test(utilities::Position* positions, utilities::Velocity* velocities) {
         for (int i = 0; i < config::simulation::MAX_N; i++) {
@@ -171,6 +168,7 @@ namespace glwrapper {
     }
 
     void Cleanup() {
+        glFinish();
         glDeleteVertexArrays(1, &posAttribute);
         glDeleteBuffers(1, &PosBuffer);
         glfwDestroyWindow(Window);
@@ -181,7 +179,7 @@ namespace glwrapper {
         return glfwWindowShouldClose(Window);
     }
 
-    void processKeyInput()
+    static void processKeyInput()
     {
         if (glfwGetKey(Window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             glfwSetWindowShouldClose(Window, true);
@@ -196,17 +194,17 @@ namespace glwrapper {
             MainCamera->ProcessKeyboard(camera::CameraMovement::RIGHT, DeltaTime);
     }
 
-    void errorCallback(int error, const char* description)
+    static void errorCallback(int error, const char* description)
     {
         fprintf(stderr, "GLFW Error %d: %s\n", error, description);
     }
 
-    void framebufferSizeCallback(GLFWwindow* glWindow, int width, int height)
+    static void framebufferSizeCallback(GLFWwindow* glWindow, int width, int height)
     {
         glViewport(0, 0, width, height);
     }
 
-    void mouseCallback(GLFWwindow* glWindow, double xposIn, double yposIn)
+    static void mouseCallback(GLFWwindow* glWindow, double xposIn, double yposIn)
     {
         float xpos = static_cast<float>(xposIn);
         float ypos = static_cast<float>(yposIn);
@@ -228,7 +226,7 @@ namespace glwrapper {
         }
     }
 
-    void mouseButtonCallback(GLFWwindow* glWindow, int button, int action, int mods)
+    static void mouseButtonCallback(GLFWwindow* glWindow, int button, int action, int mods)
     {
         if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
             captureMouse = true;
@@ -240,7 +238,7 @@ namespace glwrapper {
         }
     }
 
-    void scrollCallback(GLFWwindow* glWindow, double xoffset, double yoffset)
+    static void scrollCallback(GLFWwindow* glWindow, double xoffset, double yoffset)
     {
         MainCamera->ProcessMouseScroll(yoffset);
     }

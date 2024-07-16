@@ -7,9 +7,8 @@
 namespace worldgens { class WorldGenerator; }
 
 namespace worldstate {
-
-    void Initialize();
-    void Cleanup();
+    extern void Initialize();
+    extern void Cleanup();
 
     extern std::unique_ptr<unsigned int> CurrentNPtr;
     extern std::unique_ptr<float> CurrentTimeScalePtr;
