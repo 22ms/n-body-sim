@@ -71,7 +71,7 @@ namespace glwrapper {
         glwrapper::CurrentHeight = config::window::Height;
 
         previousN = *worldstate::CurrentNPtr;
-        previousWorldGeneratorPtr = worldstate::CurrentWorldGeneratorPtr->clone();
+        previousWorldGeneratorPtr = worldstate::CurrentWorldGeneratorPtr->Clone();
 
         glfwSetErrorCallback(errorCallback);
         glfwInit();
@@ -154,7 +154,7 @@ namespace glwrapper {
             clwrapper::UpdateCLBuffers();
 
             previousN = *worldstate::CurrentNPtr;
-            previousWorldGeneratorPtr = worldstate::CurrentWorldGeneratorPtr->clone();
+            previousWorldGeneratorPtr = worldstate::CurrentWorldGeneratorPtr->Clone();
         }
         glDrawArrays(GL_POINTS, 0, *worldstate::CurrentNPtr);
 

@@ -67,7 +67,7 @@ namespace worldgens {
         return "TWO_SPHERES";
     }
 
-    std::unique_ptr<WorldGenerator> TwoSpheresGenerator::clone() const {
+    std::unique_ptr<WorldGenerator> TwoSpheresGenerator::Clone() const {
         return std::make_unique<TwoSpheresGenerator>(*this);
     }
 }

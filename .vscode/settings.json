@@ -1,5 +1,6 @@
 {
     "makefile.makePath": "C:/MinGW/bin/mingw32-make.exe",
+    "markdown.preview.scrollPreviewWithEditor": false,
     "files.associations": {
         "filesystem": "cpp",
         "iostream": "cpp",

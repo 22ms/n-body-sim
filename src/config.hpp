@@ -6,7 +6,7 @@ namespace worldgens {
     enum class WorldType;
 }
 
-// Declare config, modify somewhere else
+// Declare config, modify in config.cpp
 namespace config {
     namespace simulation {
         extern const unsigned int N;

@@ -63,7 +63,7 @@ namespace worldgens {
         return "SPHERE";
     }
 
-    std::unique_ptr<WorldGenerator> SphereGenerator::clone() const {
+    std::unique_ptr<WorldGenerator> SphereGenerator::Clone() const {
         return std::make_unique<SphereGenerator>(*this); 
     }
 

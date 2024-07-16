@@ -41,7 +41,7 @@ namespace worldgens {
         return "BLACK_HOLE_SPHERE";
     }
 
-    std::unique_ptr<WorldGenerator> BlackHoleSphereGenerator::clone() const {
+    std::unique_ptr<WorldGenerator> BlackHoleSphereGenerator::Clone() const {
         return std::make_unique<BlackHoleSphereGenerator>(*this);
     }
 }

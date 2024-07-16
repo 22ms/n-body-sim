@@ -36,7 +36,7 @@ namespace worldgens {
         return "SPHERE_SHELL";
     }
 
-    std::unique_ptr<WorldGenerator> SphereShellGenerator::clone() const {
+    std::unique_ptr<WorldGenerator> SphereShellGenerator::Clone() const {
         return std::make_unique<SphereShellGenerator>(*this);
     }
 

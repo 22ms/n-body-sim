@@ -69,7 +69,7 @@ namespace imguiwrapper {
                 const bool is_selected = (currentWorldGenIndex == n);
                 if (ImGui::Selectable(worldGeneratorStrOptions[n].c_str(), is_selected)) {
                     currentWorldGenIndex = n;
-                    worldstate::CurrentWorldGeneratorPtr = worldstate::WorldGeneratorOptions[currentWorldGenIndex]->clone();
+                    worldstate::CurrentWorldGeneratorPtr = worldstate::WorldGeneratorOptions[currentWorldGenIndex]->Clone();
                 }
 
                 // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)

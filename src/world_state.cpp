@@ -3,8 +3,8 @@
 #include <memory>
 #include <cstdlib>
 
+#include "world_state.hpp"
 #include "config.hpp"
-#include "utilities.hpp"
 #include "world_gens/world_generators.hpp"
 
 namespace worldstate {

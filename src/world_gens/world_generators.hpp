@@ -21,7 +21,7 @@ namespace worldgens {
         public:
             virtual void Generate(std::vector<utilities::Position>& positions, std::vector<utilities::Velocity>& velocities, int n) = 0;
             virtual std::string ToString() const = 0;
-            virtual std::unique_ptr<WorldGenerator> clone() const = 0;
+            virtual std::unique_ptr<WorldGenerator> Clone() const = 0;
             bool IsSameType(const WorldGenerator& other) const;
     };
 
@@ -31,27 +31,27 @@ namespace worldgens {
         public:
             void Generate(std::vector<utilities::Position>& positions, std::vector<utilities::Velocity>& velocities, int n) override;
             std::string ToString() const override;
-            std::unique_ptr<WorldGenerator> clone() const override;
+            std::unique_ptr<WorldGenerator> Clone() const override;
     };
 
     class SphereShellGenerator : public WorldGenerator {
         public:
             void Generate(std::vector<utilities::Position>& positions, std::vector<utilities::Velocity>& velocities, int n) override;
             std::string ToString() const override;
-            std::unique_ptr<WorldGenerator> clone() const override;
+            std::unique_ptr<WorldGenerator> Clone() const override;
     };
 
     class TwoSpheresGenerator : public WorldGenerator {
         public:
             void Generate(std::vector<utilities::Position>& positions, std::vector<utilities::Velocity>& velocities, int n) override;
             std::string ToString() const override;
-            std::unique_ptr<WorldGenerator> clone() const override;
+            std::unique_ptr<WorldGenerator> Clone() const override;
     };
 
     class BlackHoleSphereGenerator : public WorldGenerator {
         public:
             void Generate(std::vector<utilities::Position>& positions, std::vector<utilities::Velocity>& velocities, int n) override;
             std::string ToString() const override;
-            std::unique_ptr<WorldGenerator> clone() const override;
+            std::unique_ptr<WorldGenerator> Clone() const override;
     };
 }
