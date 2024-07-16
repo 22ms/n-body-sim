@@ -58,10 +58,17 @@ namespace clwrapper {
             std::terminate();
         }
 
-        // if (!isCLExtensionSupported("cl_khr_gl_sharing")) {
-        //     fprintf(stderr, "cl_khr_gl_sharing is not supported.\n");
-        //     std::terminate();
-        // }
+        #ifdef __APPLE__
+        if (!isCLExtensionSupported("cl_apple_gl_sharing")) {
+            fprintf(stderr, "cl_apple_gl_sharing is not supported.\n");
+            std::terminate();
+        }
+        #else
+        if (!isCLExtensionSupported("cl_khr_gl_sharing")) {
+            fprintf(stderr, "cl_khr_gl_sharing is not supported.\n");
+            std::terminate();
+        }
+        #endif()
 
         #ifdef _WIN32
         cl_context_properties props[] = {
