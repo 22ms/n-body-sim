@@ -68,7 +68,7 @@ namespace clwrapper {
             fprintf(stderr, "cl_khr_gl_sharing is not supported.\n");
             std::terminate();
         }
-        #endif()
+        #endif
 
         #ifdef _WIN32
         cl_context_properties props[] = {
