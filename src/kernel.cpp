@@ -1,5 +1,5 @@
 #ifdef __APPLE__
-#include <OpenCL/opencl.hpp>
+#include <OpenCL/opencl.h>
 #else
 #include <CL/cl.h>
 #endif
