@@ -21,7 +21,6 @@ int main(int, char**)
     clwrapper::Initialize();
     imguiwrapper::Initialize();
 
-    int i = 0;
     while (!glwrapper::ShouldClose()) {
         glwrapper::Render();
         clwrapper::SimulateTimestep();
