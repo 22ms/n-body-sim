@@ -1,9 +1,3 @@
-#ifdef __APPLE__
-#include <OpenCL/opencl.hpp>
-#else
-#include <CL/cl.h>
-#endif
-
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <cmath>
