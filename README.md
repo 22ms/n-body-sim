@@ -71,21 +71,21 @@ Download and install [Git](https://git-scm.com/download/win)
 git clone https://github.com/22ms/n-body-sim.git
 ```
 
-### Build using cmake
+### Setting up your build directory
 
 ```console
 mkdir build
 cd build
-build ..
+cmake ..
 ```
 
-### Install using cmake
+### Compiling the project
 
 ```console
-sudo cmake --build . --target install --config Debug
+cmake --build .
 ```
 
-### Run
+### Executing the program
 
 ```console
 ./n-body
