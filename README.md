@@ -109,27 +109,20 @@ OpenCLWrapper..>Kernel
 OpenGLWrapper..>Shader
 OpenGLWrapper..>Camera
 
-OpenCLWrapper-->Config
-OpenGLWrapper-->Config
-ImGuiWrapper-->Config
-WorldState-->Config
-
 ImGuiWrapper-->OpenGLWrapper
 OpenCLWrapper-->OpenGLWrapper
 OpenGLWrapper-->OpenCLWrapper
 
-ImGuiWrapper-->WorldState
-OpenCLWrapper-->WorldState
-OpenGLWrapper-->WorldState
+ImGuiWrapper-->State
+OpenCLWrapper-->State
+OpenGLWrapper-->State
 namespace Global {
-  class Config {
-    +InitialSimulationParameters: const
-    +InitialWindowParameters: const
-  }
-  class WorldState {
-    +CurrentSimulationParameters
-    +Initialize()
-    +...()
+  class State {
+    +MAX_N
+    +NPtr
+    +TimeScale
+    +WorldGenerator
+    +...
   }
   class OpenGLWrapper {
     +Positions
