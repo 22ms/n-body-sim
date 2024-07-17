@@ -11,7 +11,7 @@
 
 #include "kernel.hpp"
 
-Kernel::Kernel(cl_context context, cl_device_id device, const char* path, const char* name){
+Kernel::Kernel(cl_context context, cl_device_id device, std::string path, const char* name){
     cl_int status;
     std::string code;
     std::ifstream file;

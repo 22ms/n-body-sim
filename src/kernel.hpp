@@ -8,7 +8,7 @@ typedef struct _cl_program* cl_program;
 class Kernel // NOTE: as of right now, this encapsulation is a bit over engineered, but I wanted to be consistent with the OpenGL Shader encapsulation
 {
 public:
-    Kernel(cl_context context, cl_device_id device, const char* path, const char* name);
+    Kernel(cl_context context, cl_device_id device, std::string path, const char* name);
     cl_kernel GetKernel();
 private:
     cl_program m_Program;

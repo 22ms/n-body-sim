@@ -1,12 +1,12 @@
+// Source: https://learnopengl.com/code_viewer_gh.php?code=includes/learnopengl/shader_s.h
 #include <glad/glad.h>
-#include <string>
 #include <fstream>
 #include <sstream>
 #include <iostream>
 
 #include "shader.hpp"
 
-Shader::Shader(const char* vertexPath, const char* fragmentPath){
+Shader::Shader(std::string vertexPath, std::string fragmentPath){
     // 1. retrieve the vertex/fragment source code from filePath
     std::string vertexCode;
     std::string fragmentCode;
@@ -91,7 +91,7 @@ void Shader::SetMat4(const char* name, const glm::mat4 &mat) const
     glUniformMatrix4fv(glGetUniformLocation(ID, name), 1, GL_FALSE, &mat[0][0]);
 }
 
-void Shader::checkCompileErrors(unsigned int shader, const char* type)
+void Shader::checkCompileErrors(unsigned int shader, std::string type)
 {
     int success;
     char infoLog[1024];
@@ -101,7 +101,7 @@ void Shader::checkCompileErrors(unsigned int shader, const char* type)
         if (!success)
         {
             glGetShaderInfoLog(shader, 1024, NULL, infoLog);
-            std::cout << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+            printf("ERROR::SHADER_COMPILATION_ERROR of type: %s\n%s\n -- --------------------------------------------------- -- \n", type.c_str(), infoLog);
             std::terminate();
         }
     }
@@ -111,7 +111,7 @@ void Shader::checkCompileErrors(unsigned int shader, const char* type)
         if (!success)
         {
             glGetProgramInfoLog(shader, 1024, NULL, infoLog);
-            std::cout << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+            printf("ERROR::PROGRAM_LINKING_ERROR of type: %s\n%s\n -- --------------------------------------------------- -- \n", type.c_str(), infoLog);
             std::terminate();
         }
     }

@@ -1,6 +1,7 @@
 // Source: https://learnopengl.com/code_viewer_gh.php?code=includes/learnopengl/shader_s.h
 #pragma once
 
+#include <string>
 #include <glm/glm.hpp>
 
 class Shader
@@ -10,7 +11,7 @@ public:
     unsigned int ID;
   
     // constructor reads and builds the shader
-    Shader(const char* vertexPath, const char* fragmentPath);
+    Shader(std::string vertexPath, std::string fragmentPath);
     ~Shader();
     // use/activate the shader
     void Use();
@@ -20,5 +21,5 @@ public:
     void SetFloat(const char* name, float value) const;
     void SetMat4(const char* name, const glm::mat4 &mat) const;
 private:
-    void checkCompileErrors(unsigned int shader, const char* type);
+    void checkCompileErrors(unsigned int shader, std::string type);
 };
