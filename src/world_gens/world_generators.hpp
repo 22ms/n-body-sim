@@ -10,13 +10,6 @@ namespace utilities {
 }
 
 namespace worldgens {
-    enum class WorldType {
-        SPHERE,
-        SPHERE_SHELL,
-        TWO_SPHERES,
-        BLACK_HOLE_SPHERE
-    };
-
     class WorldGenerator {
         public:
             virtual void Generate(float*& particleArray, int n) = 0;
@@ -25,7 +18,7 @@ namespace worldgens {
             bool IsSameType(const WorldGenerator& other) const;
     };
 
-    std::unique_ptr<WorldGenerator> CreateFromWorldType (WorldType worldType);
+    std::unique_ptr<WorldGenerator> FromString(std::string str);
 
     class SphereGenerator : public WorldGenerator {
         public:

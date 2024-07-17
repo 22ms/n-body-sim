@@ -19,11 +19,9 @@
 #include <string.h>
 
 #include "cl_wrapper.hpp"
+#include "state.hpp"
 #include "gl_wrapper.hpp"
 #include "kernel.hpp"
-#include "utilities.hpp"
-#include "config.hpp"
-#include "world_state.hpp"
 
 namespace clwrapper {
 
@@ -123,10 +121,10 @@ namespace clwrapper {
 
     void SimulateTimestep()
     {
-        float timestep = 0.0001 * (*worldstate::CurrentTimeScalePtr);
+        float timestep = 0.0001 * (*state::simulation::TimeScalePtr);
         float minimumSqDistance = 0.0001;
 
-        size_t globalWorkSize[3] = { (size_t)(*worldstate::CurrentNPtr), 1, 1 };
+        size_t globalWorkSize[3] = { (size_t)(*state::simulation::NPtr), 1, 1 };
         size_t localWorkSize[3] = { (size_t)calculateWorkGroupSize(), 1, 1 };
 
         cl_int status = clSetKernelArg(nSquared->GetKernel(), 0, sizeof(float), &timestep);
@@ -193,8 +191,8 @@ namespace clwrapper {
             printf("Unable to get device info\n");
             std::terminate();
         }
-        if (maxWorkGroupSize > *worldstate::CurrentNPtr) {
-            return *worldstate::CurrentNPtr;
+        if (maxWorkGroupSize > *state::simulation::NPtr) {
+            return *state::simulation::NPtr;
         }
         return maxWorkGroupSize;
     }

@@ -7,16 +7,14 @@
 // https://dournac.org/info/nbody_tutorial
 // https://iss.oden.utexas.edu/Publications/Papers/burtscher11.pdf
 
-#include "world_state.hpp"
 #include "gl_wrapper.hpp"
 #include "cl_wrapper.hpp"
 #include "imgui_wrapper.hpp"
 
-// Change initial parameters in config.cpp
+// Change initial parameters in state.cpp
 
 int main(int, char**)
 {
-    worldstate::Initialize();
     glwrapper::Initialize();
     clwrapper::Initialize();
     imguiwrapper::Initialize();
@@ -32,5 +30,4 @@ int main(int, char**)
     imguiwrapper::Cleanup();
     clwrapper::Cleanup();
     glwrapper::Cleanup();
-    worldstate::Cleanup();
 }

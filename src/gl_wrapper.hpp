@@ -24,7 +24,6 @@ class Camera;
 struct GLFWwindow;
 
 namespace glwrapper {
-
     extern void Initialize();
     extern void Render();
     extern void SwapBuffers();
@@ -36,8 +35,5 @@ namespace glwrapper {
     extern float* ParticleArray;
 
     extern unsigned int ParticleBuffer;
-    extern int CurrentWidth;
-    extern int CurrentHeight;
     extern float DeltaTime;
-
-} // namespace glwrapper
+}

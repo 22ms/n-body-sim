@@ -8,9 +8,8 @@
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 
+#include "state.hpp"
 #include "gl_wrapper.hpp"
-#include "world_state.hpp"
-#include "config.hpp"
 #include "world_gens/world_generators.hpp"
 
 namespace imguiwrapper {
@@ -18,22 +17,21 @@ namespace imguiwrapper {
     // Internal variables
     static std::vector<std::string> worldGeneratorStrOptions;
 
-    static int worldGenOptionsSize;
-    static int currentWorldGenIndex = 0;
+    static int selectedWordGen = 0;
     static int log2n;
     static int log2maxn;
 
     static void setStyleGruvbox();
 
     void Initialize () {
-        log2n = std::round(std::log2(*worldstate::CurrentNPtr));
-        log2maxn = std::round(std::log2(config::simulation::MAX_N));
-        *worldstate::CurrentNPtr = pow(2, log2n);
+        log2n = std::round(std::log2(*state::simulation::NPtr));
+        log2maxn = std::round(std::log2(state::simulation::MAX_N));
+        *state::simulation::NPtr = pow(2, log2n);
 
-        imguiwrapper::worldGenOptionsSize = worldstate::WorldGeneratorOptions.size();
-        for (int i = 0; i < worldGenOptionsSize; i++) {
-            imguiwrapper::worldGeneratorStrOptions.push_back(worldstate::WorldGeneratorOptions[i]->ToString());
-        }
+        worldGeneratorStrOptions.push_back("SPHERE");
+        worldGeneratorStrOptions.push_back("SPHERE_SHELL");
+        worldGeneratorStrOptions.push_back("TWO_SPHERES");
+        worldGeneratorStrOptions.push_back("BLACK_HOLE_SPHERE");
 
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
@@ -55,18 +53,19 @@ namespace imguiwrapper {
 
         ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
         ImGui::Begin("Controls", NULL); // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-        ImGui::Text("Bodies: %d", *worldstate::CurrentNPtr);
+        ImGui::Text("Bodies: %d", *state::simulation::NPtr);
         ImGui::SliderInt("log2(n)", &log2n, 0, log2maxn);
-        *worldstate::CurrentNPtr = pow(2, log2n);
+        *state::simulation::NPtr = pow(2, log2n);
 
-        if (ImGui::BeginCombo("World Gen", worldGeneratorStrOptions[currentWorldGenIndex].c_str())) // The second parameter is the label previewed before opening the combo.
+        if (ImGui::BeginCombo("World Gen", worldGeneratorStrOptions[selectedWordGen].c_str())) // The second parameter is the label previewed before opening the combo.
         {
-            for (int n = 0; n < worldGenOptionsSize; n++)
+            for (int n = 0; n < worldGeneratorStrOptions.size(); n++)
             {
-                const bool is_selected = (currentWorldGenIndex == n);
+                const bool is_selected = (selectedWordGen == n);
                 if (ImGui::Selectable(worldGeneratorStrOptions[n].c_str(), is_selected)) {
-                    currentWorldGenIndex = n;
-                    worldstate::CurrentWorldGeneratorPtr = worldstate::WorldGeneratorOptions[currentWorldGenIndex]->Clone();
+                    selectedWordGen = n;
+                    std::string selectedWordGenStr = worldGeneratorStrOptions[selectedWordGen];
+                    state::simulation::WorldGeneratorPtr = worldgens::FromString(selectedWordGenStr);
                 }
 
                 // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
@@ -77,8 +76,8 @@ namespace imguiwrapper {
         }
 
         ImGui::Spacing();
-        ImGui::SliderFloat("Time scale", worldstate::CurrentTimeScalePtr.get(), 0.0f, 1.0f);
-        ImGui::SliderFloat("Camera speed", worldstate::MainCameraSpeedPtr.get(), 1.0f, 5.0f);
+        ImGui::SliderFloat("Time scale", state::simulation::TimeScalePtr.get(), 0.0f, 1.0f);
+        ImGui::SliderFloat("Camera speed", state::rendering::MainCameraSpeedPtr.get(), 1.0f, 5.0f);
         ImGui::Text("Frametime: %f ms", glwrapper::DeltaTime * 1000);
         ImGui::End();
 

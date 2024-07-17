@@ -9,25 +9,20 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "camera.hpp"
 #include "gl_wrapper.hpp"
+#include "state.hpp"
+#include "camera.hpp"
 #include "cl_wrapper.hpp"
 #include "shader.hpp"
-#include "utilities.hpp"
-#include "config.hpp"
-#include "world_state.hpp"
 #include "world_gens/world_generators.hpp"
 
 namespace glwrapper {
-
     // External variables
     GLFWwindow* Window;
     std::unique_ptr<camera::Camera> MainCamera;
     float* ParticleArray = nullptr;
 
     unsigned int ParticleBuffer;
-    int CurrentWidth;
-    int CurrentHeight;
     float DeltaTime;
 
     // Internal variables
@@ -54,11 +49,8 @@ namespace glwrapper {
 
     void Initialize()
     {
-        glwrapper::CurrentWidth = config::window::Width;
-        glwrapper::CurrentHeight = config::window::Height;
-
-        previousN = *worldstate::CurrentNPtr;
-        previousWorldGeneratorPtr = worldstate::CurrentWorldGeneratorPtr->Clone();
+        previousN = *state::simulation::NPtr;
+        previousWorldGeneratorPtr = state::simulation::WorldGeneratorPtr->Clone();
 
         glfwSetErrorCallback(errorCallback);
         glfwInit();
@@ -67,7 +59,7 @@ namespace glwrapper {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-        Window = glfwCreateWindow(CurrentWidth, CurrentHeight, config::window::Title.c_str(), nullptr, nullptr);
+        Window = glfwCreateWindow(state::window::WIDTH, state::window::HEIGHT, state::window::TITLE.c_str(), nullptr, nullptr);
 
         glfwMakeContextCurrent(Window);
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -77,7 +69,7 @@ namespace glwrapper {
         }
         
         glfwSwapInterval(1); // Enable vsync
-        glViewport(0, 0, CurrentWidth, CurrentHeight);
+        glViewport(0, 0, state::window::WIDTH, state::window::HEIGHT);
         glfwSetFramebufferSizeCallback(Window, framebufferSizeCallback);
         glfwSetCursorPosCallback(Window, mouseCallback);
         glfwSetMouseButtonCallback(Window, mouseButtonCallback);
@@ -92,14 +84,14 @@ namespace glwrapper {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-        worldstate::CurrentWorldGeneratorPtr->Generate(ParticleArray, *worldstate::CurrentNPtr);
+        state::simulation::WorldGeneratorPtr->Generate(ParticleArray, *state::simulation::NPtr);
 
         glGenBuffers(1, &ParticleBuffer);
         glGenVertexArrays(1, &particleAttributes);
 
         glBindVertexArray(particleAttributes);
         glBindBuffer(GL_ARRAY_BUFFER, ParticleBuffer);
-        glBufferData(GL_ARRAY_BUFFER, (4 + 3) * config::simulation::MAX_N * sizeof(float), ParticleArray, GL_DYNAMIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, (4 + 3) * state::simulation::MAX_N * sizeof(float), ParticleArray, GL_DYNAMIC_DRAW);
 
         // Position attribute
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, (4 + 3) * sizeof(float), (void*)(0));
@@ -110,17 +102,18 @@ namespace glwrapper {
 
         shader = std::make_unique<Shader>("shaders/basic.vert", "shaders/basic.frag");
         shader->Use();
+        shader->SetFloat("pointSize", *state::rendering::PointSizePtr);
 
         MainCamera = std::make_unique<camera::Camera>(
             camera::Camera(
                 glm::vec3(0.0f, 0.0f, 3.0f),
                 45.0f,
-                *worldstate::MainCameraSpeedPtr,
+                *state::rendering::MainCameraSpeedPtr,
                 0.1f
         ));
 
-        lastX = CurrentWidth / 2.0f;
-        lastY = CurrentHeight / 2.0f;
+        lastX = state::window::WIDTH / 2.0f;
+        lastY = state::window::HEIGHT / 2.0f;
     }
 
     void Render()
@@ -133,21 +126,22 @@ namespace glwrapper {
         glfwPollEvents();
         processKeyInput();
 
-        glm::mat4 projection = glm::perspective(glm::radians(MainCamera->Zoom), (float)CurrentWidth / (float)CurrentHeight, 0.1f, 1000.0f);
+        glm::mat4 projection = glm::perspective(glm::radians(MainCamera->Zoom), (float)(state::window::WIDTH) / (float)(state::window::HEIGHT), 0.1f, 1000.0f);
         shader->SetMat4("projection", projection);
 
         glm::mat4 view = MainCamera->GetViewMatrix();
         shader->SetMat4("view", view);
 
-        if (*worldstate::CurrentNPtr != previousN || !worldstate::CurrentWorldGeneratorPtr->IsSameType(*previousWorldGeneratorPtr)) {
-            worldstate::CurrentWorldGeneratorPtr->Generate(ParticleArray, *worldstate::CurrentNPtr);
-            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * (*worldstate::CurrentNPtr) * (4 + 3), ParticleArray);
+        if (*state::simulation::NPtr != previousN || !state::simulation::WorldGeneratorPtr->IsSameType(*previousWorldGeneratorPtr)) {
+            state::simulation::WorldGeneratorPtr->Generate(ParticleArray, *state::simulation::NPtr);
+            shader->SetInt("N", *state::simulation::NPtr);
+            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * (*state::simulation::NPtr) * (4 + 3), ParticleArray);
             clwrapper::UpdateCLBuffers();
 
-            previousN = *worldstate::CurrentNPtr;
-            previousWorldGeneratorPtr = worldstate::CurrentWorldGeneratorPtr->Clone();
+            previousN = *state::simulation::NPtr;
+            previousWorldGeneratorPtr = state::simulation::WorldGeneratorPtr->Clone();
         }
-        glDrawArrays(GL_POINTS, 0, *worldstate::CurrentNPtr);
+        glDrawArrays(GL_POINTS, 0, *state::simulation::NPtr);
 
         GLenum err = glGetError();
         if (err != 0) {

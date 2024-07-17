@@ -1,9 +1,8 @@
 #include <cmath>
 #include <random>
 
-#include "../config.hpp"
-#include "../utilities.hpp"
 #include "world_generators.hpp"
+#include "../state.hpp"
 
 namespace worldgens {
 
