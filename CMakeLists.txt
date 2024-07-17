@@ -63,6 +63,9 @@ else()
 endif()
 
 find_package(OpenGL REQUIRED)
+if (NOT OpenGL_FOUND)
+    message(FATAL_ERROR "OpenGL was not found on the system")
+endif()
 
 target_include_directories(n-body PRIVATE
     ${glad_BINARY_DIR}/include
@@ -90,12 +93,3 @@ add_custom_target(copy_kernels ALL
 add_dependencies(n-body copy_shaders copy_kernels)
 
 target_compile_definitions(n-body PRIVATE CL_TARGET_OPENCL_VERSION=120)
-
-if (APPLE)
-    target_compile_definitions(n-body PRIVATE CL_HPP_TARGET_OPENCL_VERSION=120)
-    target_compile_definitions(n-body PRIVATE CL_HPP_MINIMUM_OPENCL_VERSION=120)
-endif()
-
-if (NOT OpenGL_FOUND)
-    message(FATAL_ERROR "OpenGL was not found on the system")
-endif()
