@@ -16,6 +16,7 @@ namespace worldgens {
             virtual std::string ToString() const = 0;
             virtual std::unique_ptr<WorldGenerator> Clone() const = 0;
             bool IsSameType(const WorldGenerator& other) const;
+            virtual ~WorldGenerator() = default;
     };
 
     std::unique_ptr<WorldGenerator> FromString(std::string str);
