@@ -7,6 +7,7 @@ out vec4 FragColor;
 
 void main()
 {
+    // Smooth circle edges
     vec2 coord = gl_PointCoord * 2.0 - 1.0;
     float dist = dot(coord, coord);
     
@@ -15,8 +16,13 @@ void main()
     if (dist > edgeThreshold) {
         discard;
     }
-    
     float smoothed = smoothstep(edgeThreshold, edgeThreshold-0.5, dist);
 
-    FragColor = vec4(velocity, smoothed);
+    // Color based on speed
+    float speed = length(velocity);
+    float maxSpeed = 300.0;
+    float normalizedSpeed = clamp(speed / maxSpeed, 0.0, 1.0);
+    vec3 color = mix(vec3(1.0, 0.0, 0.0), vec3(1.0, 1.0, 1.0), normalizedSpeed);
+
+    FragColor = vec4(color, smoothed);
 }

@@ -25,6 +25,21 @@ namespace worldstate {
         WorldGeneratorOptions.push_back(std::make_unique<worldgens::SphereShellGenerator>());
         WorldGeneratorOptions.push_back(std::make_unique<worldgens::BlackHoleSphereGenerator>());
         WorldGeneratorOptions.push_back(std::make_unique<worldgens::TwoSpheresGenerator>());
+
+        // Insert CurrentWorldGeneratorPtr at the beginning of the options
+        bool included = false;
+        for (int i = 0; i < WorldGeneratorOptions.size(); i++) {
+            if (WorldGeneratorOptions[i]->IsSameType(*CurrentWorldGeneratorPtr)) {
+                auto matchedGenerator = std::move(WorldGeneratorOptions[i]);
+                WorldGeneratorOptions.erase(WorldGeneratorOptions.begin() + i);
+                WorldGeneratorOptions.insert(WorldGeneratorOptions.begin(), std::move(matchedGenerator));
+                included = true;
+                break;
+            }
+        }
+        if (!included) {
+            WorldGeneratorOptions.insert(WorldGeneratorOptions.begin(), CurrentWorldGeneratorPtr->Clone());
+        }
     }
 
     void Cleanup () {
