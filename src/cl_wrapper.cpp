@@ -1,3 +1,5 @@
+#include <glad/glad.h>
+
 #ifdef _WIN32
 #include <CL/cl.h>
 #include <CL/cl_gl.h>
@@ -11,7 +13,6 @@
 #include <OpenGL/CGLDevice.h>
 #endif
 
-#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <exception>
 #include <stdio.h>
