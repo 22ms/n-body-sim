@@ -8,7 +8,7 @@
 #include <CL/cl_gl.h>
 #include <GL/glx.h>
 #elif __APPLE__
-#include <OpenCL/opencl.hpp>
+#include <OpenCL/opencl.h>
 #include <OpenGL/CGLCurrent.h>
 #include <OpenGL/CGLDevice.h>
 #endif
