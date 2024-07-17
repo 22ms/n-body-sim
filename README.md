@@ -34,9 +34,11 @@ xcode-select --install
 
 ### Install Homebrew package manager
 
+1. Run the following command:
 ```console
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
+2. Follow installer instructions to add brew to PATH
 
 ### Install dependencies
 
