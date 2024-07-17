@@ -53,13 +53,6 @@ namespace glwrapper {
     static void mouseButtonCallback(GLFWwindow* glWindow, int button, int action, int mods);
     static void scrollCallback(GLFWwindow* glWindow, double xoffset, double yoffset);
 
-    void Test(utilities::Position* positions, utilities::Velocity* velocities) {
-        for (int i = 0; i < config::simulation::MAX_N; i++) {
-            printf("pos x %d: %g\n", i, positions[i].x);
-            printf("vel x %d: %g\n", i, velocities[i].x);
-        }
-    }
-
     void Initialize()
     {
         glwrapper::CurrentWidth = config::window::Width;
