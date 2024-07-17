@@ -1,6 +1,8 @@
 #version 330 core
 
 in vec3 position;
+in vec3 velocity;
+
 out vec4 FragColor;
 
 void main()
@@ -16,8 +18,5 @@ void main()
     
     float smoothed = smoothstep(edgeThreshold, edgeThreshold-0.5, dist);
 
-    float intensity = dot(position, position);
-    vec3 color = mix(vec3(204.0/255.0, 36.0/255.0, 29.0/255.0), vec3(250.0/255.0, 189.0/255.0, 47.0/255.0), intensity);
-
-    FragColor = vec4(1.0, 1.0, 1.0, smoothed);
+    FragColor = vec4(velocity, smoothed);
 }

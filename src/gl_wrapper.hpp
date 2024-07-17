@@ -33,10 +33,9 @@ namespace glwrapper {
 
     extern GLFWwindow* Window;
     extern std::unique_ptr<camera::Camera> MainCamera;
-    extern std::vector<utilities::Position> Positions;
-    extern std::vector<utilities::Velocity> Velocities;
+    extern float* ParticleArray;
 
-    extern unsigned int PosBuffer;
+    extern unsigned int ParticleBuffer;
     extern int CurrentWidth;
     extern int CurrentHeight;
     extern float DeltaTime;

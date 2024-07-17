@@ -87,6 +87,7 @@
         "mutex": "cpp",
         "semaphore": "cpp",
         "text_encoding": "cpp",
-        "xhash": "cpp"
+        "xhash": "cpp",
+        "__nullptr": "cpp"
     }
 }

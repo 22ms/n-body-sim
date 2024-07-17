@@ -1,8 +1,7 @@
 __kernel void n_squared(
     float timestep,
     float minimumSqDistance,
-    __global float4* posBuffer,
-    __global float4* velBuffer,
+    __global float* particleBuffer,
     __local float4* posBlock)
 {
     const float4 timestep_vector = (float4)(timestep, timestep, timestep, 0.0f);
@@ -12,12 +11,17 @@ __kernel void n_squared(
     int nWorkgroupItems = get_local_size(0);
     int nWorkgroups = n / nWorkgroupItems;
 
-    float4 position = posBuffer[globalId];
-    float4 velocity = velBuffer[globalId];
+    float4 position = (float4)(particleBuffer[globalId], particleBuffer[globalId+1], particleBuffer[globalId+2], particleBuffer[globalId+3]);
+    float4 velocity = (float4)(particleBuffer[globalId+4], particleBuffer[globalId+5], particleBuffer[globalId+6], 0);
     float4 acceleration = (float4)(0.0f, 0.0f, 0.0f, 0.0f);
 
     for(int workgroupIndex = 0; workgroupIndex < nWorkgroups; workgroupIndex++) { // for each workgroup
-        posBlock[localId] = posBuffer[workgroupIndex*nWorkgroupItems+localId]; // cache one particle position
+        posBlock[localId] = (float4)(
+            particleBuffer[workgroupIndex*nWorkgroupItems+localId], 
+            particleBuffer[workgroupIndex*nWorkgroupItems+localId+1],
+            particleBuffer[workgroupIndex*nWorkgroupItems+localId+2],
+            particleBuffer[workgroupIndex*nWorkgroupItems+localId+3]
+        ); // cache one particle position
         barrier(CLK_LOCAL_MEM_FENCE); // wait for others in work group
         for(int i = 0; i < nWorkgroupItems; i++) { // for each pos in work group
             float4 cached_pos = posBlock[i];
@@ -31,6 +35,12 @@ __kernel void n_squared(
 
     position += timestep*velocity + 0.5f*timestep*timestep*acceleration;
     velocity += timestep*acceleration;
-    posBuffer[globalId] = position;
-    velBuffer[globalId] = velocity;
+
+    particleBuffer[globalId] = position.x;
+    particleBuffer[globalId+1] = position.y;
+    particleBuffer[globalId+2] = position.z;
+
+    particleBuffer[globalId+4] = velocity.x;
+    particleBuffer[globalId+5] = velocity.y;
+    particleBuffer[globalId+6] = velocity.z;
 }

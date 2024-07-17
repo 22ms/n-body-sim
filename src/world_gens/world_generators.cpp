@@ -3,12 +3,11 @@
 #include "../config.hpp"
 
 namespace worldgens {
-    void WorldGenerator::Generate(std::vector<utilities::Position>& positions, std::vector<utilities::Velocity>& velocities, int n) {
-        positions.clear();
-        velocities.clear();
-
-        positions.resize(config::simulation::MAX_N);
-        velocities.resize(config::simulation::MAX_N);
+    void WorldGenerator::Generate(float*& particleArray, int n) {
+        if (particleArray) {
+            delete[] particleArray;
+        }
+        particleArray = new float[config::simulation::MAX_N * (4 + 3)];
     }
 
     bool WorldGenerator::IsSameType (const WorldGenerator& other) const {

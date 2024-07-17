@@ -23,10 +23,9 @@ namespace glwrapper {
     // External variables
     GLFWwindow* Window;
     std::unique_ptr<camera::Camera> MainCamera;
-    std::vector<utilities::Position> Positions (config::simulation::MAX_N);
-    std::vector<utilities::Velocity> Velocities (config::simulation::MAX_N);
+    float* ParticleArray = nullptr;
 
-    unsigned int PosBuffer;
+    unsigned int ParticleBuffer;
     int CurrentWidth;
     int CurrentHeight;
     float DeltaTime;
@@ -35,7 +34,7 @@ namespace glwrapper {
     static std::unique_ptr<Shader> shader;
     static std::unique_ptr<worldgens::WorldGenerator> previousWorldGeneratorPtr;
 
-    static unsigned int posAttribute;
+    static unsigned int particleAttributes;
     static unsigned int previousN;
 
     static float lastX;
@@ -93,17 +92,21 @@ namespace glwrapper {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-        worldstate::CurrentWorldGeneratorPtr->Generate(Positions, Velocities, *worldstate::CurrentNPtr);
+        worldstate::CurrentWorldGeneratorPtr->Generate(ParticleArray, *worldstate::CurrentNPtr);
 
-        glGenBuffers(1, &PosBuffer);
-        glGenVertexArrays(1, &posAttribute);
+        glGenBuffers(1, &ParticleBuffer);
+        glGenVertexArrays(1, &particleAttributes);
 
-        glBindVertexArray(posAttribute);
-        glBindBuffer(GL_ARRAY_BUFFER, PosBuffer);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * config::simulation::MAX_N * 4, &Positions[0], GL_STATIC_DRAW);
+        glBindVertexArray(particleAttributes);
+        glBindBuffer(GL_ARRAY_BUFFER, ParticleBuffer);
+        glBufferData(GL_ARRAY_BUFFER, (4 + 3) * config::simulation::MAX_N * sizeof(float), ParticleArray, GL_DYNAMIC_DRAW);
 
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+        // Position attribute
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, (4 + 3) * sizeof(float), (void*)(0));
         glEnableVertexAttribArray(0);
+        // Velocity attribute
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, (4 + 3) * sizeof(float), (void*)(4 * sizeof(float)));
+        glEnableVertexAttribArray(1);
 
         shader = std::make_unique<Shader>("shaders/basic.vert", "shaders/basic.frag");
         shader->Use();
@@ -137,8 +140,8 @@ namespace glwrapper {
         shader->SetMat4("view", view);
 
         if (*worldstate::CurrentNPtr != previousN || !worldstate::CurrentWorldGeneratorPtr->IsSameType(*previousWorldGeneratorPtr)) {
-            worldstate::CurrentWorldGeneratorPtr->Generate(Positions, Velocities, *worldstate::CurrentNPtr);
-            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * (*worldstate::CurrentNPtr) * 4, &Positions[0]);
+            worldstate::CurrentWorldGeneratorPtr->Generate(ParticleArray, *worldstate::CurrentNPtr);
+            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * (*worldstate::CurrentNPtr) * (4 + 3), ParticleArray);
             clwrapper::UpdateCLBuffers();
 
             previousN = *worldstate::CurrentNPtr;
@@ -160,10 +163,13 @@ namespace glwrapper {
 
     void Cleanup() {
         glFinish();
-        glDeleteVertexArrays(1, &posAttribute);
-        glDeleteBuffers(1, &PosBuffer);
+        glDeleteVertexArrays(1, &particleAttributes);
+        glDeleteBuffers(1, &ParticleBuffer);
         glfwDestroyWindow(Window);
         glfwTerminate();
+
+        delete[] ParticleArray;
+        ParticleArray = nullptr;
     }
 
     bool ShouldClose() {

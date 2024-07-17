@@ -7,8 +7,8 @@
 
 namespace worldgens {
 
-    void TwoSpheresGenerator::Generate(std::vector<utilities::Position>& positions, std::vector<utilities::Velocity>& velocities, int n) {
-        WorldGenerator::Generate(positions, velocities, n);
+    void TwoSpheresGenerator::Generate(float*& particleArray, int n) {
+        WorldGenerator::Generate(particleArray, n);
 
         float endRadius = 1.0f;
         float spacing = endRadius / n;
@@ -20,7 +20,7 @@ namespace worldgens {
         std::uniform_real_distribution<> distPhi(0.0, 2 * M_PI);
 
         // set positions
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < n; i += 7) {
             bool firstHalf = i < n/2;
 
             double theta = acos(2 * dist(gen) - 1); // Polar angle
@@ -29,18 +29,18 @@ namespace worldgens {
 
             double xOffset = firstHalf ? -endRadius : endRadius;
 
-            positions[i].x = radius * sin(theta) * cos(phi) + xOffset;
-            positions[i].y = radius * sin(theta) * sin(phi);
-            positions[i].z = radius * cos(theta);
-            positions[i].m = 1;
+            particleArray[i] = radius * sin(theta) * cos(phi); // x
+            particleArray[i+1] = radius * sin(theta) * sin(phi); // y
+            particleArray[i+2] = radius * cos(theta); // z
+            particleArray[i+3] = 1; // m
         }
 
         // set velocities to give a spinning motion
-        for (int i = 0; i < n; i++) {
+        for (int i = 4; i < n; i += 7) {
             // Radial vector
-            float rx = positions[i].x;
-            float ry = positions[i].y;
-            float rz = positions[i].z;
+            float rx = particleArray[i];
+            float ry = particleArray[i+2];
+            float rz = particleArray[i+3];
 
             // Tangential vector (cross product with an arbitrary vector, e.g., (0,0,1))
             // Ensure it's not parallel to the radial vector to avoid zero vector
@@ -63,10 +63,9 @@ namespace worldgens {
 
             // Scale the velocity vector to the desired speed
             float speed = 10.0f; // Adjust this value as needed
-            velocities[i].x = vx * speed;
-            velocities[i].y = vy * speed;
-            velocities[i].z = vz * speed;
-
+            particleArray[i] = vx * speed;
+            particleArray[i+2] = vy * speed;
+            particleArray[i+3] = vz * speed;
         }
     }
 

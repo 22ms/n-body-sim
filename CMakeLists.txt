@@ -37,6 +37,9 @@ FetchContent_MakeAvailable(glm)
 find_package(OpenCL)
 if (OpenCL_FOUND)
     target_link_libraries(n-body ${OpenCL_LIBRARY})
+    target_include_directories(n-body PRIVATE
+        ${OpenCL_INCLUDE_DIRS}
+    )
 else()
     FetchContent_Declare(
         OpenCLHeaders

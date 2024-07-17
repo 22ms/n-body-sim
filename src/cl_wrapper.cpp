@@ -31,8 +31,7 @@ namespace clwrapper {
     cl_command_queue cmdQueue;
 
     // Internal variables
-    static cl_mem velBuffer;
-    static cl_mem posBuffer;
+    static cl_mem interopParticleBuffer;
 
     static cl_context context;
     static cl_device_id device;
@@ -105,12 +104,6 @@ namespace clwrapper {
             std::terminate();
         }
 
-        velBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE, 4 * sizeof(float) * config::simulation::MAX_N, NULL, &status);
-        if (status != CL_SUCCESS) {
-            printf("velBuffer buffer creation status: %d\n", status);
-            std::terminate();
-        }
-
         UpdateCLBuffers();
         nSquared = std::make_unique<Kernel>(Kernel(context, device, "kernels/n_squared.cl", "n_squared"));
     }
@@ -121,15 +114,9 @@ namespace clwrapper {
         glFinish();
         clFinish(cmdQueue);
 
-        status = clEnqueueWriteBuffer(cmdQueue, velBuffer, CL_TRUE, 0, 4 * sizeof(float) * config::simulation::MAX_N, &glwrapper::Velocities[0], 0, NULL, NULL);
+        interopParticleBuffer = clCreateFromGLBuffer(context, CL_MEM_READ_WRITE, glwrapper::ParticleBuffer, &status);
         if (status != CL_SUCCESS) {
-            printf("velBuffer buffer enqueue status: %d\n", status);
-            std::terminate();
-        }
-
-        posBuffer = clCreateFromGLBuffer(context, CL_MEM_READ_WRITE, glwrapper::PosBuffer, &status);
-        if (status != CL_SUCCESS) {
-            printf("posBuffer buffer creation status: %d\n", status);
+            printf("clParticleBuffer buffer creation status: %d\n", status);
             std::terminate();
         }
     }
@@ -154,26 +141,20 @@ namespace clwrapper {
             std::terminate();
         }
 
-        status = clSetKernelArg(nSquared->GetKernel(), 2, sizeof(cl_mem), &posBuffer);
+        status = clSetKernelArg(nSquared->GetKernel(), 2, sizeof(cl_mem), &interopParticleBuffer);
         if (status != CL_SUCCESS) {
             printf("kernel 1 args 2 status: %d\n", status);
             std::terminate();
         }
 
-        status = clSetKernelArg(nSquared->GetKernel(), 3, sizeof(cl_mem), &velBuffer);
+        status = clSetKernelArg(nSquared->GetKernel(), 3, localWorkSize[0] * sizeof(cl_float4), NULL);
         if (status != CL_SUCCESS) {
             printf("kernel 1 args 3 status: %d\n", status);
             std::terminate();
         }
 
-        status = clSetKernelArg(nSquared->GetKernel(), 4, localWorkSize[0] * sizeof(cl_float4), NULL);
-        if (status != CL_SUCCESS) {
-            printf("kernel 1 args 4 status: %d\n", status);
-            std::terminate();
-        }
-
         glFinish();
-        status = clEnqueueAcquireGLObjects(cmdQueue, 1, &posBuffer, 0, NULL, NULL);
+        status = clEnqueueAcquireGLObjects(cmdQueue, 1, &interopParticleBuffer, 0, NULL, NULL);
         if (status != CL_SUCCESS) {
             printf("clEnqueueAcquireGLObjects status: %d\n", status);
             std::terminate();
@@ -189,7 +170,7 @@ namespace clwrapper {
 
         clFinish(cmdQueue);
 
-        clEnqueueReleaseGLObjects(cmdQueue, 1, &posBuffer, 0, NULL, NULL);
+        clEnqueueReleaseGLObjects(cmdQueue, 1, &interopParticleBuffer, 0, NULL, NULL);
         if (status != CL_SUCCESS) {
             printf("clEnqueueAcquireGLObjects status: %d\n", status);
             std::terminate();
@@ -200,8 +181,7 @@ namespace clwrapper {
 
     void Cleanup () {
         clReleaseCommandQueue(cmdQueue);
-        clReleaseMemObject(velBuffer);
-        clReleaseMemObject(posBuffer);
+        clReleaseMemObject(interopParticleBuffer);
         clReleaseContext(context);
     }
 
