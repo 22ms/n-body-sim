@@ -28,10 +28,11 @@ namespace imguiwrapper {
         log2maxn = std::round(std::log2(state::simulation::MAX_N));
         *state::simulation::NPtr = pow(2, log2n);
 
+        worldGeneratorStrOptions.push_back("GALAXY");
+        worldGeneratorStrOptions.push_back("TWO_GALAXIES");
         worldGeneratorStrOptions.push_back("SPHERE");
         worldGeneratorStrOptions.push_back("SPHERE_SHELL");
         worldGeneratorStrOptions.push_back("TWO_SPHERES");
-        worldGeneratorStrOptions.push_back("BLACK_HOLE_SPHERE");
 
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();

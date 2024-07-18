@@ -21,6 +21,20 @@ namespace worldgens {
 
     std::unique_ptr<WorldGenerator> FromString(std::string str);
 
+    class GalaxyGenerator : public WorldGenerator {
+        public:
+            void Generate(float*& particleArray, int n) override;
+            std::string ToString() const override;
+            std::unique_ptr<WorldGenerator> Clone() const override;
+    };
+
+    class TwoGalaxiesGenerator : public WorldGenerator {
+        public:
+            void Generate(float*& particleArray, int n) override;
+            std::string ToString() const override;
+            std::unique_ptr<WorldGenerator> Clone() const override;
+    };
+
     class SphereGenerator : public WorldGenerator {
         public:
             void Generate(float*& particleArray, int n) override;
@@ -36,13 +50,6 @@ namespace worldgens {
     };
 
     class TwoSpheresGenerator : public WorldGenerator {
-        public:
-            void Generate(float*& particleArray, int n) override;
-            std::string ToString() const override;
-            std::unique_ptr<WorldGenerator> Clone() const override;
-    };
-
-    class BlackHoleSphereGenerator : public WorldGenerator {
         public:
             void Generate(float*& particleArray, int n) override;
             std::string ToString() const override;

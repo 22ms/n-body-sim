@@ -16,7 +16,7 @@ namespace state {
         // Time scale of the simulation.
         std::unique_ptr<float> TimeScalePtr = std::make_unique<float>(1.0f);
         // Particle conditions.
-        std::unique_ptr<worldgens::WorldGenerator> WorldGeneratorPtr = std::make_unique<worldgens::SphereGenerator>(); // <-- Change here
+        std::unique_ptr<worldgens::WorldGenerator> WorldGeneratorPtr = std::make_unique<worldgens::GalaxyGenerator>(); // <-- Change here
     }
     namespace rendering {
         // Movement speed of main camera.

@@ -3,7 +3,13 @@
 
 namespace worldgens {
     std::unique_ptr<WorldGenerator> FromString (std::string str) {
-        if (str == "SPHERE") {
+        if (str == "GALAXY") {
+            return std::make_unique<GalaxyGenerator>();
+        }
+        else if (str == "TWO_GALAXIES") {
+            return std::make_unique<TwoGalaxiesGenerator>();
+        }
+        else if (str == "SPHERE") {
             return std::make_unique<SphereGenerator>();
         }
         else if (str == "SPHERE_SHELL") {
@@ -11,9 +17,6 @@ namespace worldgens {
         }
         else if (str == "TWO_SPHERES") {
             return std::make_unique<TwoSpheresGenerator>();
-        }
-        else if (str == "BLACK_HOLE_SPHERE") {
-            return std::make_unique<BlackHoleSphereGenerator>();
         }
         else {
             return std::make_unique<SphereGenerator>();
