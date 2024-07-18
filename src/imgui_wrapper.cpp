@@ -77,8 +77,16 @@ namespace imguiwrapper {
         }
 
         ImGui::Spacing();
-        ImGui::SliderFloat("Time scale", state::simulation::TimeScalePtr.get(), 0.0f, 1.0f);
+        ImGui::SliderFloat("Time step (ms)", state::simulation::TimeStepPtr.get(), 0.0f, 0.2f);
+        ImGui::SliderFloat("Epsilon (mm)", state::simulation::EpsilonPtr.get(), 0.001f, 1.0f);
+
+        ImGui::Spacing();
+        ImGui::SliderFloat("Point size", state::rendering::PointSizePtr.get(), 0.0f, 5.0f);
         ImGui::SliderFloat("Camera speed", state::rendering::MainCameraSpeedPtr.get(), 1.0f, 5.0f);
+        ImGui::SliderFloat("Mouse speed", state::rendering::MouseSensitivityPtr.get(), 0.0f, 0.5f);
+
+        ImGui::Spacing();
+        ImGui::Text("Sim time: %f ms", *state::simulation::ElapsedTimePtr);
         ImGui::Text("Frametime: %f ms", glwrapper::DeltaTime * 1000);
         ImGui::End();
 

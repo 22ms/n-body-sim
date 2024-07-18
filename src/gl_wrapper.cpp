@@ -102,7 +102,6 @@ namespace glwrapper {
 
         shader = std::make_unique<Shader>("shaders/basic.vert", "shaders/basic.frag");
         shader->Use();
-        shader->SetFloat("pointSize", *state::rendering::PointSizePtr);
 
         MainCamera = std::make_unique<camera::Camera>(
             camera::Camera(
@@ -132,6 +131,9 @@ namespace glwrapper {
         glm::mat4 view = MainCamera->GetViewMatrix();
         shader->SetMat4("view", view);
 
+        shader->SetFloat("pointSize", *state::rendering::PointSizePtr);
+        MainCamera->MouseSensitivity = *state::rendering::MouseSensitivityPtr;
+
         if (*state::simulation::NPtr != previousN || !state::simulation::WorldGeneratorPtr->IsSameType(*previousWorldGeneratorPtr)) {
             state::simulation::WorldGeneratorPtr->Generate(particleArray, *state::simulation::NPtr);
             shader->SetInt("N", *state::simulation::NPtr);
@@ -140,6 +142,7 @@ namespace glwrapper {
 
             previousN = *state::simulation::NPtr;
             previousWorldGeneratorPtr = state::simulation::WorldGeneratorPtr->Clone();
+            *state::simulation::ElapsedTimePtr = 0.0f;
         }
         glDrawArrays(GL_POINTS, 0, *state::simulation::NPtr);
 

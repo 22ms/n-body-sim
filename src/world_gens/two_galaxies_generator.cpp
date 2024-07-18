@@ -55,6 +55,8 @@ namespace worldgens {
             float ry = particleArray[i-3];
             float rz = particleArray[i-2];
 
+            float r = sqrt(rx * rx + ry * ry + rz * rz);
+
             // Tangential vector (cross product with (0, 0, 1))
             float vx = -ry;
             float vy = rx;
@@ -67,7 +69,7 @@ namespace worldgens {
             vz /= length;
 
             // Scale the velocity vector to the desired speed
-            float speed = 200.0f; // Adjust this value as needed
+            float speed = 200.0f / r; // Adjust this value as needed
             particleArray[i]   = vx * speed;
             particleArray[i+1] = vy * speed;
             particleArray[i+2] = vz * speed;

@@ -43,7 +43,7 @@ xcode-select --install
 
 ```console
 brew update
-brew install cmake pkg-config python3 git libxkbcommon
+brew install cmake python3
 ```
 
 ## Windows

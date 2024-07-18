@@ -118,8 +118,8 @@ namespace clwrapper {
 
     void SimulateTimestep()
     {
-        float timestep = 0.0001 * (*state::simulation::TimeScalePtr);
-        float minimumSqDistance = 0.0001;
+        float timestep = (*state::simulation::TimeStepPtr) / 1000; // in s
+        float epsilon = (*state::simulation::EpsilonPtr) / 1000; // in m
 
         size_t globalWorkSize[3] = { (size_t)(*state::simulation::NPtr), 1, 1 };
         size_t localWorkSize[3] = { (size_t)calculateWorkGroupSize(), 1, 1 };
@@ -130,7 +130,7 @@ namespace clwrapper {
             std::terminate();
         }
 
-        status = clSetKernelArg(nSquared->GetKernel(), 1, sizeof(float), &minimumSqDistance);
+        status = clSetKernelArg(nSquared->GetKernel(), 1, sizeof(float), &epsilon);
         if (status != CL_SUCCESS) {
             printf("kernel 1 args 1 status: %d\n", status);
             std::terminate();
@@ -164,6 +164,7 @@ namespace clwrapper {
         }
 
         clFinish(cmdQueue);
+        *state::simulation::ElapsedTimePtr += (*state::simulation::TimeStepPtr);
 
         clEnqueueReleaseGLObjects(cmdQueue, 1, &interopParticleBuffer, 0, NULL, NULL);
         if (status != CL_SUCCESS) {
