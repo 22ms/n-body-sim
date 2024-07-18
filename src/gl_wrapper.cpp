@@ -20,7 +20,6 @@ namespace glwrapper {
     // External variables
     GLFWwindow* Window;
     std::unique_ptr<camera::Camera> MainCamera;
-    float* ParticleArray = nullptr;
 
     unsigned int ParticleBuffer;
     float DeltaTime;
@@ -32,6 +31,7 @@ namespace glwrapper {
     static unsigned int particleAttributes;
     static unsigned int previousN;
 
+    static float* particleArray = nullptr;
     static float lastX;
     static float lastY;
     static float lastFrameTime;
@@ -84,14 +84,14 @@ namespace glwrapper {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-        state::simulation::WorldGeneratorPtr->Generate(ParticleArray, *state::simulation::NPtr);
+        state::simulation::WorldGeneratorPtr->Generate(particleArray, *state::simulation::NPtr);
 
         glGenBuffers(1, &ParticleBuffer);
         glGenVertexArrays(1, &particleAttributes);
 
         glBindVertexArray(particleAttributes);
         glBindBuffer(GL_ARRAY_BUFFER, ParticleBuffer);
-        glBufferData(GL_ARRAY_BUFFER, (4 + 3) * state::simulation::MAX_N * sizeof(float), ParticleArray, GL_DYNAMIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, (4 + 3) * state::simulation::MAX_N * sizeof(float), particleArray, GL_DYNAMIC_DRAW);
 
         // Position attribute
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, (4 + 3) * sizeof(float), (void*)(0));
@@ -133,9 +133,9 @@ namespace glwrapper {
         shader->SetMat4("view", view);
 
         if (*state::simulation::NPtr != previousN || !state::simulation::WorldGeneratorPtr->IsSameType(*previousWorldGeneratorPtr)) {
-            state::simulation::WorldGeneratorPtr->Generate(ParticleArray, *state::simulation::NPtr);
+            state::simulation::WorldGeneratorPtr->Generate(particleArray, *state::simulation::NPtr);
             shader->SetInt("N", *state::simulation::NPtr);
-            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * (*state::simulation::NPtr) * (4 + 3), ParticleArray);
+            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * (*state::simulation::NPtr) * (4 + 3), particleArray);
             clwrapper::UpdateCLBuffers();
 
             previousN = *state::simulation::NPtr;
@@ -145,7 +145,7 @@ namespace glwrapper {
 
         GLenum err = glGetError();
         if (err != 0) {
-            printf("OpenGL error: 0x%x\n", err);
+            printf("OpenGL error: %d\n", err);
             std::terminate();
         }
     }
@@ -162,8 +162,8 @@ namespace glwrapper {
         glfwDestroyWindow(Window);
         glfwTerminate();
 
-        delete[] ParticleArray;
-        ParticleArray = nullptr;
+        delete[] particleArray;
+        particleArray = nullptr;
     }
 
     bool ShouldClose() {

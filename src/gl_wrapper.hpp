@@ -32,7 +32,6 @@ namespace glwrapper {
 
     extern GLFWwindow* Window;
     extern std::unique_ptr<camera::Camera> MainCamera;
-    extern float* ParticleArray;
 
     extern unsigned int ParticleBuffer;
     extern float DeltaTime;
