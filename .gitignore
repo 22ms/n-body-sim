@@ -53,3 +53,6 @@ dkms.conf
 
 # Generated files
 build
+
+# vscode files
+.vscode

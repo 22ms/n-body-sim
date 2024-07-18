@@ -77,7 +77,7 @@ namespace clwrapper {
         #elif __unix__
         cl_context_properties props[] = {
             CL_GL_CONTEXT_KHR, (cl_context_properties)glXGetCurrentContext(),
-            CL_WGL_HDC_KHR, (cl_context_properties)glXGetCurrentDisplay(),
+            CL_GLX_DISPLAY_KHR, (cl_context_properties)glXGetCurrentDisplay(),
             CL_CONTEXT_PLATFORM, (cl_context_properties)platform,
             0
         };
