@@ -105,7 +105,7 @@ namespace glwrapper {
 
         MainCamera = std::make_unique<camera::Camera>(
             camera::Camera(
-                glm::vec3(0.0f, 0.0f, 3.0f),
+                glm::vec3(0.0f, 0.0f, 10.0f),
                 45.0f,
                 *state::rendering::MainCameraSpeedPtr,
                 0.1f

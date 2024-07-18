@@ -95,13 +95,12 @@ cmake --build .
 title: N-body simulation architechture
 ---
 classDiagram
-note for WorldState "These are not classes since they all manage one global state"
+note for State "These are not classes since they all manage one global state"
 note for Camera "Actual classes used by the global state"
 note for OpenCLWrapper "Acquires GL buffer and simulates timestep on it"
 note for OpenGLWrapper "Manages host arrays and buffer, renders out the particles"
 note for ImGuiWrapper "Frontend for parameters, updates WorldState"
 
-WorldState..>WorldGenerator
 OpenCLWrapper..>Kernel
 OpenGLWrapper..>Shader
 OpenGLWrapper..>Camera
@@ -109,6 +108,7 @@ OpenGLWrapper..>Camera
 ImGuiWrapper-->OpenGLWrapper
 OpenCLWrapper-->OpenGLWrapper
 OpenGLWrapper-->OpenCLWrapper
+OpenGLWrapper-->WorldGenerator
 
 ImGuiWrapper-->State
 OpenCLWrapper-->State
@@ -117,22 +117,21 @@ namespace Global {
   class State {
     +MAX_N
     +NPtr
-    +TimeScale
-    +WorldGenerator
+    +TimeScalePtr
+    +EpsilonPtr
+    +WorldGeneratorPtr
     +...
   }
   class OpenGLWrapper {
-    +Positions
-    +Velocities
-    +PosBuffer
+    +ParticleArray
+    +ParticleBuffer
     +...
     +Initialize()
     +Render()
     +...()
   }
   class OpenCLWrapper {
-    -VelBuffer
-    +CmdQueue
+    -cmdQueue
     +Initialize()
     +Simulate()
     +...()

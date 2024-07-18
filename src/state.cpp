@@ -20,7 +20,7 @@ namespace state {
         // Total time (in ms) elapsed since beginning of simulation.
         std::unique_ptr<float> ElapsedTimePtr = std::make_unique<float>(0.0f);
         // Particle conditions.
-        std::unique_ptr<worldgens::WorldGenerator> WorldGeneratorPtr = std::make_unique<worldgens::GalaxyGenerator>(); // <-- Change here
+        std::unique_ptr<worldgens::WorldGenerator> WorldGeneratorPtr = std::make_unique<worldgens::TwoGalaxiesGenerator>(); // <-- Change here
     }
     namespace rendering {
         // Rendered size of the particles.

@@ -34,6 +34,18 @@ namespace imguiwrapper {
         worldGeneratorStrOptions.push_back("SPHERE_SHELL");
         worldGeneratorStrOptions.push_back("TWO_SPHERES");
 
+        // Move initial option to the top
+        for (int i = 0; i < worldGeneratorStrOptions.size(); i++) {
+            if (state::simulation::WorldGeneratorPtr->ToString() == worldGeneratorStrOptions[i]) {
+                std::string temp = worldGeneratorStrOptions[i];
+                for (int j = i; j > 0; j--) {
+                    worldGeneratorStrOptions[j] = worldGeneratorStrOptions[j - 1];
+                }
+                worldGeneratorStrOptions[0] = temp;
+                break;
+            }
+        }
+
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
         ImGuiIO& io = ImGui::GetIO();
