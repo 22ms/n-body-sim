@@ -20,8 +20,7 @@ Adhering to the OpenCL 1.2 specification, it demonstrates the seamless integrati
 sudo apt-get update
 sudo apt-get install -y \
     build-essential cmake pkg-config python3 git \
-    libxkbcommon-dev xorg-dev libwayland \
-    mesa-utils mesa-common-dev \
+    libxkbcommon-dev xorg-dev libwayland-dev
 ```
 
 ## MacOS
@@ -44,9 +43,7 @@ xcode-select --install
 
 ```console
 brew update
-brew install cmake pkg-config python3 git
-brew install libxkbcommon
-brew install mesa
+brew install cmake pkg-config python3 git libxkbcommon
 ```
 
 ## Windows
