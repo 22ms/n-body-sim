@@ -33,9 +33,9 @@ namespace worldgens {
         // set velocities to give a spinning motion
         for (int i = 4; i < n * 7; i += 7) {
             // Radial vector
-            float rx = particleArray[i];
-            float ry = particleArray[i+1];
-            float rz = particleArray[i+2];
+            float rx = particleArray[i-4];
+            float ry = particleArray[i-3];
+            float rz = particleArray[i-2];
 
             // Tangential vector (cross product with an arbitrary vector, e.g., (0,0,1))
             // Ensure it's not parallel to the radial vector to avoid zero vector

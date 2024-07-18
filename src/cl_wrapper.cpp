@@ -25,7 +25,7 @@
 
 namespace clwrapper {
     // Internal variables
-    cl_command_queue cmdQueue;
+    static cl_command_queue cmdQueue;
     static cl_mem interopParticleBuffer;
 
     static cl_context context;

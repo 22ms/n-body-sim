@@ -25,6 +25,9 @@ namespace worldgens {
             delete[] particleArray;
         }
         particleArray = new float[state::simulation::MAX_N * (4 + 3)];
+        for (int i = 0; i < state::simulation::MAX_N * 7; i++) {
+            particleArray[i] = 0;
+        }
     }
 
     bool WorldGenerator::IsSameType (const WorldGenerator& other) const {

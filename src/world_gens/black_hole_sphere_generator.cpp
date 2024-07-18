@@ -38,9 +38,9 @@ namespace worldgens {
 
         // set velocities
         for (int i = 4; i < n * 7; i += 7) {
-            particleArray[i] = 0.0f; // vx
-            particleArray[i+1] = 0.0f; // vy
-            particleArray[i+2] = 0.0f; // vz
+            particleArray[i-4] = 0.0f; // vx
+            particleArray[i-3] = 0.0f; // vy
+            particleArray[i-2] = 0.0f; // vz
         }
     }
 
