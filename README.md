@@ -10,7 +10,19 @@ Adhering to the OpenCL 1.2 specification, it demonstrates the seamless integrati
 > 
 > This project is designed for use with a dedicated graphics card. While OpenCL and OpenGL can theoretically run without a GPU, this program assumes you have both a GPU and the necessary GPU drivers installed.
 
-# Prerequisites
+# Usage
+
+There are some **pre-built executables** for **Windows / MacOS / Linux**.
+These were all tested on an NVIDIA GPU but should work on other platforms, granted the **OpenCL / OpenGL sharing extension** is supported by the device.
+You can find the files [here]()
+
+
+## Controls
+
+- Use <kbd>w</kbd> / <kbd>a</kbd> / <kbd>s</kbd> / <kbd>d</kbd> for **up**/**left**/**down**/**right** respectively
+- Hold <kbd>right-click</kbd> and move the mouse to look around the scene
+
+# Building from source
 
 ## Linux
 
