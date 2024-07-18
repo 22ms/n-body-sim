@@ -101,6 +101,7 @@ note for OpenCLWrapper "Acquires GL buffer and simulates timestep on it"
 note for OpenGLWrapper "Manages host arrays and buffer, renders out the particles"
 note for ImGuiWrapper "Frontend for parameters, updates WorldState"
 
+OpenGLWrapper..>WorldGenerator
 OpenCLWrapper..>Kernel
 OpenGLWrapper..>Shader
 OpenGLWrapper..>Camera
@@ -108,7 +109,6 @@ OpenGLWrapper..>Camera
 ImGuiWrapper-->OpenGLWrapper
 OpenCLWrapper-->OpenGLWrapper
 OpenGLWrapper-->OpenCLWrapper
-OpenGLWrapper-->WorldGenerator
 
 ImGuiWrapper-->State
 OpenCLWrapper-->State
