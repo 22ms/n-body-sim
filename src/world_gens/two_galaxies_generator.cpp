@@ -10,6 +10,7 @@ namespace worldgens {
         WorldGenerator::Generate(particleArray, n);
 
         float endRadius = 1.0f;
+        float galaxyDistance = 5.0f;
         float spacing = endRadius / n;
 
         // random generator
@@ -20,13 +21,13 @@ namespace worldgens {
         std::uniform_real_distribution<> distPhi(0.0, 2 * M_PI);
 
         // first heavier particle
-        particleArray[0] = -endRadius*10; // x
+        particleArray[0] = -endRadius*galaxyDistance; // x
         particleArray[1] = 0.0f; // y
         particleArray[2] = 0.0f; // z
         particleArray[3] = 40000.0f; // m
 
         // second heavier particle
-        particleArray[7] = endRadius*10; // x
+        particleArray[7] = endRadius*galaxyDistance; // x
         particleArray[8] = 0.0f; // y
         particleArray[9] = 0.0f; // z
         particleArray[10] = 40000.0f; // m
@@ -36,7 +37,7 @@ namespace worldgens {
             double phi = distPhi(gen); // Azimuthal angle
             double rho = distRho(gen) * endRadius; // Radius of the sphere
 
-            float xOffset = i < n * 7 / 2 ? -endRadius*10 : endRadius*10;
+            float xOffset = i < n * 7 / 2 ? -endRadius*galaxyDistance : endRadius*galaxyDistance;
 
             particleArray[i] = rho * cos(phi) + xOffset; // x
             particleArray[i+1] = rho * sin(phi); // y
@@ -46,25 +47,20 @@ namespace worldgens {
 
         // set velocities to give a spinning motion
         for (int i = 18; i < n * 7; i += 7) {
-            // Radial vector
-            float rx = particleArray[i-4];
+            // Determine which sun the particle is orbiting
+            float sunX = i < n * 7 / 2 ? -endRadius*galaxyDistance : endRadius*galaxyDistance;
+
+            // Radial vector from the sun to the particle
+            float rx = particleArray[i-4] - sunX;
             float ry = particleArray[i-3];
             float rz = particleArray[i-2];
 
-            // Tangential vector (cross product with an arbitrary vector, e.g., (0,0,1))
-            // Ensure it's not parallel to the radial vector to avoid zero vector
-            float vx, vy, vz;
-            if (rx != 0 || ry != 0) {
-                vx = -ry;
-                vy = rx;
-                vz = 0;
-            } else {
-                vx = 0;
-                vy = rz;
-                vz = -ry;
-            }
+            // Tangential vector (cross product with (0, 0, 1))
+            float vx = -ry;
+            float vy = rx;
+            float vz = 0.0f;
 
-            // Normalize the tangential vector, minimum distance so we dont explode
+            // Normalize the tangential vector, minimum distance so we don't explode
             float length = sqrt(vx * vx + vy * vy + vz * vz) + 0.0001;
             vx /= length;
             vy /= length;
