@@ -11,6 +11,4 @@ namespace clwrapper {
     extern void UpdateCLBuffers();
     extern void SimulateTimestep();
     extern void Cleanup();
-
-    extern cl_command_queue cmdQueue;
 }
