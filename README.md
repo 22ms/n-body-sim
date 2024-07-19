@@ -22,8 +22,9 @@ You can find the files [here]()
 
 ## Controls
 
-- Use <kbd>w</kbd> / <kbd>a</kbd> / <kbd>s</kbd> / <kbd>d</kbd> for **up**/**left**/**down**/**right** respectively
-- Hold <kbd>right-click</kbd> and move the mouse to look around the scene
+- Use <kbd>W</kbd> / <kbd>A</kbd> / <kbd>S</kbd> / <kbd>D</kbd> for **up**/**left**/**down**/**right** respectively
+- Hold <kbd>Right Click</kbd> and move the mouse to look around the scene
+- Scroll <kbd>Mouse Wheel</kbd> to change the camera speed
 
 # Building from source
 

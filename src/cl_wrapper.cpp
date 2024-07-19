@@ -127,7 +127,7 @@ namespace clwrapper {
     {
         float timestep = (*state::simulation::TimeStepPtr) / 50'000; // convert ly to opengl time unit
         float epsilon = (*state::simulation::EpsilonPtr) / 50'000; // convert m to opengl length
-        *state::simulation::ElapsedTimePtr += timestep / 1000; // In My
+        *state::simulation::ElapsedTimePtr += (*state::simulation::TimeStepPtr) / 1000; // In My
 
         size_t globalWorkSize[3] = { (size_t)(*state::simulation::NPtr), 1, 1 };
         size_t localWorkSize[3] = { (size_t)calculateWorkGroupSize(), 1, 1 };

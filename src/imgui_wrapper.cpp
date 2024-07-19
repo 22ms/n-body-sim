@@ -99,6 +99,8 @@ namespace imguiwrapper {
 
         ImGui::Spacing();
         ImGui::Text("Sim time: %.2f My", *state::simulation::ElapsedTimePtr);
+
+        // log elapsed time
         ImGui::Text("Frametime: %.2f ms", glwrapper::DeltaTime * 1000);
         ImGui::End();
 
