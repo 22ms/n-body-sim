@@ -12,9 +12,9 @@ Adhering to the OpenCL 1.2 specification, it demonstrates the seamless integrati
 
 # Usage
 
-There are some pre-built executables for **Windows / MacOS / Linux**.
-These were all tested on an NVIDIA GPU but should work on other platforms, granted the **OpenCL / OpenGL sharing extension** is supported by the device.
-You can find the files [here]()
+There are some pre-built executables for **Windows x86-64 / MacOS ARM64 / Linux x86-64**.
+These were all tested on an NVIDIA GPU but should work with other vendors, granted the **OpenCL / OpenGL sharing extension** is supported by the device.
+You can find the binaries [here]()
 
 > [!NOTE]
 > 
