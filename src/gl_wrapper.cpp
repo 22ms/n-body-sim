@@ -65,7 +65,7 @@ namespace glwrapper {
         glfwMakeContextCurrent(Window);
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
         {
-            printf("Failed to initialize GLAD\n");
+            fprintf(stderr, "Failed to initialize GLAD\n");
             std::terminate();
         }
         
@@ -137,7 +137,7 @@ namespace glwrapper {
             state::simulation::WorldGeneratorPtr->Generate(particleArray, *state::simulation::NPtr);
             particleShader->SetInt("N", *state::simulation::NPtr);
             glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * (*state::simulation::NPtr) * (4 + 3), particleArray);
-            clwrapper::UpdateCLBuffers();
+            clwrapper::UpdateInteropBuffer();
 
             previousN = *state::simulation::NPtr;
             previousWorldGeneratorPtr = state::simulation::WorldGeneratorPtr->Clone();
@@ -149,7 +149,7 @@ namespace glwrapper {
 
         GLenum err = glGetError();
         if (err != 0) {
-            printf("OpenGL error: %d\n", err);
+            fprintf(stderr, "OpenGL error: %d\n", err);
             std::terminate();
         }
     }

@@ -27,6 +27,7 @@ namespace clwrapper {
     // Internal variables
     static cl_command_queue cmdQueue;
     static cl_mem interopParticleBuffer;
+    static cl_mem statusBuffer;
 
     static cl_context context;
     static cl_device_id device;
@@ -41,13 +42,13 @@ namespace clwrapper {
     {
         cl_int status = clGetPlatformIDs(1, &platform, NULL);
         if (status != CL_SUCCESS) {
-            printf("clGetPlatformIDs: %d\n", status);
+            fprintf(stderr, "clGetPlatformIDs: %d\n", status);
             std::terminate();
         }
 
         status = clGetDeviceIDs(platform, CL_DEVICE_TYPE_GPU, 1, &device, NULL);
         if (status != CL_SUCCESS) {
-            printf("clGetDeviceIDs: %d\n", status);
+            fprintf(stderr, "clGetDeviceIDs: %d\n", status);
             std::terminate();
         }
 
@@ -89,21 +90,27 @@ namespace clwrapper {
 
         context = clCreateContext(props, 1, &device, NULL, NULL, &status);
         if (status != CL_SUCCESS) {
-            printf("context status: %d\n", status);
+            fprintf(stderr, "context status: %d\n", status);
             std::terminate();
         }
 
         cmdQueue = clCreateCommandQueue(context, device, 0, &status);
         if (status != CL_SUCCESS) {
-            printf("cmd queue status: %d\n", status);
+            fprintf(stderr, "cmd queue status: %d\n", status);
             std::terminate();
         }
 
-        UpdateCLBuffers();
+        statusBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE, 1, NULL, &status);
+        if (status != CL_SUCCESS) {
+            fprintf(stderr, "statusBuffer create status: %d\n", status);
+            std::terminate();
+        }
+
+        UpdateInteropBuffer();
         nSquared = std::make_unique<Kernel>(Kernel(context, device, "kernels/n_squared.cl", "n_squared"));
     }
 
-    void UpdateCLBuffers () {
+    void UpdateInteropBuffer () {
         cl_int status;
 
         glFinish();
@@ -111,7 +118,7 @@ namespace clwrapper {
 
         interopParticleBuffer = clCreateFromGLBuffer(context, CL_MEM_READ_WRITE, glwrapper::ParticleBuffer, &status);
         if (status != CL_SUCCESS) {
-            printf("clParticleBuffer buffer creation status: %d\n", status);
+            fprintf(stderr, "clParticleBuffer buffer creation status: %d\n", status);
             std::terminate();
         }
     }
@@ -119,59 +126,69 @@ namespace clwrapper {
     void SimulateTimestep()
     {
         float timestep = (*state::simulation::TimeStepPtr) / 50'000; // convert ly to opengl time unit
-        float epsilon = (*state::simulation::EpsilonPtr) * 2e-21; // convert m to opengl length
+        float epsilon = (*state::simulation::EpsilonPtr) / 50'000; // convert m to opengl length
+        *state::simulation::ElapsedTimePtr += timestep / 1000; // In My
 
         size_t globalWorkSize[3] = { (size_t)(*state::simulation::NPtr), 1, 1 };
         size_t localWorkSize[3] = { (size_t)calculateWorkGroupSize(), 1, 1 };
 
         cl_int status = clSetKernelArg(nSquared->GetKernel(), 0, sizeof(float), &timestep);
         if (status != CL_SUCCESS) {
-            printf("kernel 1 args 0 status: %d\n", status);
+            fprintf(stderr, "kernel 1 args 0 status: %d\n", status);
             std::terminate();
         }
 
         status = clSetKernelArg(nSquared->GetKernel(), 1, sizeof(float), &epsilon);
         if (status != CL_SUCCESS) {
-            printf("kernel 1 args 1 status: %d\n", status);
+            fprintf(stderr, "kernel 1 args 1 status: %d\n", status);
             std::terminate();
         }
 
-        status = clSetKernelArg(nSquared->GetKernel(), 2, sizeof(cl_mem), &interopParticleBuffer);
+        status = clSetKernelArg(nSquared->GetKernel(), 2, sizeof(cl_mem), &statusBuffer);
         if (status != CL_SUCCESS) {
-            printf("kernel 1 args 2 status: %d\n", status);
+            fprintf(stderr, "kernel 1 args 2 status: %d\n", status);
             std::terminate();
         }
 
-        status = clSetKernelArg(nSquared->GetKernel(), 3, localWorkSize[0] * sizeof(cl_float4), NULL);
+        status = clSetKernelArg(nSquared->GetKernel(), 3, sizeof(cl_mem), &interopParticleBuffer);
         if (status != CL_SUCCESS) {
-            printf("kernel 1 args 3 status: %d\n", status);
+            fprintf(stderr, "kernel 1 args 3 status: %d\n", status);
+            std::terminate();
+        }
+
+        status = clSetKernelArg(nSquared->GetKernel(), 4, localWorkSize[0] * sizeof(cl_float4), NULL);
+        if (status != CL_SUCCESS) {
+            fprintf(stderr, "kernel 1 args 4 status: %d\n", status);
             std::terminate();
         }
 
         glFinish();
         status = clEnqueueAcquireGLObjects(cmdQueue, 1, &interopParticleBuffer, 0, NULL, NULL);
         if (status != CL_SUCCESS) {
-            printf("clEnqueueAcquireGLObjects status: %d\n", status);
+            fprintf(stderr, "clEnqueueAcquireGLObjects status: %d\n", status);
             std::terminate();
         }
-
         clFinish(cmdQueue);
 
         status = clEnqueueNDRangeKernel(cmdQueue, nSquared->GetKernel(), 1, NULL, globalWorkSize, localWorkSize, 0, NULL, NULL);
         if (status != CL_SUCCESS) {
-            printf("clEnqueueAcquireGLObjects status: %d\n", status);
+            fprintf(stderr, "clEnqueueAcquireGLObjects status: %d\n", status);
             std::terminate();
         }
-
         clFinish(cmdQueue);
-        *state::simulation::ElapsedTimePtr += (*state::simulation::TimeStepPtr) / 1000; // In My
 
-        clEnqueueReleaseGLObjects(cmdQueue, 1, &interopParticleBuffer, 0, NULL, NULL);
-        if (status != CL_SUCCESS) {
-            printf("clEnqueueAcquireGLObjects status: %d\n", status);
+        cl_int readStatus = clEnqueueReadBuffer(cmdQueue, statusBuffer, CL_TRUE, 0, 1, &status, 0, NULL, NULL);
+        if (status == 1) {
+            fprintf(stderr, "NaN in kernel calculation\n");
             std::terminate();
         }
+        clFinish(cmdQueue);
 
+        status = clEnqueueReleaseGLObjects(cmdQueue, 1, &interopParticleBuffer, 0, NULL, NULL);
+        if (status != CL_SUCCESS) {
+            fprintf(stderr, "clEnqueueAcquireGLObjects status: %d\n", status);
+            std::terminate();
+        }
         clFinish(cmdQueue);
     }
 
@@ -186,7 +203,7 @@ namespace clwrapper {
         size_t maxWorkGroupSize;
         cl_int err = clGetDeviceInfo(device, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(maxWorkGroupSize), &maxWorkGroupSize, NULL);
         if (err != CL_SUCCESS) {
-            printf("Unable to get device info\n");
+            fprintf(stderr, "Unable to get device info\n");
             std::terminate();
         }
         if (maxWorkGroupSize > *state::simulation::NPtr) {

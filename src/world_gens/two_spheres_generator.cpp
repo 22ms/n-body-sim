@@ -31,7 +31,7 @@ namespace worldgens {
             particleArray[i] = radius * sin(theta) * cos(phi) + xOffset; // x
             particleArray[i+1] = radius * sin(theta) * sin(phi); // y
             particleArray[i+2] = radius * cos(theta); // z
-            particleArray[i+3] = 1; // m
+            particleArray[i+3] = 1.0e11 * G; // m in kg * G
         }
 
         // set velocities to give a spinning motion

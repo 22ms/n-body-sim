@@ -1,6 +1,14 @@
+int checkForNaN (float x, float y, float z, float vx, float vy, float vz) {
+    if (isnan(x) || isnan(y) || isnan(z) || isnan(vx) || isnan(vy) || isnan(vz)) {
+        return 1;
+    }
+    return 0;
+}
+
 __kernel void n_squared(
     float timestep,
     float minimumSqDistance,
+    __global int* status,
     __global float* particleBuffer,
     __local float4* posBlock)
 {
@@ -46,6 +54,12 @@ __kernel void n_squared(
     // Update position and velocity
     position += timestep*velocity + 0.5f*timestep*timestep*acceleration;
     velocity += timestep*acceleration;
+
+    // Check for NaN values
+    *status = checkForNaN(position.x, position.y, position.z, velocity.x, velocity.y, velocity.z);
+    if (*status == 1) {
+        return;
+    }
 
     // Write updated position back to the buffer
     particleBuffer[posIndex] = position.x;

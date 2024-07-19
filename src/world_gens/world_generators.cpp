@@ -2,6 +2,8 @@
 #include "../state.hpp"
 
 namespace worldgens {
+    const double G = 6.6743e-11;
+
     std::unique_ptr<WorldGenerator> FromString (std::string str) {
         if (str == "GALAXY") {
             return std::make_unique<GalaxyGenerator>();

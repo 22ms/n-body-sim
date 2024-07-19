@@ -10,6 +10,7 @@
 // Note for the definition of the units:
 // 1 OpenGL length is set to be 50,000 Lightyears.
 // Thus, 1 OpenGL time unit = the time it takes light to travel 50,000 light-years = 50,000 years
+// Unless otherwise specified, all units in the code are in OpenGL units.
 namespace state {
     namespace simulation {
         // Numbers of particles for GPU to allocate.
@@ -18,8 +19,8 @@ namespace state {
         std::unique_ptr<unsigned int> NPtr = std::make_unique<unsigned int>(16'384);
         // Time step (in y) of the simulation.
         std::unique_ptr<float> TimeStepPtr = std::make_unique<float>(5.0f);
-        // Minimum distance (in m) to avoid dividing by zero.
-        std::unique_ptr<float> EpsilonPtr = std::make_unique<float>(1.0f);
+        // Minimum distance (in ly) to avoid extreme velocities.
+        std::unique_ptr<float> EpsilonPtr = std::make_unique<float>(5.0f);
         // Total time (in My) elapsed since beginning of simulation.
         std::unique_ptr<float> ElapsedTimePtr = std::make_unique<float>(0.0f);
         // Particle conditions.

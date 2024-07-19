@@ -90,7 +90,7 @@ namespace imguiwrapper {
 
         ImGui::Spacing();
         ImGui::SliderFloat("Time step (y)", state::simulation::TimeStepPtr.get(), 0.0f, 10.0f);
-        ImGui::SliderFloat("Epsilon (m)", state::simulation::EpsilonPtr.get(), 0.001f, 1.0f);
+        ImGui::SliderFloat("Epsilon (ly)", state::simulation::EpsilonPtr.get(), 0.001f, 10.0f);
 
         ImGui::Spacing();
         ImGui::SliderFloat("Point size", state::rendering::PointSizePtr.get(), 0.0f, 5.0f);

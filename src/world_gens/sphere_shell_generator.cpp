@@ -26,7 +26,7 @@ namespace worldgens {
             particleArray[i] = endRadius * sin(theta) * cos(phi); // x
             particleArray[i+1] = endRadius * sin(theta) * sin(phi); // y
             particleArray[i+2] = endRadius * cos(theta); // z
-            particleArray[i+3] = 1; // m
+            particleArray[i+3] = 1.0e11 * G; // m in kg * G
         }
 
         // set velocities to give a spinning motion

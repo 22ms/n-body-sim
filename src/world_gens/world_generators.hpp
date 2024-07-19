@@ -10,6 +10,8 @@ namespace utilities {
 }
 
 namespace worldgens {
+    extern const double G;
+
     class WorldGenerator {
         public:
             virtual void Generate(float*& particleArray, int n) = 0;

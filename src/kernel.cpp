@@ -37,7 +37,7 @@ Kernel::Kernel(cl_context context, cl_device_id device, std::string path, const 
 
     if (status != 0)
     {
-        std::printf("Failed to create CL program from source. Error code: %d\n", status);
+        fprintf(stderr, "Failed to create CL program from source. Error code: %d\n", status);
         std::terminate();
     }
 
@@ -57,7 +57,7 @@ Kernel::Kernel(cl_context context, cl_device_id device, std::string path, const 
     m_Kernel = clCreateKernel(m_Program, name, &status);
     if (status != 0)
     {
-        std::printf("Failed to create CL kernel. Error code: %d\n", status);
+        fprintf(stderr, "Failed to create CL kernel. Error code: %d\n", status);
         std::terminate();
     }
 }

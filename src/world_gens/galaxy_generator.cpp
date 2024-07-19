@@ -23,7 +23,7 @@ namespace worldgens {
         particleArray[0] = 0.0f; // x
         particleArray[1] = 0.0f; // y
         particleArray[2] = 0.0f; // z
-        particleArray[3] = 40000.0f; // m
+        particleArray[3] = 6e14 * G; // m in kg * G
 
         // set positions
         for (int i = 7; i < n * 7; i += 7) {
@@ -33,7 +33,7 @@ namespace worldgens {
             particleArray[i] = rho * cos(phi); // x
             particleArray[i+1] = rho * sin(phi); // y
             particleArray[i+2] = distZ(gen); // z
-            particleArray[i+3] = 1.0f; // m
+            particleArray[i+3] = 1.5e10 * G; // m in kg * G
         }
 
         // set velocities to give a spinning motion
