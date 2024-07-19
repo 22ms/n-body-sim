@@ -22,7 +22,7 @@ namespace camera {
         Yaw = -90.0f;
         Pitch = 0.0f;
         updateCameraVectors();
-        applyMovementSpeed(MovementSpeed);
+        MovementSpeed *= MovementSpeed;
     }
 
     glm::mat4 Camera::GetViewMatrix()
@@ -32,7 +32,7 @@ namespace camera {
 
     void Camera::ProcessKeyboard(CameraMovement direction, float deltaTime)
     {
-        float velocity = AppliedMovementSpeed * deltaTime;
+        float velocity = MovementSpeed * MovementSpeed * deltaTime;
         switch (direction) {
             case CameraMovement::FORWARD:
                 Position += Front * velocity;
@@ -71,12 +71,11 @@ namespace camera {
 
     void Camera::ProcessMouseScroll(float yoffset)
     {
-        MovementSpeed += yoffset/10;
+        MovementSpeed += yoffset / 10;
         if (MovementSpeed < 1.0f)
             MovementSpeed = 1.0f;
         if (MovementSpeed > 5.0f)
             MovementSpeed = 5.0f;
-        applyMovementSpeed(MovementSpeed);
     }
 
     void Camera::updateCameraVectors()
@@ -90,9 +89,4 @@ namespace camera {
         Right = glm::normalize(glm::cross(Front, WorldUp));
         Up = glm::normalize(glm::cross(Right, Front));
     }
-
-    void Camera::applyMovementSpeed(float movementSpeed) {
-        AppliedMovementSpeed = movementSpeed * movementSpeed;
-    }
-
 }

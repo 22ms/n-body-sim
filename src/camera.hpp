@@ -38,11 +38,9 @@ namespace camera {
         float Yaw;
         float Pitch;
         float MovementSpeed;
-        float AppliedMovementSpeed;
         float MouseSensitivity;
         float Zoom;
     private:
         void updateCameraVectors();
-        void applyMovementSpeed(float movementSpeed);
     };
 }

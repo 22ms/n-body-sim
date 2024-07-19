@@ -107,7 +107,7 @@ namespace glwrapper {
             camera::Camera(
                 glm::vec3(0.0f, 0.0f, 10.0f),
                 45.0f,
-                *state::rendering::MainCameraSpeedPtr,
+                1.0f,
                 0.1f
         ));
 

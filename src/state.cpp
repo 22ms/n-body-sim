@@ -29,9 +29,7 @@ namespace state {
     namespace rendering {
         // Rendered size of the particles.
         std::unique_ptr<float> PointSizePtr = std::make_unique<float>(2.0f);
-        // Movement speed of main camera.
-        std::unique_ptr<float> MainCameraSpeedPtr = std::make_unique<float>(1.0f);
-        // Movement speed of main camera.
+        // Mouse sensitivity when looking around.
         std::unique_ptr<float> MouseSensitivityPtr = std::make_unique<float>(0.1f);
     }
     namespace window {

@@ -12,17 +12,19 @@ Adhering to the OpenCL 1.2 specification, it demonstrates the seamless integrati
 
 # Usage
 
-There are some **pre-built executables** for **Windows / MacOS / Linux**.
+There are some pre-built executables for **Windows / MacOS / Linux**.
 These were all tested on an NVIDIA GPU but should work on other platforms, granted the **OpenCL / OpenGL sharing extension** is supported by the device.
 You can find the files [here]()
 
 > [!NOTE]
 > 
-> The default configuration for the simulation does not account for the gravitational constant. It could be easily added to the world generators if you wish for the simulation to be in a realistic scale.
+> The masses are **pre-multiplied with the gravitational constant G** to reduce the load on the GPU. If you want to change existing world generators or add new ones, you must edit the world generators source files in **src/world_gens**. The conversion from OpenGL units to real-life units is described in **state.cpp**. The color of a particle represents its speed.
+>
+> Some initial parameters can also be modified in **state.cpp** and adjusted at runtime using the ImGui user interface.
 
 ## Controls
 
-- Use <kbd>W</kbd> / <kbd>A</kbd> / <kbd>S</kbd> / <kbd>D</kbd> for **up**/**left**/**down**/**right** respectively
+- Use <kbd>w</kbd> / <kbd>a</kbd> / <kbd>s</kbd> / <kbd>d</kbd> for **up** / **left** / **down** / **right** respectively
 - Hold <kbd>Right Click</kbd> and move the mouse to look around the scene
 - Scroll <kbd>Mouse Wheel</kbd> to change the camera speed
 

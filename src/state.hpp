@@ -18,7 +18,6 @@ namespace state {
     }
     namespace rendering {
         extern std::unique_ptr<float> PointSizePtr;
-        extern std::unique_ptr<float> MainCameraSpeedPtr;
         extern std::unique_ptr<float> MouseSensitivityPtr;
     }
     namespace window {
