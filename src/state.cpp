@@ -7,17 +7,20 @@
 #include "world_gens/world_generators.hpp"
 
 // Initial parameters, can later be changed in UI.
+// Note for the definition of the units:
+// 1 OpenGL length is set to be 50,000 Lightyears.
+// Thus, 1 OpenGL time unit = the time it takes light to travel 50,000 light-years = 50,000 years
 namespace state {
     namespace simulation {
         // Numbers of particles for GPU to allocate.
         const unsigned int MAX_N = 524'288;
         // Numbers of particles, has to be < MAX_N and power of two.
         std::unique_ptr<unsigned int> NPtr = std::make_unique<unsigned int>(16'384);
-        // Time step (in ms) of the simulation.
-        std::unique_ptr<float> TimeStepPtr = std::make_unique<float>(0.1f);
-        // Minimum distance (in mm) to avoid dividing by zero.
-        std::unique_ptr<float> EpsilonPtr = std::make_unique<float>(0.1f);
-        // Total time (in ms) elapsed since beginning of simulation.
+        // Time step (in y) of the simulation.
+        std::unique_ptr<float> TimeStepPtr = std::make_unique<float>(5.0f);
+        // Minimum distance (in m) to avoid dividing by zero.
+        std::unique_ptr<float> EpsilonPtr = std::make_unique<float>(1.0f);
+        // Total time (in My) elapsed since beginning of simulation.
         std::unique_ptr<float> ElapsedTimePtr = std::make_unique<float>(0.0f);
         // Particle conditions.
         std::unique_ptr<worldgens::WorldGenerator> WorldGeneratorPtr = std::make_unique<worldgens::TwoGalaxiesGenerator>(); // <-- Change here

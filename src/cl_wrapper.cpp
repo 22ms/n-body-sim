@@ -118,8 +118,8 @@ namespace clwrapper {
 
     void SimulateTimestep()
     {
-        float timestep = (*state::simulation::TimeStepPtr) / 1000; // in s
-        float epsilon = (*state::simulation::EpsilonPtr) / 1000; // in m
+        float timestep = (*state::simulation::TimeStepPtr) / 50'000; // convert ly to opengl time unit
+        float epsilon = (*state::simulation::EpsilonPtr) * 2e-21; // convert m to opengl length
 
         size_t globalWorkSize[3] = { (size_t)(*state::simulation::NPtr), 1, 1 };
         size_t localWorkSize[3] = { (size_t)calculateWorkGroupSize(), 1, 1 };
@@ -164,7 +164,7 @@ namespace clwrapper {
         }
 
         clFinish(cmdQueue);
-        *state::simulation::ElapsedTimePtr += (*state::simulation::TimeStepPtr);
+        *state::simulation::ElapsedTimePtr += (*state::simulation::TimeStepPtr) / 1000; // In My
 
         clEnqueueReleaseGLObjects(cmdQueue, 1, &interopParticleBuffer, 0, NULL, NULL);
         if (status != CL_SUCCESS) {
