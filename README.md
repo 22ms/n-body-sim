@@ -16,6 +16,9 @@ There are some **pre-built executables** for **Windows / MacOS / Linux**.
 These were all tested on an NVIDIA GPU but should work on other platforms, granted the **OpenCL / OpenGL sharing extension** is supported by the device.
 You can find the files [here]()
 
+> [!NOTE]
+> 
+> The default configuration for the simulation does not account for the gravitational constant. It could be easily added to the world generators if you wish for the simulation to be in a realistic scale.
 
 ## Controls
 

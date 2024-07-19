@@ -65,29 +65,33 @@ Shader::~Shader() {
 }
 // activate the shader
 // ------------------------------------------------------------------------
-void Shader::Use() 
+void Shader::Use() const
 { 
     glUseProgram(ID); 
 }
 // utility uniform functions
 // ------------------------------------------------------------------------
 void Shader::SetBool(const char* name, bool value) const
-{         
+{
+    this->Use();
     glUniform1i(glGetUniformLocation(ID, name), (int)value); 
 }
 // ------------------------------------------------------------------------
 void Shader::SetInt(const char* name, int value) const
 { 
+    this->Use();
     glUniform1i(glGetUniformLocation(ID, name), value); 
 }
 // ------------------------------------------------------------------------
 void Shader::SetFloat(const char* name, float value) const
 { 
+    this->Use();
     glUniform1f(glGetUniformLocation(ID, name), value); 
 }
 
 void Shader::SetMat4(const char* name, const glm::mat4 &mat) const
 {
+    this->Use();
     glUniformMatrix4fv(glGetUniformLocation(ID, name), 1, GL_FALSE, &mat[0][0]);
 }
 

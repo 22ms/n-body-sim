@@ -25,7 +25,8 @@ namespace glwrapper {
     float DeltaTime;
 
     // Internal variables
-    static std::unique_ptr<Shader> shader;
+    static std::unique_ptr<Shader> particleShader;
+    static std::unique_ptr<Shader> gridShader;
     static std::unique_ptr<worldgens::WorldGenerator> previousWorldGeneratorPtr;
 
     static unsigned int particleAttributes;
@@ -100,8 +101,7 @@ namespace glwrapper {
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, (4 + 3) * sizeof(float), (void*)(4 * sizeof(float)));
         glEnableVertexAttribArray(1);
 
-        shader = std::make_unique<Shader>("shaders/basic.vert", "shaders/basic.frag");
-        shader->Use();
+        particleShader = std::make_unique<Shader>("shaders/particle.vert", "shaders/particle.frag");
 
         MainCamera = std::make_unique<camera::Camera>(
             camera::Camera(
@@ -126,17 +126,16 @@ namespace glwrapper {
         processKeyInput();
 
         glm::mat4 projection = glm::perspective(glm::radians(MainCamera->Zoom), (float)(state::window::WIDTH) / (float)(state::window::HEIGHT), 0.1f, 1000.0f);
-        shader->SetMat4("projection", projection);
-
         glm::mat4 view = MainCamera->GetViewMatrix();
-        shader->SetMat4("view", view);
-
-        shader->SetFloat("pointSize", *state::rendering::PointSizePtr);
         MainCamera->MouseSensitivity = *state::rendering::MouseSensitivityPtr;
+
+        particleShader->SetMat4("projection", projection);
+        particleShader->SetMat4("view", view);
+        particleShader->SetFloat("pointSize", *state::rendering::PointSizePtr);
 
         if (*state::simulation::NPtr != previousN || !state::simulation::WorldGeneratorPtr->IsSameType(*previousWorldGeneratorPtr)) {
             state::simulation::WorldGeneratorPtr->Generate(particleArray, *state::simulation::NPtr);
-            shader->SetInt("N", *state::simulation::NPtr);
+            particleShader->SetInt("N", *state::simulation::NPtr);
             glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * (*state::simulation::NPtr) * (4 + 3), particleArray);
             clwrapper::UpdateCLBuffers();
 
@@ -144,6 +143,8 @@ namespace glwrapper {
             previousWorldGeneratorPtr = state::simulation::WorldGeneratorPtr->Clone();
             *state::simulation::ElapsedTimePtr = 0.0f;
         }
+        particleShader->Use();
+        glBindVertexArray(particleAttributes);
         glDrawArrays(GL_POINTS, 0, *state::simulation::NPtr);
 
         GLenum err = glGetError();
@@ -173,8 +174,7 @@ namespace glwrapper {
         return glfwWindowShouldClose(Window);
     }
 
-    static void processKeyInput()
-    {
+    static void processKeyInput() {
         if (glfwGetKey(Window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             glfwSetWindowShouldClose(Window, true);
 
@@ -188,18 +188,15 @@ namespace glwrapper {
             MainCamera->ProcessKeyboard(camera::CameraMovement::RIGHT, DeltaTime);
     }
 
-    static void errorCallback(int error, const char* description)
-    {
+    static void errorCallback(int error, const char* description) {
         fprintf(stderr, "GLFW Error %d: %s\n", error, description);
     }
 
-    static void framebufferSizeCallback(GLFWwindow* glWindow, int width, int height)
-    {
+    static void framebufferSizeCallback(GLFWwindow* glWindow, int width, int height) {
         glViewport(0, 0, width, height);
     }
 
-    static void mouseCallback(GLFWwindow* glWindow, double xposIn, double yposIn)
-    {
+    static void mouseCallback(GLFWwindow* glWindow, double xposIn, double yposIn) {
         float xpos = static_cast<float>(xposIn);
         float ypos = static_cast<float>(yposIn);
 
@@ -220,8 +217,7 @@ namespace glwrapper {
         }
     }
 
-    static void mouseButtonCallback(GLFWwindow* glWindow, int button, int action, int mods)
-    {
+    static void mouseButtonCallback(GLFWwindow* glWindow, int button, int action, int mods) {
         if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
             captureMouse = true;
             glfwSetInputMode(glWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -232,8 +228,7 @@ namespace glwrapper {
         }
     }
 
-    static void scrollCallback(GLFWwindow* glWindow, double xoffset, double yoffset)
-    {
+    static void scrollCallback(GLFWwindow* glWindow, double xoffset, double yoffset) {
         MainCamera->ProcessMouseScroll(yoffset);
     }
 }

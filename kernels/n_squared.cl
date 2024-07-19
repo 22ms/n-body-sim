@@ -36,8 +36,8 @@ __kernel void n_squared(
         for(int i = 0; i < nWorkgroupItems; i++) { // for each pos in work group
             float4 cached_pos = posBlock[i];
             float4 distance = cached_pos - position;
-            float inverse_r = rsqrt(distance.x*distance.x + distance.y*distance.y + distance.z*distance.z + minimumSqDistance);
-            float force = cached_pos.w*inverse_r*inverse_r*inverse_r;
+            float inverseR = rsqrt(distance.x * distance.x + distance.y * distance.y + distance.z * distance.z + minimumSqDistance);
+            float force = cached_pos.w * inverseR * inverseR * inverseR; // The gravitational constant * mass is precomputed on the CPU in WorldGenerator, saved in .w
             acceleration += force * distance;
         }
         barrier(CLK_LOCAL_MEM_FENCE);
