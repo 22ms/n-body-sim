@@ -4,7 +4,7 @@ project(n-body-sim VERSION 0.1.0 LANGUAGES CXX)
 set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")
+set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
 
 file(GLOB_RECURSE SOURCES
     "src/*.cpp"
