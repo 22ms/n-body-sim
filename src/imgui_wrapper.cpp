@@ -17,16 +17,16 @@ namespace imguiwrapper {
     // Internal variables
     static std::vector<std::string> worldGeneratorStrOptions;
 
-    static int selectedWordGen = 0;
+    static unsigned int selectedWordGen = 0;
     static int log2n;
     static int log2maxn;
 
     static void setStyleGruvbox();
 
     void Initialize () {
-        log2n = std::round(std::log2(*state::simulation::NPtr));
-        log2maxn = std::round(std::log2(state::simulation::MAX_N));
-        *state::simulation::NPtr = pow(2, log2n);
+        log2n = static_cast<int>(std::round(std::log2(*state::simulation::NPtr)));
+        log2maxn = static_cast<int>(std::round(std::log2(state::simulation::MAX_N)));
+        *state::simulation::NPtr = static_cast<int>(pow(2, log2n));
 
         worldGeneratorStrOptions.push_back("GALAXY");
         worldGeneratorStrOptions.push_back("TWO_GALAXIES");
@@ -68,7 +68,7 @@ namespace imguiwrapper {
         ImGui::Begin("Controls", NULL); // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
         ImGui::Text("Bodies: %d", *state::simulation::NPtr);
         ImGui::SliderInt("log2(n)", &log2n, 0, log2maxn);
-        *state::simulation::NPtr = pow(2, log2n);
+        *state::simulation::NPtr = static_cast<int>(pow(2, log2n));
 
         if (ImGui::BeginCombo("World Gen", worldGeneratorStrOptions[selectedWordGen].c_str())) // The second parameter is the label previewed before opening the combo.
         {

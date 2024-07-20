@@ -6,7 +6,7 @@
 
 namespace worldgens {
 
-    void SphereGenerator::Generate(float*& particleArray, int n) {
+    void SphereGenerator::Generate(float*& particleArray, unsigned int n) {
         WorldGenerator::Generate(particleArray, n);
 
         float endRadius = 1.0f;
@@ -15,23 +15,24 @@ namespace worldgens {
         // random generator
         std::random_device rd;
         std::mt19937 gen(rd());
-        std::uniform_real_distribution<> dist(0.0, 1.0);
-        std::uniform_real_distribution<> distPhi(0.0, 2 * M_PI);
+        std::uniform_real_distribution<float> distZ(0.0f, 0.1f);
+        std::uniform_real_distribution<float> dist(0.0f, 1.0f);
+        std::uniform_real_distribution<float> distPhi(0.0f, 2.0f * static_cast<float>(M_PI));
 
         // set positions
-        for (int i = 0; i < n * 7; i += 7) {
-            double theta = acos(2 * dist(gen) - 1); // Polar angle
-            double phi = distPhi(gen); // Azimuthal angle
-            double radius = dist(gen) * endRadius; // Radius of the sphere
+        for (unsigned int i = 0; i < n * 7; i += 7) {
+            float theta = acos(2 * dist(gen) - 1); // Polar angle
+            float phi = distPhi(gen); // Azimuthal angle
+            float radius = dist(gen) * endRadius; // Radius of the sphere
 
             particleArray[i]   = radius * sin(theta) * cos(phi); // x
             particleArray[i+1] = radius * sin(theta) * sin(phi); // y
             particleArray[i+2] = radius * cos(theta); // z
-            particleArray[i+3] = 1.0e11 * G; // m in kg * G
+            particleArray[i+3] = 1.0e11f * G; // m in kg * G
         }
 
         // set velocities to give a spinning motion
-        for (int i = 4; i < n * 7; i += 7) {
+        for (unsigned int i = 4; i < n * 7; i += 7) {
             // Radial vector
             float rx = particleArray[i-4];
             float ry = particleArray[i-3];
@@ -51,7 +52,7 @@ namespace worldgens {
             }
 
             // Normalize the tangential vector, minimum distance so we dont explode
-            float length = sqrt(vx * vx + vy * vy + vz * vz) + 0.0001;
+            float length = sqrt(vx * vx + vy * vy + vz * vz) + *state::simulation::EpsilonPtr;
             vx /= length;
             vy /= length;
             vz /= length;

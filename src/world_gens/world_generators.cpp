@@ -2,7 +2,7 @@
 #include "../state.hpp"
 
 namespace worldgens {
-    const double G = 6.6743e-11;
+    const float G = 6.6743e-11f;
 
     std::unique_ptr<WorldGenerator> FromString (std::string str) {
         if (str == "GALAXY") {
@@ -25,12 +25,12 @@ namespace worldgens {
         }
     }
 
-    void WorldGenerator::Generate(float*& particleArray, int n) {
+    void WorldGenerator::Generate(float*& particleArray, unsigned int n) {
         if (particleArray) {
             delete[] particleArray;
         }
         particleArray = new float[state::simulation::MAX_N * (4 + 3)];
-        for (int i = 0; i < state::simulation::MAX_N * 7; i++) {
+        for (unsigned int i = 0; i < state::simulation::MAX_N * 7; i++) {
             particleArray[i] = 0;
         }
     }
