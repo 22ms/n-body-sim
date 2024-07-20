@@ -68,7 +68,13 @@ brew install cmake python3
 
 ### Install a C++ compiler (e.g. MinGW-w64)
 
-If you choose to install MinGW-w64, follow the instructions on [MSYS2](https://www.msys2.org/)
+If you choose to install MinGW-w64, download and install [MSYS2](https://www.msys2.org/).\
+Add the gcc package from within the MSYS console:
+```console
+pacman -S mingw-w64-x86_64-gcc
+```
+Make sure the compiler is added to PATH before executing the CMake commands below.
+For MSYS2, the PATH should be `C:\msys64\mingw64\bin` by default.
 
 ### Install CMake (3.10+)
 
