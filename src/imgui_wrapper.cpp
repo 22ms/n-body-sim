@@ -110,7 +110,7 @@ namespace imguiwrapper {
         worldGeneratorStrOptions.clear();
     }
 
-    void setStyleGruvbox () {
+    static void setStyleGruvbox () {
         auto& style = ImGui::GetStyle();
         style.ChildRounding = 0;
         style.GrabRounding = 0;
