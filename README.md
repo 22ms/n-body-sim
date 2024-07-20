@@ -100,6 +100,9 @@ git clone https://github.com/22ms/n-body-sim.git
 mkdir build
 cd build
 ```
+
+### Compile the project
+
 On **MacOS and Linux**:
 ```console
 cmake ..
@@ -107,12 +110,6 @@ cmake ..
 On **Windows** (given you installed MinGW-w64 with MSYS2):
 ```console
 cmake -G "MinGW Makefiles" -DCMAKE_CXX_COMPILER="C:/msys64/mingw64/bin/g++.exe" ..
-```
-
-### Compiling the project
-
-```console
-cmake --build .
 ```
 
 You should now have an executable called **n-body** inside of the build directory.
