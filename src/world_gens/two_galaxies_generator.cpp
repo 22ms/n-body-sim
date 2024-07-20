@@ -63,7 +63,7 @@ namespace worldgens {
             float vz = 0.0f;
 
             // Normalize the tangential vector, minimum distance so we don't explode
-            float length = sqrt(vx * vx + vy * vy + vz * vz) + *state::simulation::EpsilonPtr;
+            float length = sqrt(vx * vx + vy * vy + vz * vz) + 0.0001f;
             vx /= length;
             vy /= length;
             vz /= length;
