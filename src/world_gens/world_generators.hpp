@@ -4,11 +4,6 @@
 #include <vector>
 #include <string>
 
-namespace utilities {
-    struct Position;
-    struct Velocity;
-}
-
 namespace worldgens {
     extern const double G;
 

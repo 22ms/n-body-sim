@@ -35,7 +35,7 @@ namespace clwrapper {
 
     static std::unique_ptr<Kernel> nSquared;
 
-    static int calculateWorkGroupSize();
+    static size_t calculateWorkGroupSize();
     static bool isCLExtensionSupported(const std::string& extension);
 
     void Initialize()
@@ -198,7 +198,7 @@ namespace clwrapper {
         clReleaseContext(context);
     }
 
-    static int calculateWorkGroupSize()
+    static size_t calculateWorkGroupSize()
     {
         size_t maxWorkGroupSize;
         cl_int err = clGetDeviceInfo(device, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(maxWorkGroupSize), &maxWorkGroupSize, NULL);

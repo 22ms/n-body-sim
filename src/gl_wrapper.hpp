@@ -3,23 +3,9 @@
 #include <vector>
 #include <memory>
 
-typedef struct _cl_command_queue* cl_command_queue;
-
-namespace utilities {
-    struct Position;
-    struct Velocity;
-}
-
 namespace camera {
     class Camera;
 }
-
-namespace worldgens {
-    class WorldGenerator;
-}
-
-class Shader;
-class Camera;
 
 struct GLFWwindow;
 

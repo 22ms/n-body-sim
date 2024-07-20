@@ -229,6 +229,6 @@ namespace glwrapper {
     }
 
     static void scrollCallback(GLFWwindow* glWindow, double xoffset, double yoffset) {
-        MainCamera->ProcessMouseScroll(yoffset);
+        MainCamera->ProcessMouseScroll(static_cast<float>(yoffset));
     }
 }
