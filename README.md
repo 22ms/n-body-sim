@@ -68,20 +68,23 @@ brew install cmake python3
 
 ### Install a C++ compiler (e.g. MinGW-w64)
 
-If you choose to install MinGW-w64, download and install [MSYS2](https://www.msys2.org/). Add the gcc package from within the MSYS console:
+If you choose to install MinGW-w64, download and install [MSYS2](https://www.msys2.org/). Add the `mingw-w64-x86_64-gcc` and `mingw-w64-x86_64-make` package from within the MSYS console:
 ```console
 pacman -S mingw-w64-x86_64-gcc
+pacman -S mingw-w64-x86_64-make
 ```
-Make sure the compiler is added to PATH before executing the CMake commands below.
+Make sure the binary directory is added to PATH before executing the CMake commands below.
 For MSYS2, the PATH should be `C:\msys64\mingw64\bin` by default.
 
 ### Install CMake (3.10+)
 
 Download and install [CMake](https://cmake.org/download/)
+Make sure to set the correct PATH.
 
 ### Install Git for Windows
 
 Download and install [Git](https://git-scm.com/download/win)
+Make sure to set the correct PATH.
 
 # Building
 
@@ -91,12 +94,19 @@ Download and install [Git](https://git-scm.com/download/win)
 git clone https://github.com/22ms/n-body-sim.git
 ```
 
-### Setting up your build directory
+### Set up your build directory
 
 ```console
 mkdir build
 cd build
+```
+On **MacOS and Linux**:
+```console
 cmake ..
+```
+On **Windows** (given you installed MinGW-w64 with MSYS2):
+```console
+cmake -G "MinGW Makefiles" -DCMAKE_CXX_COMPILER="C:/msys64/mingw64/bin/g++.exe" ..
 ```
 
 ### Compiling the project
@@ -105,11 +115,7 @@ cmake ..
 cmake --build .
 ```
 
-### Executing the program
-
-```console
-./n-body
-```
+You should now have an executable called **n-body** inside of the build directory.
 
 # Program architechture
 
