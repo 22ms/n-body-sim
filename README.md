@@ -1,9 +1,9 @@
 ![preview](preview.gif)
 # About this project
 
-This project showcases OpenCL/OpenGL interoperability through a simulation of gravitational forces acting on n particles. 
+This project showcases **OpenCL/OpenGL** interoperability through a simulation of gravitational forces acting on n particles. 
 Employing a brute-force algorithm with O(n²) complexity, it leverages the power of parallel computing to manage and render the simulation efficiently. 
-The project is developed entirely in C++, utilizing GLFW 3, GLAD, and GLM for high-performance rendering with OpenGL, and features a user-friendly interface built with ImGui. 
+The project is developed entirely in C++, utilizing **GLFW 3**, **GLAD**, and **GLM** for high-performance rendering with OpenGL, and features a user-friendly interface built with ImGui. 
 Adhering to the OpenCL 1.2 specification, it demonstrates the seamless integration of compute and graphics processing for sophisticated simulations.
 
 > [!NOTE]
@@ -12,8 +12,8 @@ Adhering to the OpenCL 1.2 specification, it demonstrates the seamless integrati
 
 # Usage
 
-There are some pre-built executables for **Windows x86-64 / MacOS ARM64 / Linux x86-64**.
-These were all tested on an NVIDIA GPU but should work with other vendors, granted the **OpenCL / OpenGL sharing extension** is supported by the device.
+There are some pre-built executables for **Windows x86-64/MacOS ARM64/Linux x86-64**.
+These were all tested on an NVIDIA GPU but should work with other vendors, granted the **OpenCL/OpenGL sharing extension** is supported by the device.
 You can find the binaries [here]()
 
 > [!NOTE]
@@ -24,7 +24,7 @@ You can find the binaries [here]()
 
 ## Controls
 
-- Use <kbd>w</kbd> / <kbd>a</kbd> / <kbd>s</kbd> / <kbd>d</kbd> for **up** / **left** / **down** / **right** respectively
+- Use <kbd>w</kbd>/<kbd>a</kbd>/<kbd>s</kbd>/<kbd>d</kbd> for **up**/**left**/**down**/**right** respectively
 - Hold <kbd>Right Click</kbd> and move the mouse to look around the scene
 - Scroll <kbd>Mouse Wheel</kbd> to change the camera speed
 

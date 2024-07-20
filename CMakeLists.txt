@@ -10,6 +10,9 @@ file(GLOB_RECURSE SOURCES
     "src/world_gens/*.cpp"
 )
 add_executable(n-body ${SOURCES})
+set_target_properties(n-body PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_BINARY_DIR}
+)
 
 include(FetchContent)
 
@@ -80,13 +83,13 @@ target_link_libraries(n-body
 
 add_custom_target(copy_shaders ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_SOURCE_DIR}/shaders ${CMAKE_BINARY_DIR}/shaders
+    ${CMAKE_SOURCE_DIR}/shaders ${CMAKE_CURRENT_BINARY_DIR}/shaders
     DEPENDS ${SOURCES}
 )
 
 add_custom_target(copy_kernels ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_SOURCE_DIR}/kernels ${CMAKE_BINARY_DIR}/kernels
+    ${CMAKE_SOURCE_DIR}/kernels ${CMAKE_CURRENT_BINARY_DIR}/kernels
     DEPENDS ${SOURCES}
 )
 
