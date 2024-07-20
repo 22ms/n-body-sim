@@ -101,7 +101,7 @@ mkdir build
 cd build
 ```
 
-### Compile the project
+### Generate the buildfiles
 
 On **MacOS and Linux**:
 ```console
@@ -112,6 +112,11 @@ On **Windows** (given you installed MinGW-w64 with MSYS2):
 cmake -G "MinGW Makefiles" -DCMAKE_CXX_COMPILER="C:/msys64/mingw64/bin/g++.exe" ..
 ```
 
+### Compile the project
+
+```console
+cmake --build . -t n-body
+```
 You should now have an executable called **n-body** inside of the build directory.
 
 # Program architechture
