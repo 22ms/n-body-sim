@@ -5,14 +5,10 @@ set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-include(CheckCXXCompilerFlag)
-check_cxx_compiler_flag("-static-libgcc" HAS_STATIC_LIBGCC_FLAG)
-if (HAS_STATIC_LIBGCC_FLAG)
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libgcc")
-endif()
-check_cxx_compiler_flag("-static-libstdc++" HAS_STATIC_LIBSTDCXX_FLAG)
-if (HAS_STATIC_LIBSTDCXX_FLAG)
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libstdc++")
+if(WIN32)
+    if(CMAKE_COMPILER_IS_GNUCC)
+        set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
+    endif()
 endif()
 
 file(GLOB_RECURSE SOURCES
